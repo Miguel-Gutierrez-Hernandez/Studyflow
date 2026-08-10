@@ -1,0 +1,90 @@
+ESTADÍSTICA DESCRIPTIVA E INFERENCIAL
+Apuntes del Tema 1 y Tema 2
+
+========================================
+TEMA 1: ESTADÍSTICA DESCRIPTIVA
+========================================
+
+La estadística descriptiva es la rama de la estadística que se ocupa de recopilar, organizar, resumir y presentar datos de manera informativa. Su objetivo principal es describir las características de un conjunto de datos sin extraer conclusiones más allá de los propios datos analizados.
+
+1.1 Conceptos básicos
+
+Una población es el conjunto completo de elementos sobre los que queremos obtener información. Por ejemplo, todos los estudiantes de una universidad. Una muestra es un subconjunto representativo de la población, seleccionado para su análisis. Una variable es cualquier característica medible de los elementos de la población.
+
+Tipos de variables:
+- Variables cualitativas (nominales y ordinales): representan categorías. Ejemplo: color de ojos, nivel de satisfacción.
+- Variables cuantitativas discretas: toman valores enteros contables. Ejemplo: número de hijos.
+- Variables cuantitativas continuas: pueden tomar cualquier valor en un rango. Ejemplo: peso, altura, temperatura.
+
+1.2 Medidas de tendencia central
+
+Las medidas de tendencia central indican el valor alrededor del cual se agrupan los datos.
+
+Media aritmética: es la suma de todos los valores dividida entre el número de observaciones. Es sensible a los valores extremos (outliers). Se calcula como X̄ = (Σxᵢ) / n.
+
+Mediana: es el valor que ocupa la posición central cuando los datos están ordenados. Si el número de datos es par, es la media de los dos valores centrales. Es más robusta que la media frente a outliers.
+
+Moda: es el valor que aparece con mayor frecuencia. Un conjunto puede ser unimodal, bimodal o multimodal. Si todos los valores aparecen la misma vez, no hay moda.
+
+1.3 Medidas de dispersión
+
+Las medidas de dispersión informan sobre la variabilidad de los datos alrededor de la tendencia central.
+
+Rango: diferencia entre el valor máximo y el mínimo. Es muy sensible a outliers.
+
+Varianza: media de los cuadrados de las desviaciones respecto a la media. Se denota como σ² para poblaciones y s² para muestras.
+
+Desviación típica (o estándar): raíz cuadrada de la varianza. Tiene las mismas unidades que los datos originales. Una desviación típica baja indica que los datos están agrupados cerca de la media.
+
+Coeficiente de variación: cociente entre la desviación típica y la media, expresado en porcentaje. Permite comparar la dispersión de variables con distintas unidades.
+
+1.4 Distribuciones de frecuencia
+
+Una tabla de frecuencias organiza los datos en clases o intervalos y muestra cuántas observaciones caen en cada uno (frecuencia absoluta), qué proporción representan (frecuencia relativa) y los acumulados correspondientes.
+
+El histograma es la representación gráfica de una distribución de frecuencias para variables cuantitativas continuas. La forma del histograma puede ser simétrica, sesgada a la derecha (cola larga a la derecha) o sesgada a la izquierda.
+
+========================================
+TEMA 2: PROBABILIDAD Y DISTRIBUCIONES
+========================================
+
+La probabilidad es la medida numérica de la posibilidad de que ocurra un evento. Sus valores van de 0 (imposible) a 1 (seguro).
+
+2.1 Conceptos de probabilidad
+
+Espacio muestral (Ω): conjunto de todos los resultados posibles de un experimento aleatorio.
+Evento o suceso: subconjunto del espacio muestral.
+Probabilidad clásica: P(A) = casos favorables / casos posibles. Requiere que todos los resultados sean igualmente probables.
+Probabilidad frecuentista: basada en la frecuencia relativa de ocurrencia del evento en muchas repeticiones.
+
+Reglas básicas:
+- P(A) está entre 0 y 1 siempre.
+- P(Ω) = 1 (algún resultado siempre ocurre).
+- P(A ∪ B) = P(A) + P(B) - P(A ∩ B)
+- Si A y B son mutuamente excluyentes: P(A ∪ B) = P(A) + P(B)
+
+2.2 Probabilidad condicionada e independencia
+
+La probabilidad condicionada P(A|B) es la probabilidad de que ocurra A dado que ya ha ocurrido B:
+P(A|B) = P(A ∩ B) / P(B)
+
+Dos eventos son independientes si la ocurrencia de uno no afecta la probabilidad del otro: P(A ∩ B) = P(A) · P(B).
+
+El teorema de Bayes permite actualizar la probabilidad de un evento a la luz de nueva evidencia:
+P(A|B) = P(B|A) · P(A) / P(B)
+
+2.3 Variables aleatorias y distribuciones
+
+Una variable aleatoria asigna un valor numérico a cada resultado del espacio muestral.
+
+Distribución Binomial: modela el número de éxitos en n ensayos independientes, cada uno con probabilidad p de éxito. Media = np. Varianza = np(1-p).
+
+Distribución de Poisson: modela el número de eventos en un intervalo de tiempo o espacio fijo. Se usa cuando los eventos son raros e independientes. Media = Varianza = λ.
+
+Distribución Normal (Gaussiana): es la distribución continua más importante. Tiene forma de campana simétrica definida por su media μ y desviación típica σ. La regla empírica dice que el 68% de los datos cae en μ±σ, el 95% en μ±2σ y el 99.7% en μ±3σ.
+
+La tipificación o estandarización transforma cualquier normal en la Normal Estándar N(0,1) mediante: Z = (X - μ) / σ.
+
+2.4 Teorema central del límite
+
+El teorema central del límite (TCL) establece que la distribución de la media muestral tiende a una distribución normal cuando el tamaño de la muestra es suficientemente grande (n ≥ 30), independientemente de la distribución original de la población. Este teorema es el fundamento de gran parte de la inferencia estadística.

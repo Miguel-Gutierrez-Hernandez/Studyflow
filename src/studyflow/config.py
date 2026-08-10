@@ -18,6 +18,7 @@ LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "huggingface")
 HF_TOKEN: str = os.getenv("HF_TOKEN", "")
 HF_MODEL: str = os.getenv("HF_MODEL", "meta-llama/Llama-3.1-8B-Instruct")
 HF_API_URL: str = os.getenv("HF_API_URL", "https://api-inference.huggingface.co/models")
+HF_WHISPER_MODEL: str = os.getenv("HF_WHISPER_MODEL", "openai/whisper-large-v3")
 
 # OpenAI
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

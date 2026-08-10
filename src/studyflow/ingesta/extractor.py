@@ -128,30 +128,67 @@ def _extraer_txt(ruta: Path) -> str:
 
 def _transcribir_audio(ruta: Path) -> str:
     """
-    Transcribe audio usando Whisper local.
-    Fuerza idioma español para mayor precisión.
+    Transcribe audio usando Whisper vía HuggingFace Inference API.
+    No requiere ninguna dependencia local de audio ni ffmpeg.
+
+    Usa el modelo configurado en HF_WHISPER_MODEL del .env
+    (por defecto openai/whisper-large-v3).
     """
-    try:
-        import whisper
-    except ImportError:
-        raise ImportError(
-            "Instala Whisper: pip install openai-whisper\n"
-            "También necesitas ffmpeg instalado en el sistema."
+    import requests
+    from config import HF_TOKEN, HF_WHISPER_MODEL
+
+    if not HF_TOKEN:
+        raise ValueError(
+            "Falta HF_TOKEN en el .env. "
+            "Obtén uno en https://huggingface.co/settings/tokens"
         )
 
-    from config import WHISPER_MODEL
+    url = f"https://api-inference.huggingface.co/models/{HF_WHISPER_MODEL}"
+    headers = {
+        "Authorization": f"Bearer {HF_TOKEN}",
+    }
+    # Parámetros: forzar español, tarea transcripción (no traducción)
+    params = {
+        "language": "es",
+        "task": "transcribe",
+        "return_timestamps": False,
+    }
 
-    print(f"  ⏳ Cargando modelo Whisper '{WHISPER_MODEL}'...")
-    modelo = whisper.load_model(WHISPER_MODEL)
+    print(f"  🎙️  Transcribiendo '{ruta.name}' vía HuggingFace API...")
+    print(f"       Modelo: {HF_WHISPER_MODEL}")
 
-    print(f"  🎙️  Transcribiendo '{ruta.name}' (puede tardar unos minutos)...")
-    resultado = modelo.transcribe(
-        str(ruta),
-        language="es",        # forzar español
-        task="transcribe",    # no traducir, solo transcribir
-        verbose=False,
+    with open(ruta, "rb") as f:
+        audio_bytes = f.read()
+
+    response = requests.post(
+        url,
+        headers=headers,
+        params=params,
+        data=audio_bytes,
+        timeout=300,  # audios largos pueden tardar
     )
-    return resultado["text"].strip()
+
+    # HF puede devolver 503 si el modelo está cargando
+    if response.status_code == 503:
+        raise RuntimeError(
+            "El modelo Whisper está cargando en HuggingFace (error 503). "
+            "Espera 20-30 segundos y vuelve a intentarlo."
+        )
+
+    response.raise_for_status()
+    data = response.json()
+
+    # La API devuelve {"text": "transcripción completa"}
+    if isinstance(data, dict) and "text" in data:
+        return data["text"].strip()
+
+    # Algunos modelos devuelven lista de chunks
+    if isinstance(data, list):
+        return " ".join(
+            chunk.get("text", "") for chunk in data if isinstance(chunk, dict)
+        ).strip()
+
+    raise RuntimeError(f"Respuesta inesperada de HuggingFace Whisper: {data}")
 
 
 # ── Batch ─────────────────────────────────────────────────────────────────────
