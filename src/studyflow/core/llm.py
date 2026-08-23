@@ -1,5 +1,5 @@
 """
-core/llm.py — HuggingFace Inference API client using InferenceClient.
+core/llm.py — Ollama local LLM client.
 
 Usage:
     from core.llm import LLM
@@ -7,24 +7,16 @@ Usage:
     response = llm.chat("Summarize this text: ...")
 """
 
-from huggingface_hub import InferenceClient
+import requests
 import config
 
 
 class LLM:
-    """HuggingFace Inference API client using the official InferenceClient."""
+    """Ollama local inference client."""
 
     def __init__(self):
-        if not config.HF_TOKEN:
-            raise ValueError(
-                "HF_TOKEN is missing from .env. "
-            )
-        self.model = config.HF_MODEL
-        self.client = InferenceClient(
-            model=self.model,
-            api_key=config.HF_TOKEN,
-            timeout=120,
-        )
+        self.model = config.OLLAMA_MODEL
+        self.url = config.OLLAMA_URL.rstrip("/") + "/api/chat"
 
     def chat(
         self,
@@ -33,20 +25,36 @@ class LLM:
         max_tokens: int = 2048,
         temperature: float = 0.3,
     ) -> str:
+        """Send a prompt and return the response as a plain string."""
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "stream": False,
+            "options": {
+                "temperature": temperature,
+                "num_predict": max_tokens,
+            },
+        }
+
         try:
-            response = self.client.chat_completion(
-                messages=messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
+            response = requests.post(self.url, json=payload, timeout=300)
+            response.raise_for_status()
+        except requests.exceptions.ConnectionError:
+            raise RuntimeError(
+                "Cannot connect to Ollama. Make sure it's running: ollama serve"
             )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            raise RuntimeError(f"Error calling HuggingFace API for model '{self.model}': {e}") from e
+
+        data = response.json()
+
+        try:
+            return data["message"]["content"].strip()
+        except (KeyError, TypeError) as e:
+            raise RuntimeError(f"Unexpected response from Ollama: {data}") from e
 
     def __repr__(self) -> str:
-        return f"<LLM model={self.model}>"
+        return f"<LLM model={self.model} url={self.url}>"

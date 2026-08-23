@@ -28,8 +28,8 @@ from core.llm import LLM
 from generator.content import generate_material
 from generator.html_builder import build_html
 from consumption.extractor import extract_all
-from studyflow.process.analyzer import analyze
-from studyflow.utils.project import Project
+from process.analyzer import analyze
+from utils.project import Project
 
 console = Console()
 

@@ -2,11 +2,13 @@
 ingesta/extractor.py — Text extraction from multiple file formats.
 
 Supported:
-    .pdf            → PyMuPDF
-    .docx           → python-docx
-    .pptx           → python-pptx
-    .txt            → direct read
-    .mp3/.wav/etc.  → HuggingFace Whisper API
+    .pdf    → PyMuPDF
+    .docx   → python-docx
+    .pptx   → python-pptx
+    .txt    → direct read
+
+Audio transcription is not supported in this environment (Python 3.14
+is incompatible with all current Whisper packages). Planned for future release.
 """
 
 from pathlib import Path
@@ -16,7 +18,7 @@ AUDIO_FORMATS = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm", ".opus"}
 
 
 def extract_text(path: Path) -> str:
-    """Detect format and extract text. Raises ValueError for unsupported formats."""
+    """Detect format and extract text."""
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"File not found: {path}")
@@ -31,13 +33,18 @@ def extract_text(path: Path) -> str:
     elif ext == ".txt":
         return _txt(path)
     elif ext in AUDIO_FORMATS:
-        return _audio(path)
+        raise NotImplementedError(
+            f"Audio transcription is not yet supported (Python 3.14 incompatibility). "
+            f"Convert '{path.name}' to text manually and upload as .txt."
+        )
     else:
-        raise ValueError(f"Unsupported format '{ext}'. Supported: {DOCUMENT_FORMATS | AUDIO_FORMATS}")
+        raise ValueError(
+            f"Unsupported format '{ext}'. Supported: {DOCUMENT_FORMATS}"
+        )
 
 
 def extract_all(paths: list[Path]) -> dict[str, str]:
-    """Extract text from a list of files. Returns {filename: text}."""
+    """Extract text from a list of files. Returns {{filename: text}}."""
     results = {}
     for path in paths:
         try:
@@ -56,7 +63,11 @@ def _pdf(path: Path) -> str:
     except ImportError:
         raise ImportError("Install PyMuPDF: pip install pymupdf")
     doc = fitz.open(str(path))
-    pages = [f"[Page {i+1}]\n{page.get_text('text').strip()}" for i, page in enumerate(doc) if page.get_text("text").strip()]
+    pages = [
+        f"[Page {i+1}]\n{page.get_text('text').strip()}"
+        for i, page in enumerate(doc)
+        if page.get_text("text").strip()
+    ]
     doc.close()
     return "\n\n".join(pages)
 
@@ -78,7 +89,11 @@ def _pptx(path: Path) -> str:
     prs = Presentation(str(path))
     slides = []
     for i, slide in enumerate(prs.slides, 1):
-        texts = [shape.text.strip() for shape in slide.shapes if hasattr(shape, "text") and shape.text.strip()]
+        texts = [
+            shape.text.strip()
+            for shape in slide.shapes
+            if hasattr(shape, "text") and shape.text.strip()
+        ]
         if texts:
             slides.append(f"[Slide {i}]\n" + "\n".join(texts))
     return "\n\n".join(slides)
@@ -91,36 +106,3 @@ def _txt(path: Path) -> str:
         except UnicodeDecodeError:
             continue
     raise ValueError(f"Could not read {path} with any known encoding.")
-
-
-def _audio(path: Path) -> str:
-    """Transcribe audio via HuggingFace Whisper API. No local dependencies required."""
-    import requests
-    from config import HF_TOKEN, HF_WHISPER_MODEL
-
-    if not HF_TOKEN:
-        raise ValueError("HF_TOKEN is missing from .env.")
-
-    url = f"https://api-inference.huggingface.co/models/{HF_WHISPER_MODEL}"
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-    params = {"language": "es", "task": "transcribe", "return_timestamps": False}
-
-    print(f"  Transcribing '{path.name}' via HuggingFace API ({HF_WHISPER_MODEL})...")
-
-    with open(path, "rb") as f:
-        audio = f.read()
-
-    response = requests.post(url, headers=headers, params=params, data=audio, timeout=300)
-
-    if response.status_code == 503:
-        raise RuntimeError("Whisper model is loading on HuggingFace (503). Wait 20-30s and retry.")
-
-    response.raise_for_status()
-    data = response.json()
-
-    if isinstance(data, dict) and "text" in data:
-        return data["text"].strip()
-    if isinstance(data, list):
-        return " ".join(c.get("text", "") for c in data if isinstance(c, dict)).strip()
-
-    raise RuntimeError(f"Unexpected response from HuggingFace Whisper: {data}")
