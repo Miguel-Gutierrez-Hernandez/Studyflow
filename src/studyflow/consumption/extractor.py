@@ -1,20 +1,43 @@
 """
-ingesta/extractor.py — Text extraction from multiple file formats.
+consumption/extractor.py — Text extraction from multiple file formats.
 
 Supported:
-    .pdf    → PyMuPDF
-    .docx   → python-docx
-    .pptx   → python-pptx
-    .txt    → direct read
+    .pdf    -> PyMuPDF
+    .docx   -> python-docx
+    .pptx   -> python-pptx
+    .txt    -> direct read
+    audio   -> faster-whisper (local, offline transcription)
 
-Audio transcription is not supported in this environment (Python 3.14
-is incompatible with all current Whisper packages). Planned for future release.
+Audio transcription requires the 'faster-whisper' package. Install with:
+    pip install faster-whisper --break-system-packages
+
+The first transcription of a given model size downloads model weights from
+Hugging Face and caches them locally; subsequent runs are offline.
 """
 
 from pathlib import Path
 
 DOCUMENT_FORMATS = {".pdf", ".docx", ".pptx", ".txt"}
 AUDIO_FORMATS = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm", ".opus"}
+
+# Cached whisper model instance, lazily created on first audio file.
+_whisper_model = None
+_WHISPER_MODEL_SIZE = "base"  # tiny | base | small | medium | large-v3
+
+
+def _get_whisper_model():
+    global _whisper_model
+    if _whisper_model is None:
+        try:
+            from faster_whisper import WhisperModel
+        except ImportError:
+            raise ImportError(
+                "Install faster-whisper for audio transcription: "
+                "pip install faster-whisper --break-system-packages"
+            )
+        # compute_type="int8" keeps this usable on CPU-only machines (e.g. Apple Silicon).
+        _whisper_model = WhisperModel(_WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
+    return _whisper_model
 
 
 def extract_text(path: Path) -> str:
@@ -33,13 +56,10 @@ def extract_text(path: Path) -> str:
     elif ext == ".txt":
         return _txt(path)
     elif ext in AUDIO_FORMATS:
-        raise NotImplementedError(
-            f"Audio transcription is not yet supported (Python 3.14 incompatibility). "
-            f"Convert '{path.name}' to text manually and upload as .txt."
-        )
+        return _audio(path)
     else:
         raise ValueError(
-            f"Unsupported format '{ext}'. Supported: {DOCUMENT_FORMATS}"
+            f"Unsupported format '{ext}'. Supported: {DOCUMENT_FORMATS | AUDIO_FORMATS}"
         )
 
 
@@ -97,6 +117,16 @@ def _pptx(path: Path) -> str:
         if texts:
             slides.append(f"[Slide {i}]\n" + "\n".join(texts))
     return "\n\n".join(slides)
+
+
+def _audio(path: Path) -> str:
+    model = _get_whisper_model()
+    segments, info = model.transcribe(str(path), beam_size=5)
+    lines = [seg.text.strip() for seg in segments if seg.text.strip()]
+    if not lines:
+        return ""
+    header = f"[Transcript · detected language: {info.language} ({info.language_probability:.0%})]"
+    return header + "\n\n" + "\n".join(lines)
 
 
 def _txt(path: Path) -> str:

@@ -1,11 +1,12 @@
 """
-process/analizador.py — Text cleaning and topic detection.
+process/analyzer.py — Text cleaning and topic detection.
 """
 
-import json
+import logging
 import re
 
 from core.llm import LLM
+from core.json_utils import parse_llm_json
 
 
 _SYSTEM = (
@@ -43,7 +44,7 @@ def merge_texts(texts: dict[str, str]) -> str:
     return ("\n\n" + "─" * 60 + "\n\n").join(parts)
 
 
-def detect_topics(text: str, llm: LLM) -> dict:
+def detect_topics(text: str, llm: LLM, logger: logging.Logger | None = None) -> dict:
     excerpt = text[:12000]
     prompt = f"""Analyze the following academic content and extract its topic structure.
 
@@ -73,26 +74,21 @@ Rules:
 - Topics and titles must be in the SAME language as the input content
 - Subtopics must be specific and well differentiated sections within the topic"""
 
-    response = llm.chat(prompt, system=_SYSTEM, max_tokens=2000)
-    clean = response.strip()
-    if "```" in clean:
-        m = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", clean)
-        if m:
-            clean = m.group(1)
-    try:
-        return json.loads(clean)
-    except json.JSONDecodeError:
-        return {
-            "title": "Study material",
-            "topics": [{"id": "topic_1", "title": "General content", "subtopics": []}],
-        }
+    fallback = {
+        "title": "Study material",
+        "topics": [{"id": "topic_1", "title": "General content", "subtopics": []}],
+    }
+    return parse_llm_json(
+        llm, prompt, system=_SYSTEM, fallback=fallback,
+        max_tokens=2000, temperature=0.3, logger=logger,
+    )
 
 
-def analyze(texts: dict[str, str], llm: LLM) -> dict:
+def analyze(texts: dict[str, str], llm: LLM, logger: logging.Logger | None = None) -> dict:
     print("  Merging and cleaning texts...")
     full_text = merge_texts(texts)
     print("  Detecting topic structure...")
-    structure = detect_topics(full_text, llm)
+    structure = detect_topics(full_text, llm, logger=logger)
     return {
         "title": structure.get("title", "Study material"),
         "topics": structure.get("topics", []),

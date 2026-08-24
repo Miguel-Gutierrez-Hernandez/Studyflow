@@ -1,17 +1,17 @@
 """
-generator/contenido.py — Study material generation per topic and subtopic.
+generator/content.py — Study material generation per topic and subtopic.
 
 For each topic generates:
     - Per subtopic: explanation, key concepts table, common confusions table
     - Sister questions table (exam variants)
-    - Flashcards (term → definition)
+    - Flashcards (term -> definition)
     - Multiple-choice questions with explanation
 """
 
-import json
-import re
+import logging
 
 from core.llm import LLM
+from core.json_utils import parse_llm_json
 
 
 _SYSTEM = (
@@ -19,24 +19,6 @@ _SYSTEM = (
     "Always respond with valid JSON only — no extra text outside the JSON. "
     "CRITICAL: respond in the SAME language as the input content."
 )
-
-
-def _parse_json(response: str, fallback: dict) -> dict:
-    text = response.strip()
-    if "```" in text:
-        m = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", text)
-        if m:
-            text = m.group(1)
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        m = re.search(r"\{[\s\S]+\}", text)
-        if m:
-            try:
-                return json.loads(m.group(0))
-            except json.JSONDecodeError:
-                pass
-    return fallback
 
 
 def _prompt_subtopic(subtopic_title: str, topic_title: str, full_text: str) -> str:
@@ -139,7 +121,10 @@ Rules:
 - back: concise but complete answer (1-3 sentences max)"""
 
 
-def generate_topic(topic: dict, full_text: str, llm: LLM, n_questions: int) -> dict:
+def generate_topic(
+    topic: dict, full_text: str, llm: LLM, n_questions: int,
+    logger: logging.Logger | None = None,
+) -> dict:
     topic_title = topic["title"]
     subtopics_raw = topic.get("subtopics", [])
 
@@ -149,11 +134,11 @@ def generate_topic(topic: dict, full_text: str, llm: LLM, n_questions: int) -> d
         sub_title = sub["title"] if isinstance(sub, dict) else sub
         sub_id = sub["id"] if isinstance(sub, dict) else f"sub_{len(subtopics_generated)}"
         print(f"      Subtopic: {sub_title}")
-        r = llm.chat(
-            _prompt_subtopic(sub_title, topic_title, full_text),
-            system=_SYSTEM, max_tokens=2500, temperature=0.3,
+        data = parse_llm_json(
+            llm, _prompt_subtopic(sub_title, topic_title, full_text), system=_SYSTEM,
+            fallback={"explanation": "", "concepts": [], "confusions": []},
+            max_tokens=2500, temperature=0.3, logger=logger,
         )
-        data = _parse_json(r, {"explanation": "", "concepts": [], "confusions": []})
         subtopics_generated.append({
             "id": sub_id,
             "title": sub_title,
@@ -164,27 +149,24 @@ def generate_topic(topic: dict, full_text: str, llm: LLM, n_questions: int) -> d
 
     # Sister questions
     print(f"    Generating sister questions for: {topic_title}")
-    r_sisters = llm.chat(
-        _prompt_sister_questions(topic_title, full_text),
-        system=_SYSTEM, max_tokens=2000, temperature=0.3,
+    sisters_data = parse_llm_json(
+        llm, _prompt_sister_questions(topic_title, full_text), system=_SYSTEM,
+        fallback={"sisters": []}, max_tokens=2000, temperature=0.3, logger=logger,
     )
-    sisters_data = _parse_json(r_sisters, {"sisters": []})
 
     # Test questions
     print(f"    Generating {n_questions} questions for: {topic_title}")
-    r_q = llm.chat(
-        _prompt_questions(topic_title, full_text, n_questions),
-        system=_SYSTEM, max_tokens=3000, temperature=0.5,
+    q_data = parse_llm_json(
+        llm, _prompt_questions(topic_title, full_text, n_questions), system=_SYSTEM,
+        fallback={"questions": []}, max_tokens=3000, temperature=0.5, logger=logger,
     )
-    q_data = _parse_json(r_q, {"questions": []})
 
     # Flashcards
     print(f"    Generating flashcards for: {topic_title}")
-    r_fc = llm.chat(
-        _prompt_flashcards(topic_title, full_text),
-        system=_SYSTEM, max_tokens=1500, temperature=0.3,
+    fc_data = parse_llm_json(
+        llm, _prompt_flashcards(topic_title, full_text), system=_SYSTEM,
+        fallback={"flashcards": []}, max_tokens=1500, temperature=0.3, logger=logger,
     )
-    fc_data = _parse_json(r_fc, {"flashcards": []})
 
     return {
         "id": topic["id"],
@@ -196,7 +178,10 @@ def generate_topic(topic: dict, full_text: str, llm: LLM, n_questions: int) -> d
     }
 
 
-def generate_material(analysis: dict, llm: LLM, questions_per_topic: int = 8) -> dict:
+def generate_material(
+    analysis: dict, llm: LLM, questions_per_topic: int = 8,
+    logger: logging.Logger | None = None,
+) -> dict:
     title = analysis["title"]
     topics = analysis["topics"]
     full_text = analysis["full_text"]
@@ -208,7 +193,7 @@ def generate_material(analysis: dict, llm: LLM, questions_per_topic: int = 8) ->
     for i, topic in enumerate(topics, 1):
         print(f"\n  [{i}/{len(topics)}] {topic['title']}")
         generated.append(
-            generate_topic(topic, full_text, llm, n_questions=questions_per_topic)
+            generate_topic(topic, full_text, llm, n_questions=questions_per_topic, logger=logger)
         )
 
     return {
