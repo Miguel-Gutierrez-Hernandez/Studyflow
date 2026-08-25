@@ -28,6 +28,7 @@ from core.llm import LLM
 from core.llm_cache import LLMCache
 from core.logging_setup import get_logger
 from core.tracking import PipelineTracker
+from core.distillation import DistillationRecorder
 from generator.content import generate_material
 from generator.html_builder import build_html
 from consumption.extractor import extract_all
@@ -45,6 +46,7 @@ def run(
     export_pdf: bool = False,
     track: bool = True,
     model: str | None = None,
+    distill: bool = False,
 ) -> Path:
     """
     Run the full StudyFlow AI pipeline.
@@ -59,6 +61,10 @@ def run(
         model:                Ollama model name to use for this run. Defaults to
                               config.OLLAMA_MODEL if not given. Useful for
                               comparing models without editing .env (see compare_runs.py).
+        distill:              If True, record every successful LLM completion as
+                              training data for distillation (see DISTILLATION.md).
+                              Typically enabled only when running with a strong
+                              teacher model (e.g. llama3.1:8b), not the default small one.
 
     Returns:
         Path to the generated index.html
@@ -91,7 +97,7 @@ def run(
             "n_input_files": len(files),
         })
         html_path = _run_steps(
-            project, files, questions_per_topic, export_pdf, log, tracker, model,
+            project, files, questions_per_topic, export_pdf, log, tracker, model, distill,
         )
     return html_path
 
@@ -104,6 +110,7 @@ def _run_steps(
     log,
     tracker: PipelineTracker,
     model: str | None = None,
+    distill: bool = False,
 ) -> Path:
     console.print("\n[bold]2/6 · Adding files to project...[/bold]")
     project_files = []
@@ -163,8 +170,11 @@ def _run_steps(
     cache = LLMCache(project.path)
     llm = LLM(cache=cache, model=model)
     console.print(f"  🤖 {llm}")
+    recorder = DistillationRecorder(enabled=distill) if distill else None
+    if distill:
+        console.print(f"  🎓 Recording training data to: [dim]{recorder.dir}[/dim]")
     with tracker.step("topic_detection"):
-        analysis = analyze(texts, llm=llm, logger=log)
+        analysis = analyze(texts, llm=llm, logger=log, recorder=recorder)
     n_topics = len(analysis["topics"])
     console.print(f"  ✅ {n_topics} topics: {', '.join(t['title'] for t in analysis['topics'])}")
     log.info("topics_detected", extra={"n_topics": n_topics})
@@ -173,12 +183,15 @@ def _run_steps(
     with tracker.step("material_generation"):
         material = generate_material(
             analysis, llm=llm, questions_per_topic=questions_per_topic, logger=log,
+            recorder=recorder,
         )
     console.print(f"  ✅ {n_topics} topics · {material['stats']['n_questions']} questions")
     cache_stats = cache.stats()
     console.print(
         f"  💾 LLM cache: {cache_stats['hits']} hits, {cache_stats['misses']} misses"
     )
+    if distill:
+        console.print(f"  🎓 Recorded {recorder.n_recorded} training examples")
     log.info("material_generated", extra={**material["stats"], "llm_cache": cache_stats})
 
     n_flashcards = sum(len(t["flashcards"]) for t in material["topics"])

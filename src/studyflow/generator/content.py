@@ -123,7 +123,7 @@ Rules:
 
 def generate_topic(
     topic: dict, full_text: str, llm: LLM, n_questions: int,
-    logger: logging.Logger | None = None,
+    logger: logging.Logger | None = None, recorder=None,
 ) -> dict:
     topic_title = topic["title"]
     subtopics_raw = topic.get("subtopics", [])
@@ -138,6 +138,7 @@ def generate_topic(
             llm, _prompt_subtopic(sub_title, topic_title, full_text), system=_SYSTEM,
             fallback={"explanation": "", "concepts": [], "confusions": []},
             max_tokens=2500, temperature=0.3, logger=logger,
+            recorder=recorder, task="subtopic",
         )
         subtopics_generated.append({
             "id": sub_id,
@@ -152,6 +153,7 @@ def generate_topic(
     sisters_data = parse_llm_json(
         llm, _prompt_sister_questions(topic_title, full_text), system=_SYSTEM,
         fallback={"sisters": []}, max_tokens=2000, temperature=0.3, logger=logger,
+        recorder=recorder, task="sister_questions",
     )
 
     # Test questions
@@ -159,6 +161,7 @@ def generate_topic(
     q_data = parse_llm_json(
         llm, _prompt_questions(topic_title, full_text, n_questions), system=_SYSTEM,
         fallback={"questions": []}, max_tokens=3000, temperature=0.5, logger=logger,
+        recorder=recorder, task="questions",
     )
 
     # Flashcards
@@ -166,6 +169,7 @@ def generate_topic(
     fc_data = parse_llm_json(
         llm, _prompt_flashcards(topic_title, full_text), system=_SYSTEM,
         fallback={"flashcards": []}, max_tokens=1500, temperature=0.3, logger=logger,
+        recorder=recorder, task="flashcards",
     )
 
     return {
@@ -180,7 +184,7 @@ def generate_topic(
 
 def generate_material(
     analysis: dict, llm: LLM, questions_per_topic: int = 8,
-    logger: logging.Logger | None = None,
+    logger: logging.Logger | None = None, recorder=None,
 ) -> dict:
     title = analysis["title"]
     topics = analysis["topics"]
@@ -193,7 +197,10 @@ def generate_material(
     for i, topic in enumerate(topics, 1):
         print(f"\n  [{i}/{len(topics)}] {topic['title']}")
         generated.append(
-            generate_topic(topic, full_text, llm, n_questions=questions_per_topic, logger=logger)
+            generate_topic(
+                topic, full_text, llm, n_questions=questions_per_topic,
+                logger=logger, recorder=recorder,
+            )
         )
 
     return {

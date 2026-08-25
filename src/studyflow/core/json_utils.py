@@ -52,16 +52,24 @@ def parse_llm_json(
     temperature: float = 0.3,
     retries: int = 2,
     logger: logging.Logger | None = None,
+    recorder=None,
+    task: str = "unknown",
 ) -> dict:
     """
     Call the LLM and parse its response as JSON, retrying with a corrective
     prompt if the response can't be parsed.
+
+    If `recorder` (a DistillationRecorder) is given, a successful completion
+    is recorded as a (task, system, prompt, response) training example —
+    this is how distillation training data gets built up from normal use.
 
     Returns `fallback` (unchanged) if every attempt fails.
     """
     response = llm.chat(prompt, system=system, max_tokens=max_tokens, temperature=temperature)
     data = _extract_json(response)
     if data is not None:
+        if recorder:
+            recorder.record(task, system, prompt, data, model=llm.model)
         return data
 
     if logger:
@@ -79,6 +87,11 @@ def parse_llm_json(
         if data is not None:
             if logger:
                 logger.info("json_parse_recovered", extra={"attempt": attempt})
+            # Note: the recorded prompt/response pair uses the ORIGINAL prompt,
+            # not the corrective one — the student should learn to produce
+            # correct JSON in one shot, not learn the repair conversation.
+            if recorder:
+                recorder.record(task, system, prompt, data, model=llm.model)
             return data
         if logger:
             logger.warning(

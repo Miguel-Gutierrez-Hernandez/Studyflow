@@ -73,7 +73,7 @@ class ProjectSummary(BaseModel):
 # -- Background job runner -----------------------------------------------------
 
 def _run_job(job_id: str, project_name: str, file_paths: list[Path], questions_per_topic: int,
-             overwrite: bool, export_pdf: bool, model: str | None = None) -> None:
+             overwrite: bool, export_pdf: bool, model: str | None = None, distill: bool = False) -> None:
     _set_job(job_id, status="running")
     try:
         html_path = run_pipeline(
@@ -83,6 +83,7 @@ def _run_job(job_id: str, project_name: str, file_paths: list[Path], questions_p
             overwrite=overwrite,
             export_pdf=export_pdf,
             model=model,
+            distill=distill,
         )
         project = Project(project_name)
         pdf_path = project.path_output / "index.pdf"

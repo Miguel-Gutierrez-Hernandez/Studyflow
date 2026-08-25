@@ -44,7 +44,7 @@ def merge_texts(texts: dict[str, str]) -> str:
     return ("\n\n" + "─" * 60 + "\n\n").join(parts)
 
 
-def detect_topics(text: str, llm: LLM, logger: logging.Logger | None = None) -> dict:
+def detect_topics(text: str, llm: LLM, logger: logging.Logger | None = None, recorder=None) -> dict:
     excerpt = text[:12000]
     prompt = f"""Analyze the following academic content and extract its topic structure.
 
@@ -81,14 +81,17 @@ Rules:
     return parse_llm_json(
         llm, prompt, system=_SYSTEM, fallback=fallback,
         max_tokens=2000, temperature=0.3, logger=logger,
+        recorder=recorder, task="topic_detection",
     )
 
 
-def analyze(texts: dict[str, str], llm: LLM, logger: logging.Logger | None = None) -> dict:
+def analyze(
+    texts: dict[str, str], llm: LLM, logger: logging.Logger | None = None, recorder=None,
+) -> dict:
     print("  Merging and cleaning texts...")
     full_text = merge_texts(texts)
     print("  Detecting topic structure...")
-    structure = detect_topics(full_text, llm, logger=logger)
+    structure = detect_topics(full_text, llm, logger=logger, recorder=recorder)
     return {
         "title": structure.get("title", "Study material"),
         "topics": structure.get("topics", []),
