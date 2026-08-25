@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reinforcement Learning — StudyFlow AI</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--text:#152033;--muted:#64748b;--border:#dbe3ef;
+  --primary:#2563eb;--primary-dark:#1e40af;--ok:#16a34a;--ok-bg:#dcfce7;
+  --bad:#dc2626;--bad-bg:#fee2e2;--warn:#d97706;--warn-bg:#fef3c7;
+  --purple:#7c3aed;--purple-bg:#f3e8ff;--cyan-bg:#ecfeff;--cyan:#0e7490;
+  --shadow:0 16px 42px rgba(15,23,42,.08);--radius:24px;
+}
+html[data-theme="dark"]{
+  --bg:#0f1420;--card:#1a2233;--text:#e6ebf5;--muted:#93a0bd;--border:#2c3650;
+  --primary:#5b8def;--primary-dark:#7ea6f5;--ok:#22c55e;--ok-bg:#14301f;
+  --bad:#f87171;--bad-bg:#3a1717;--warn:#fbbf24;--warn-bg:#3a2c0d;
+  --purple:#a78bfa;--purple-bg:#2a2044;--cyan-bg:#0d2b30;--cyan:#5eead4;
+  --shadow:0 16px 42px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--primary);color:#fff;
+  padding:10px 16px;border-radius:0 0 10px 0;z-index:999;font-weight:800}
+.skip-link:focus{left:0}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:radial-gradient(circle at 10% 0%,#dbeafe 0%,rgba(219,234,254,0) 34%),
+             radial-gradient(circle at 90% 8%,#ccfbf1 0%,rgba(204,251,241,0) 34%),
+             var(--bg);
+  line-height:1.55;
+  transition:background-color .2s ease,color .2s ease
+}
+html[data-theme="dark"] body{
+  background:radial-gradient(circle at 10% 0%,#1b2a4a 0%,rgba(27,42,74,0) 34%),
+             radial-gradient(circle at 90% 8%,#0d3b3a 0%,rgba(13,59,58,0) 34%),
+             var(--bg)
+}
+header,main,.nav-inner{max-width:1220px;margin:0 auto}
+header{padding:34px 20px 18px}
+.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:16px}
+.hero-card,.stat-card,.panel,.card,.quiz-card,.module{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow)
+}
+.hero-card{padding:30px}
+.sf-badge{display:inline-block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;
+  border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:800;margin-bottom:12px}
+html[data-theme="dark"] .sf-badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+h1{font-size:clamp(2rem,4vw,4rem);line-height:.96;letter-spacing:-.065em;margin:0 0 12px}
+h3,h4{letter-spacing:-.025em;margin:0 0 10px}
+h4{font-size:1rem;color:var(--text)}
+.subtitle{color:var(--muted);font-size:1.05rem;margin:0 0 14px}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.badge{display:inline-flex;border-radius:999px;font-weight:900;align-items:center;
+  padding:6px 11px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:.82rem}
+html[data-theme="dark"] .badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+.badge.source{background:#f3e8ff;color:#6d28d9;border-color:#ddd6fe}
+html[data-theme="dark"] .badge.source{background:#241a3d;color:#c4a9f7;border-color:#382a5c}
+.stat-grid{display:grid;gap:12px}
+.stat-card{padding:18px}
+.stat-number{font-size:2.1rem;font-weight:950;letter-spacing:-.05em}
+.stat-label{color:var(--muted);font-size:.93rem}
+.progress-card .stat-number{color:var(--ok)}
+nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.91);
+  backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.55);
+  border-bottom:1px solid var(--border)}
+html[data-theme="dark"] nav{background:rgba(15,20,32,.88);border-top-color:rgba(255,255,255,.06)}
+.nav-inner{padding:11px 20px;display:flex;gap:9px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link,button{
+  border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;
+  padding:9px 13px;font-weight:850;white-space:nowrap;cursor:pointer;font-size:.9rem;
+  transition:transform .12s ease,border .18s ease,background .18s ease;
+  text-decoration:none;display:inline-flex;align-items:center;font-family:inherit
+}
+.nav-link:hover,button:hover{transform:translateY(-1px);border-color:#93c5fd;background:#f8fbff}
+html[data-theme="dark"] .nav-link:hover,html[data-theme="dark"] button:hover{background:#22304d;border-color:#3d5padding}
+button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+button.primary:hover{background:var(--primary-dark)}
+.toggle-btn{margin-left:auto}
+.toggle-btn[aria-pressed="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+main{padding:24px 20px 70px}
+section{margin:32px 0;padding-top:8px}
+.subsection{margin-top:24px}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:0 0 14px;flex-wrap:wrap}
+.section-title h2{margin:0;font-size:clamp(1.45rem,2.3vw,2.25rem);letter-spacing:-.045em;line-height:1.05}
+.section-title h3{margin:0;font-size:1.25rem}
+.section-title p{margin:6px 0 0;color:var(--muted);max-width:850px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.panel,.card,.quiz-card,.module{padding:18px}
+.muted-note{color:var(--muted)}
+.topic-num{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;background:var(--primary);color:#fff;border-radius:8px;
+  font-size:.8rem;font-weight:900;margin-right:10px;flex-shrink:0}
+.topic-num-lg{display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:38px;background:var(--primary);color:#fff;border-radius:12px;
+  font-size:1.05rem;font-weight:900;margin-right:12px;flex-shrink:0;vertical-align:middle}
+.topic-link{color:var(--text);text-decoration:none;display:flex;align-items:center}
+.topic-link:hover{color:var(--primary)}
+.topic-check{margin-left:8px;color:var(--ok);font-weight:900}
+.topic-check.done::after{content:"✓ hecho"}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{display:inline-flex;border-radius:999px;font-weight:800;align-items:center;
+  padding:4px 10px;font-size:.77rem;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe}
+html[data-theme="dark"] .pill{background:#1e2144;color:#a5b4fc;border-color:#312e70}
+/* Tabs */
+.subtopic-block{margin-bottom:10px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{border:1px solid var(--border);background:var(--card);color:var(--text);
+  border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:.88rem;
+  transition:all .15s ease}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tab-content{display:none}.tab-content.active{display:block}
+body.expand-all .tab-content{display:block !important;margin-bottom:18px;
+  border-top:2px dashed var(--border);padding-top:14px}
+body.expand-all .tabs{display:none}
+/* Subtopic content */
+.subtopic-content{display:grid;gap:14px}
+.explanation-panel{border-left:4px solid var(--primary)}
+.reading-time{font-size:.8rem;color:var(--muted);font-weight:700;margin-bottom:8px}
+.explanation-text p{margin:0 0 10px;color:var(--text);line-height:1.65}
+.explanation-text p:last-child{margin-bottom:0}
+/* Tables */
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;background:var(--card)}
+th,td{padding:11px 13px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:rgba(0,0,0,.02);font-weight:800}
+html[data-theme="dark"] th{background:rgba(255,255,255,.03)}
+tr:last-child td{border-bottom:0}
+/* Quiz */
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.quiz-card{padding:18px}
+.quiz-card h3{margin:0 0 12px;font-size:.97rem;line-height:1.4;letter-spacing:-.01em}
+.opciones{display:grid;gap:7px}
+.quiz-option{border:1px solid var(--border);border-radius:12px;padding:10px 13px;
+  background:var(--card);cursor:pointer;font-size:.9rem;transition:all .15s ease;font-weight:600;
+  text-align:left;width:100%;color:var(--text)}
+.quiz-option:hover{background:#f0f7ff;border-color:#93c5fd}
+html[data-theme="dark"] .quiz-option:hover{background:#1c2b4a}
+.quiz-option.correct{background:var(--ok-bg);border-color:#22c55e;color:#14532d}
+html[data-theme="dark"] .quiz-option.correct{color:#86efac}
+.quiz-option.wrong{background:var(--bad-bg);border-color:#ef4444;color:#7f1d1d}
+html[data-theme="dark"] .quiz-option.wrong{color:#fca5a5}
+.quiz-option:disabled{cursor:default}
+.quiz-note{margin-top:10px;font-size:.88rem;font-weight:700;border-radius:12px;
+  padding:10px 12px;display:none}
+.quiz-note.show{display:block}
+.quiz-note.ok{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.quiz-note.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+html[data-theme="dark"] .quiz-note.ok{color:#86efac}
+html[data-theme="dark"] .quiz-note.bad{color:#fca5a5}
+.retry-btn{margin-top:10px;font-size:.8rem;padding:6px 12px;display:none}
+/* Flashcards */
+.flashcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.flip{perspective:1000px;min-height:180px;cursor:pointer}
+.flip-inner{position:relative;width:100%;min-height:180px;transform-style:preserve-3d;
+  transition:transform .45s ease}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;border-radius:20px;border:1px solid var(--border);
+  background:var(--card);padding:18px;backface-visibility:hidden;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;justify-content:center}
+.flip-back{transform:rotateY(180deg);background:var(--ok-bg);border-color:#86efac}
+.flip-front strong{font-size:1rem;color:var(--primary);display:block;margin-bottom:6px}
+.flip-front p{color:var(--muted);font-size:.85rem;margin:0}
+.flip-back p{color:#14532d;margin:0 0 10px;font-size:.92rem;line-height:1.5}
+html[data-theme="dark"] .flip-back p{color:#bbf7d0}
+.flip-actions{display:flex;gap:6px}
+.know-btn{font-size:.72rem;padding:5px 9px;border-radius:8px}
+.know-btn[data-state="know"].active{background:var(--ok);color:#fff;border-color:var(--ok)}
+.know-btn[data-state="review"].active{background:var(--warn);color:#fff;border-color:var(--warn)}
+.flip.card-known{opacity:.55}
+.flip.card-review .flip-front{border-color:var(--warn);border-width:2px}
+.flip.filtered-out{display:none}
+/* Exam */
+.exam-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.exam-control{display:flex;align-items:center;gap:8px;font-weight:700}
+.exam-control input{border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:.9rem;
+  background:var(--card);color:var(--text)}
+.toggle-label{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
+.score{margin-left:auto;background:var(--card);border:1px solid var(--border);
+  border-radius:999px;padding:8px 14px;font-weight:900;font-size:.9rem}
+.result{border-radius:16px;padding:14px}
+.result.good{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.result.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+.result.warn{background:var(--warn-bg);color:#78350f;border:1px solid #fcd34d}
+html[data-theme="dark"] .result.good{color:#86efac}
+html[data-theme="dark"] .result.bad{color:#fca5a5}
+html[data-theme="dark"] .result.warn{color:#fbbf24}
+@media(max-width:900px){
+  .hero,.grid2,.grid3{grid-template-columns:1fr}
+  .score{margin-left:0;width:100%;text-align:center}
+  .section-title{display:block}
+}
+@media print{
+  nav,.exam-toolbar,.toggle-btn,.retry-btn,.flip-actions,.skip-link{display:none !important}
+  body{background:white;color:#000}
+  .tabs{display:none !important}
+  .tab-content{display:block !important;page-break-inside:avoid;margin-bottom:16px}
+  .panel,.quiz-card,.module,table,.flip{page-break-inside:avoid}
+  .flip{perspective:none;min-height:auto}
+  .flip-inner{position:static;transform:none !important;display:block}
+  .flip-front,.flip-back{position:static;transform:none !important;box-shadow:none;
+    border-radius:8px;margin-bottom:6px}
+  .flip-back{background:#f0fdf4}
+  .quiz-option{border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+<header>
+  <div class="hero">
+    <div class="hero-card">
+      <div class="sf-badge">⚡ StudyFlow AI</div>
+      <h1>Reinforcement Learning</h1>
+      <p class="subtitle">Material generado automáticamente · 2026-08-25</p>
+      <div class="badges">
+        <span class="badge">Introducción al Reinforcement Learning</span><span class="badge">Proceso de Decisión de Markov (MDP)</span><span class="badge">Métodos y algoritmos en Reinforcement Learning</span><span class="badge">Aplicaciones y casos de uso de Reinforcement Learning</span>
+        <span class="badge source">📄 Contenido teórico UD6.pdf</span>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">4</div>
+        <div class="stat-label">temas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">18</div>
+        <div class="stat-label">preguntas test</div>
+      </div>
+      <div class="stat-card progress-card">
+        <div class="stat-number" id="progressCount">0/4</div>
+        <div class="stat-label">temas repasados</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-link" href="#overview">📋 Índice</a>
+    <a class="nav-link" href="#topic_1">Introducción al Reinforcement Learning</a><a class="nav-link" href="#topic_2">Proceso de Decisión de Markov (MDP)</a><a class="nav-link" href="#topic_3">Métodos y algoritmos en Reinforcement Learning</a><a class="nav-link" href="#topic_4">Aplicaciones y casos de uso de Reinforcement Learning</a>
+    <a class="nav-link" href="#exam">🎓 Simulacro</a>
+    <button class="nav-link toggle-btn" id="expandAllBtn" type="button"
+      title="Muestra todas las pestañas a la vez (útil para buscar con Ctrl+F)">🔎 Expandir todo</button>
+    <button class="nav-link toggle-btn" id="darkModeBtn" type="button"
+      aria-pressed="false" title="Alternar modo oscuro">🌙 Oscuro</button>
+  </div>
+</nav>
+
+<main id="main-content">
+  <section id="overview">
+  <div class="section-title">
+    <div><h2>📋 Índice de contenidos</h2>
+    <p>Visión general. Haz clic en un tema para ir directamente. El check aparece cuando completas su quiz.</p></div>
+  </div>
+  <div class="grid3"><div class="module" id="overview-topic_1" data-topic-id="topic_1">
+          <h3><a href="#topic_1" class="topic-link">
+            <span class="topic-num">1</span>Introducción al Reinforcement Learning
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Definición y concepto</span><span class="pill">Historia y evolución</span><span class="pill">Aplicaciones y avances recientes</span>
+          </div>
+        </div><div class="module" id="overview-topic_2" data-topic-id="topic_2">
+          <h3><a href="#topic_2" class="topic-link">
+            <span class="topic-num">2</span>Proceso de Decisión de Markov (MDP)
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Fundamentos de los procesos de Markov</span><span class="pill">Markov Reward Process (MRP)</span><span class="pill">Markov Decision Process (MDP)</span>
+          </div>
+        </div><div class="module" id="overview-topic_3" data-topic-id="topic_3">
+          <h3><a href="#topic_3" class="topic-link">
+            <span class="topic-num">3</span>Métodos y algoritmos en Reinforcement Learning
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Métodos de predicción: estimación de la función de valor</span><span class="pill">Métodos de control: optimización de políticas</span>
+          </div>
+        </div><div class="module" id="overview-topic_4" data-topic-id="topic_4">
+          <h3><a href="#topic_4" class="topic-link">
+            <span class="topic-num">4</span>Aplicaciones y casos de uso de Reinforcement Learning
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Juegos</span><span class="pill">Robótica y control de sistemas</span>
+          </div>
+        </div></div>
+</section>
+  <section id="topic_1">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">1</span>Introducción al Reinforcement Learning</h2>
+      <p>Definición y concepto  ·  Historia y evolución  ·  Aplicaciones y avances recientes</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_1__topic_1_sub_1" aria-controls="topic_1__topic_1_sub_1" aria-selected="true" onclick="openTab('topic_1__topic_1_sub_1', this, 'topic_1')">Definición y concepto</button><button class="tab" role="tab" id="tabbtn-topic_1__topic_1_sub_2" aria-controls="topic_1__topic_1_sub_2" aria-selected="false" onclick="openTab('topic_1__topic_1_sub_2', this, 'topic_1')">Historia y evolución</button><button class="tab" role="tab" id="tabbtn-topic_1__topic_1_sub_3" aria-controls="topic_1__topic_1_sub_3" aria-selected="false" onclick="openTab('topic_1__topic_1_sub_3', this, 'topic_1')">Aplicaciones y avances recientes</button></div>
+  <div class="tab-content active" id="topic_1__topic_1_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (Reinforcement Learning, RL) es un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño. El RL se basa en la idea de que el agente puede aprender a tomar decisiones que maximicen la suma acumulada de recompensas, lo que lo lleva a tomar acciones que aumenten su valor esperado. El RL se ha aplicado en una variedad de áreas, incluyendo la robótica, la optimización de estrategias en juegos y el ajuste de modelos de lenguaje de gran escala (LLMs).</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno.</td></tr><tr><td><strong>Aprendizaje supervisado</strong></td><td>Un enfoque del aprendizaje automático en el que se trabaja con datos etiquetados.</td></tr><tr><td><strong>Entorno</strong></td><td>Un espacio en el que se desarrolla el agente y se le presentan acciones para tomar.</td></tr><tr><td><strong>Recompensa</strong></td><td>Un valor numérico asignado a cada acción para indicar su valor.</td></tr><tr><td><strong>Exploración</strong></td><td>La acción de probar nuevas acciones para obtener más información sobre el entorno.</td></tr><tr><td><strong>Explotación</strong></td><td>La acción de elegir acciones que se sabe que son efectivas para maximizar la suma acumulada de recompensas.</td></tr><tr><td><strong>Política</strong></td><td>Una función que determina la acción a tomar en cada estado del entorno.</td></tr><tr><td><strong>Valor esperado</strong></td><td>La suma acumulada de recompensas esperadas en el futuro.</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Exploración</td><td>Explotación</td><td>La exploración se refiere a probar nuevas acciones para obtener más información, mientras que la explotación se refiere a elegir acciones que se sabe que son efectivas.</td></tr><tr><td>Política</td><td>Función de valor</td><td>La política es una función que determina la acción a tomar en cada estado del entorno, mientras que la función de valor es una medida del valor esperado de cada estado.</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_1__topic_1_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (RL) es un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño. El RL tiene raíces en la psicología del aprendizaje y el condicionamiento, y ha sido influenciado por conceptos clave como el condicionamiento clásico de Pavlov, el condicionamiento operante de Skinner y la ley del efecto de Thorndike. Estos principios se utilizaron en experimentos con animales y luego sirvieron de base para los modelos computacionales del aprendizaje por refuerzo. A nivel computacional, el RL tuvo un desarrollo importante en la teoría del control y la toma de decisiones secuenciales, y ha sido impulsado por el desarrollo de diversos algoritmos que mejoraron la eficiencia y aplicabilidad del aprendizaje.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno.</td></tr><tr><td><strong>Aprendizaje supervisado</strong></td><td>Un enfoque del aprendizaje automático que se trabaja con datos etiquetados.</td></tr><tr><td><strong>Recompensas</strong></td><td>Retroalimentación que el agente recibe para ajustar su comportamiento y maximizar la suma acumulada de recompensas.</td></tr><tr><td><strong>Exploración</strong></td><td>Acción de probar nuevas acciones para obtener información sobre el entorno.</td></tr><tr><td><strong>Explotación</strong></td><td>Acción de utilizar conocimientos previos para optimizar el desempeño.</td></tr><tr><td><strong>Condicionamiento clásico</strong></td><td>Un tipo de condicionamiento que se basa en la asociación de estímulos con respuestas.</td></tr><tr><td><strong>Condicionamiento operante</strong></td><td>Un tipo de condicionamiento que se basa en la relación entre acciones y consecuencias.</td></tr><tr><td><strong>Ley del efecto de Thorndike</strong></td><td>Una ley que establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Exploración</td><td>Explotación</td><td>La exploración se refiere a probar nuevas acciones para obtener información, mientras que la explotación se refiere a utilizar conocimientos previos para optimizar el desempeño.</td></tr><tr><td>Aprendizaje por refuerzo</td><td>Aprendizaje supervisado</td><td>El aprendizaje por refuerzo se basa en la recepción de recompensas, mientras que el aprendizaje supervisado se basa en la recepción de datos etiquetados.</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_1__topic_1_sub_3" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_3"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~2 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (RL) es un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño.</p><p>El RL tiene raíces en la psicología del aprendizaje y el condicionamiento, y ha sido influenciado por conceptos como el condicionamiento clásico de Pavlov, el condicionamiento operante de Skinner y la ley del efecto de Thorndike. Estos principios se utilizaron en experimentos con animales y luego sirvieron de base para los modelos computacionales del aprendizaje por refuerzo.</p><p>En computacional, el RL tuvo un desarrollo importante en la teoría del control y la toma de decisiones secuenciales. Richard Bellman formuló la ecuación de Bellman, que permitió resolver problemas de optimización en entornos inciertos. Su trabajo en programación dinámica sentó las bases para algoritmos clave en RL.</p><p>El avance del RL se vio impulsado por el desarrollo de diversos algoritmos que mejoraron la eficiencia y aplicabilidad del aprendizaje, como los métodos de Monte Carlo, el aprendizaje por diferencias temporales (TD) y Q-learning. Estos algoritmos permitieron la optimización de políticas sin la necesidad de conocer un modelo del entorno, y han sido fundamentales para el desarrollo del RL.</p><p>En resumen, el RL es un enfoque del aprendizaje automático que permite a los agentes aprender a tomar decisiones secuenciales mediante la interacción con un entorno, y ha sido influenciado por conceptos como la psicología del aprendizaje y el condicionamiento. El RL ha tenido un desarrollo importante en la teoría del control y la toma de decisiones secuenciales, y ha sido impulsado por el desarrollo de algoritmos que mejoraron la eficiencia y aplicabilidad del aprendizaje.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno.</td></tr><tr><td><strong>Aprendizaje supervisado</strong></td><td>Un enfoque del aprendizaje automático que se trabaja con datos etiquetados.</td></tr><tr><td><strong>Condicionamiento clásico</strong></td><td>Un tipo de condicionamiento que se basa en la asociación de estímulos con respuestas.</td></tr><tr><td><strong>Condicionamiento operante</strong></td><td>Un tipo de condicionamiento que se basa en la modificación del comportamiento mediante el refuerzo o la recompensa.</td></tr><tr><td><strong>Ley del efecto de Thorndike</strong></td><td>Una ley que establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.</td></tr><tr><td><strong>Ecuación de Bellman</strong></td><td>Una ecuación que permite resolver problemas de optimización en entornos inciertos.</td></tr><tr><td><strong>Métodos de Monte Carlo</strong></td><td>Un tipo de algoritmo que permite estimar valores de estados y acciones a través de simulaciones.</td></tr><tr><td><strong>Aprendizaje por diferencias temporales (TD)</strong></td><td>Un tipo de algoritmo que permite actualizar estimaciones sin esperar el final de un episodio.</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Aprendizaje por refuerzo (RL)</td><td>Aprendizaje supervisado</td><td>El RL se trabaja con recompensas como retroalimentación, mientras que el aprendizaje supervisado se trabaja con datos etiquetados.</td></tr><tr><td>Condicionamiento clásico</td><td>Condicionamiento operante</td><td>El condicionamiento clásico se basa en la asociación de estímulos con respuestas, mientras que el condicionamiento operante se basa en la modificación del comportamiento mediante el refuerzo o la recompensa.</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🔗 Preguntas hermanas</h3>
+      <p>Variantes posibles del mismo concepto en el examen.</p>
+    </div></div>
+    <div class="panel">
+    <table>
+      <tr><th scope="col">Si preguntan...</th><th scope="col">También podrían preguntar...</th><th scope="col">Idea clave</th></tr>
+      <tr><td>¿Qué es el aprendizaje por refuerzo?</td><td>¿Qué es el aprendizaje por refuerzo en el contexto de la inteligencia artificial?</td><td><strong>El aprendizaje por refuerzo es un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno.</strong></td></tr><tr><td>¿Cuáles son los principios clave del aprendizaje por refuerzo?</td><td>¿Cuáles son los conceptos clave que influyeron en el desarrollo del aprendizaje por refuerzo?</td><td><strong>Los principios clave del aprendizaje por refuerzo incluyen el condicionamiento clásico, el condicionamiento operante y la ley del efecto de Thorndike.</strong></td></tr><tr><td>¿Cómo se relaciona el aprendizaje por refuerzo con la programación dinámica?</td><td>¿Cómo se relaciona el aprendizaje por refuerzo con la resolución de problemas de optimización en entornos inciertos?</td><td><strong>El aprendizaje por refuerzo se relaciona con la programación dinámica a través de la ecuación de Bellman, que permite resolver problemas de optimización en entornos inciertos.</strong></td></tr><tr><td>¿Qué es la diferencia entre el aprendizaje por refuerzo y el aprendizaje supervisado?</td><td>¿Qué es la diferencia entre el aprendizaje por refuerzo y el aprendizaje supervisado en términos de retroalimentación?</td><td><strong>La principal diferencia entre el aprendizaje por refuerzo y el aprendizaje supervisado es que el aprendizaje por refuerzo se basa en recompensas mientras que el aprendizaje supervisado se basa en etiquetas.</strong></td></tr><tr><td>¿Cuáles son los algoritmos fundamentales del aprendizaje por refuerzo?</td><td>¿Cuáles son los métodos de aprendizaje por refuerzo que permiten la optimización de políticas?</td><td><strong>Los algoritmos fundamentales del aprendizaje por refuerzo incluyen Q-learning, SARSA, Monte Carlo y Temporal Difference Learning.</strong></td></tr>
+    </table>
+  </div>
+  </div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Introducción al Reinforcement Learning</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_1"> Solo para repasar
+    </label>
+    </div>
+    <p class='muted-note'>No se generaron flashcards para este tema.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>❓ Quiz — Introducción al Reinforcement Learning</h3>
+      <p>Preguntas tipo test con feedback inmediato. Las opciones se mezclan para que no memorices la posición.</p>
+    </div></div>
+    <p class='muted-note'>No se generaron preguntas para este tema.</p>
+  </div>
+
+</section>
+<section id="topic_2">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">2</span>Proceso de Decisión de Markov (MDP)</h2>
+      <p>Fundamentos de los procesos de Markov  ·  Markov Reward Process (MRP)  ·  Markov Decision Process (MDP)</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_2__topic_2_sub_1" aria-controls="topic_2__topic_2_sub_1" aria-selected="true" onclick="openTab('topic_2__topic_2_sub_1', this, 'topic_2')">Fundamentos de los procesos de Markov</button><button class="tab" role="tab" id="tabbtn-topic_2__topic_2_sub_2" aria-controls="topic_2__topic_2_sub_2" aria-selected="false" onclick="openTab('topic_2__topic_2_sub_2', this, 'topic_2')">Markov Reward Process (MRP)</button><button class="tab" role="tab" id="tabbtn-topic_2__topic_2_sub_3" aria-controls="topic_2__topic_2_sub_3" aria-selected="false" onclick="openTab('topic_2__topic_2_sub_3', this, 'topic_2')">Markov Decision Process (MDP)</button></div>
+  <div class="tab-content active" id="topic_2__topic_2_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (RL) es un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño. El RL tiene raíces en la psicología del aprendizaje y el condicionamiento, y ha evolucionado a través de la teoría del control y la toma de decisiones secuenciales. Los algoritmos fundamentales del RL incluyen los métodos de Monte Carlo, el aprendizaje por diferencias temporales y Q-learning, que permiten la optimización de políticas sin la necesidad de conocer un modelo del entorno. El RL se ha aplicado en diversas áreas, como la robótica, la optimización de estrategias en juegos y el ajuste de modelos de lenguaje de gran escala (LLMs). En este tema, se estudiará el Proceso de Decisión de Markov (MDP), un marco matemático esencial para modelar problemas de toma de decisiones en entornos estocásticos.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por Refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno.</td></tr><tr><td><strong>Aprendizaje Supervisado</strong></td><td>Un enfoque del aprendizaje automático en el que se trabaja con datos etiquetados.</td></tr><tr><td><strong>Entorno</strong></td><td>Un espacio en el que se encuentra el agente y se le presentan acciones para tomar decisiones.</td></tr><tr><td><strong>Recompensa</strong></td><td>Un valor numérico asignado a una acción para motivar al agente a tomar esa acción en el futuro.</td></tr><tr><td><strong>Exploración</strong></td><td>La acción de probar una acción nueva para obtener información sobre el entorno.</td></tr><tr><td><strong>Explotación</strong></td><td>La acción de tomar una acción conocida que tiene un alto valor esperado.</td></tr><tr><td><strong>Política</strong></td><td>Una función que describe la estrategia del agente para tomar decisiones.</td></tr><tr><td><strong>MDP</strong></td><td>Un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos.</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Exploración</td><td>Explotación</td><td>La exploración se refiere a probar acciones nuevas para obtener información, mientras que la explotación se refiere a tomar acciones conocidas con alto valor esperado.</td></tr><tr><td>Q-learning</td><td>SARSA</td><td>Q-learning se enfoca en optimizar políticas sin conocer el modelo del entorno, mientras que SARSA se enfoca en equilibrar exploración y explotación.</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_2__topic_2_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El Reinforcement Learning (RL) es un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño. El RL tiene raíces en la psicología del aprendizaje y el condicionamiento, y ha evolucionado a lo largo de los años con el desarrollo de diversos algoritmos que mejoraron su eficiencia y aplicabilidad. Algunos de los algoritmos fundamentales del RL incluyen el Q-learning, SARSA y el aprendizaje por diferencias temporales (Temporal Difference Learning). Estos algoritmos permiten la optimización de políticas y la mejora del desempeño del agente en el entorno.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por Refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno</td></tr><tr><td><strong>Aprendizaje Supervisado</strong></td><td>Un enfoque del aprendizaje automático que se trabaja con datos etiquetados</td></tr><tr><td><strong>Q-learning</strong></td><td>Un algoritmo fundamental del RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno</td></tr><tr><td><strong>SARSA</strong></td><td>Un algoritmo del RL que incorpora estrategias de exploración y explotación</td></tr><tr><td><strong>Aprendizaje por Diferencias Temporales (TD)</strong></td><td>Un algoritmo del RL que introduce una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio</td></tr><tr><td><strong>Política</strong></td><td>Una función que define la acción a tomar en un estado dado</td></tr><tr><td><strong>Entorno</strong></td><td>Un espacio de estados y acciones en el que se opera el agente</td></tr><tr><td><strong>Recompensa</strong></td><td>Un valor numérico que se asigna a una acción para reflejar su utilidad</td></tr><tr><td><strong>Exploración</strong></td><td>La acción de explorar acciones nuevas en un entorno</td></tr><tr><td><strong>Explotación</strong></td><td>La acción de explotar conocimientos previos para optimizar el desempeño</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Exploración</td><td>Explotación</td><td>La exploración se refiere a la acción de explorar acciones nuevas, mientras que la explotación se refiere a la acción de explotar conocimientos previos</td></tr><tr><td>Política</td><td>Función de Valor</td><td>La política es una función que define la acción a tomar en un estado dado, mientras que la función de valor es una función que asigna un valor numérico a cada estado</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_2__topic_2_sub_3" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_3"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El Aprendizaje por Refuerzo (RL) es un paradigma de la inteligencia artificial que permite a un agente aprender a tomar decisiones de manera autónoma a través de la interacción con su entorno. El RL se basa en la recepción de recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño. El RL tiene raíces en la psicología del aprendizaje y el condicionamiento, y ha evolucionado a lo largo de los años con el desarrollo de algoritmos fundamentales como Q-learning, SARSA y Monte Carlo. El RL se aplica en diversas áreas, como la robótica, la optimización de estrategias en juegos y el ajuste de modelos de lenguaje de gran escala (LLMs). En este tema, se estudiará el Proceso de Decisión de Markov (MDP), un marco matemático esencial para modelar problemas de toma de decisiones en entornos estocásticos.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por Refuerzo (RL)</strong></td><td>Un paradigma de la inteligencia artificial que permite a un agente aprender a tomar decisiones de manera autónoma a través de la interacción con su entorno.</td></tr><tr><td><strong>Entorno</strong></td><td>Un espacio en el que se encuentra el agente y que interactúa con él para producir recompensas.</td></tr><tr><td><strong>Recompensa</strong></td><td>Un valor numérico que se asigna a una acción para indicar si es deseable o no.</td></tr><tr><td><strong>Exploración</strong></td><td>La acción de probar nuevas acciones para obtener más información sobre el entorno.</td></tr><tr><td><strong>Explotación</strong></td><td>La acción de elegir acciones que se conocen y que tienen una probabilidad de maximizar la recompensa.</td></tr><tr><td><strong>Política</strong></td><td>Una función que describe la probabilidad de elegir una acción en un estado dado.</td></tr><tr><td><strong>Valor de estado</strong></td><td>Una función que describe la recompensa esperada de tomar una acción en un estado dado.</td></tr><tr><td><strong>Valor de acción</strong></td><td>Una función que describe la recompensa esperada de tomar una acción en un estado dado.</td></tr><tr><td><strong>Diferencia temporal</strong></td><td>La diferencia entre la recompensa esperada de una acción y la recompensa esperada de no tomar esa acción.</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Exploración</td><td>Explotación</td><td>La exploración se refiere a probar nuevas acciones para obtener más información, mientras que la explotación se refiere a elegir acciones que se conocen y que tienen una probabilidad de maximizar la recompensa.</td></tr><tr><td>Política</td><td>Valor de estado</td><td>La política describe la probabilidad de elegir una acción en un estado dado, mientras que el valor de estado describe la recompensa esperada de tomar una acción en un estado dado.</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🔗 Preguntas hermanas</h3>
+      <p>Variantes posibles del mismo concepto en el examen.</p>
+    </div></div>
+    <div class="panel">
+    <table>
+      <tr><th scope="col">Si preguntan...</th><th scope="col">También podrían preguntar...</th><th scope="col">Idea clave</th></tr>
+      <tr><td>¿Qué es el objetivo principal del aprendizaje por refuerzo?</td><td>El objetivo principal es maximizar la suma acumulada de recompensas a lo largo del tiempo.</td><td><strong>Maximizar la suma acumulada de recompensas</strong></td></tr><tr><td>¿Qué tipo de aprendizaje es el aprendizaje por refuerzo?</td><td>Es un tipo de aprendizaje automático que se basa en la interacción con un entorno.</td><td><strong>Aprendizaje automático con retroalimentación</strong></td></tr><tr><td>¿Qué papel juega la exploración en el aprendizaje por refuerzo?</td><td>La exploración es fundamental para encontrar acciones nuevas y optimizar el desempeño.</td><td><strong>Exploración es fundamental para optimizar el desempeño</strong></td></tr><tr><td>¿Qué es la ecuación de Bellman?</td><td>Es una ecuación que permite resolver problemas de optimización en entornos inciertos.</td><td><strong>Permite resolver problemas de optimización en entornos inciertos</strong></td></tr><tr><td>¿Qué es el Q-learning?</td><td>Es un algoritmo fundamental que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno.</td><td><strong>Permite la optimización de políticas sin conocer el modelo del entorno</strong></td></tr><tr><td>¿Qué es la diferencia entre el aprendizaje por refuerzo y el aprendizaje supervisado?</td><td>El aprendizaje por refuerzo se basa en la interacción con un entorno, mientras que el aprendizaje supervisado se basa en datos etiquetados.</td><td><strong>Se basa en la interacción con un entorno</strong></td></tr>
+    </table>
+  </div>
+  </div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Proceso de Decisión de Markov (MDP)</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_2"> Solo para repasar
+    </label>
+    </div>
+    <p class='muted-note'>No se generaron flashcards para este tema.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>❓ Quiz — Proceso de Decisión de Markov (MDP)</h3>
+      <p>Preguntas tipo test con feedback inmediato. Las opciones se mezclan para que no memorices la posición.</p>
+    </div></div>
+    <p class='muted-note'>No se generaron preguntas para este tema.</p>
+  </div>
+
+</section>
+<section id="topic_3">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">3</span>Métodos y algoritmos en Reinforcement Learning</h2>
+      <p>Métodos de predicción: estimación de la función de valor  ·  Métodos de control: optimización de políticas</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_3__topic_3_sub_1" aria-controls="topic_3__topic_3_sub_1" aria-selected="true" onclick="openTab('topic_3__topic_3_sub_1', this, 'topic_3')">Métodos de predicción: estimación de la función de valor</button><button class="tab" role="tab" id="tabbtn-topic_3__topic_3_sub_2" aria-controls="topic_3__topic_3_sub_2" aria-selected="false" onclick="openTab('topic_3__topic_3_sub_2', this, 'topic_3')">Métodos de control: optimización de políticas</button></div>
+  <div class="tab-content active" id="topic_3__topic_3_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_3__topic_3_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (RL) es un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno.</td></tr><tr><td><strong>Condicionamiento clásico</strong></td><td>Un tipo de condicionamiento que demostró cómo los estímulos pueden asociarse con respuestas.</td></tr><tr><td><strong>Condicionamiento operante</strong></td><td>Un tipo de condicionamiento que introdujo la idea de refuerzo positivo y negativo para modificar comportamientos.</td></tr><tr><td><strong>Ley del efecto de Thorndike</strong></td><td>Una ley que establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.</td></tr><tr><td><strong>Ecuación de Bellman</strong></td><td>Una ecuación que permite resolver problemas de optimización en entornos inciertos.</td></tr><tr><td><strong>Q-learning</strong></td><td>Un algoritmo fundamental que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno.</td></tr><tr><td><strong>SARSA</strong></td><td>Un algoritmo que incorpora estrategias de exploración y explotación, equilibrando la exploración y la explotación de acciones en entornos complejos.</td></tr><tr><td><strong>Métodos de Monte Carlo</strong></td><td>Un tipo de algoritmo que permite estimar valores de estados y acciones a traviés de simulaciones.</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Aprendizaje por refuerzo (RL) y Aprendizaje Supervisado</td><td>Aprendizaje por refuerzo (RL) y Aprendizaje por Imitación</td><td>El RL se enfoca en la interacción con un entorno para aprender a tomar decisiones, mientras que el aprendizaje supervisado se enfoca en la aprendizaje de patrones en datos etiquetados. El aprendizaje por imitación se enfoca en la aprendizaje de patrones en datos etiquetados y la imitación de acciones de un agente experto.</td></tr><tr><td>Q-learning y SARSA</td><td>Q-learning y TD-Learning</td><td>El Q-learning se enfoca en la optimización de polùticas sin la necesidad de conocer un modelo del entorno, mientras que el SARSA incorpora estrategias de exploración y explotación, equilibrando la exploración y la explotación de acciones en entornos complejos. El TD-Learning se enfoca en la aprendizaje por diferencias temporales, que permite estimar valores de estados y acciones a traviés de simulaciones.</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_3__topic_3_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_3__topic_3_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (Reinforcement Learning, RL) es un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño. El RL tiene raíces en la psicología del aprendizaje y el condicionamiento, y ha evolucionado a lo largo de los años con el desarrollo de algoritmos fundamentales como Q-learning, SARSA y Monte Carlo. Los algoritmos de RL permiten a los agentes aprender a tomar decisiones en entornos complejos y dinámicos, y han sido aplicados en una variedad de áreas, incluyendo la robótica, la optimización de estrategias en juegos y el ajuste de modelos de lenguaje de gran escala (LLMs). En este tema, se estudiará el Proceso de Decisión de Markov (MDP), un marco matemático esencial para modelar problemas de toma de decisiones en entornos estocásticos, y se explorarán distintos métodos de RL, desde enfoques clásicos hasta técnicas más avanzadas como el Deep Reinforcement Learning (DRL).</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno.</td></tr><tr><td><strong>Entorno</strong></td><td>Un espacio en el que se desarrolla el agente y se le presentan estímulos y recompensas.</td></tr><tr><td><strong>Recompensa</strong></td><td>Una señal que indica al agente si su acción es correcta o no, y le permite ajustar su comportamiento.</td></tr><tr><td><strong>Exploración</strong></td><td>La acción de probar nuevas acciones para obtener más información sobre el entorno.</td></tr><tr><td><strong>Explotación</strong></td><td>La acción de elegir acciones conocidas que tienen un alto valor esperado.</td></tr><tr><td><strong>Política</strong></td><td>Una función que determina la acción que tomará el agente en un estado específico.</td></tr><tr><td><strong>Valor esperado</strong></td><td>La media de las recompensas que se esperan obtener en un estado específico.</td></tr><tr><td><strong>Diferencia temporal</strong></td><td>La diferencia entre la recompensa actual y la recompensa esperada en el futuro.</td></tr><tr><td><strong>Q-learning</strong></td><td>Un algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno.</td></tr><tr><td><strong>SARSA</strong></td><td>Un algoritmo de RL que incorpora estrategias de exploración y explotación.</td></tr><tr><td><strong>Monte Carlo</strong></td><td>Un algoritmo de RL que permite estimar valores de estados y acciones a través de simulaciones.</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Exploración</td><td>Explotación</td><td>La exploración se refiere a probar nuevas acciones para obtener más información, mientras que la explotación se refiere a elegir acciones conocidas que tienen un alto valor esperado.</td></tr><tr><td>Política</td><td>Valor esperado</td><td>La política es una función que determina la acción que tomará el agente en un estado específico, mientras que el valor esperado es la media de las recompensas que se esperan obtener en un estado específico.</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Métodos y algoritmos en Reinforcement Learning</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_3"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_3"><div class="flip" id="flip-topic_3__fc0" data-fcid="topic_3__fc0" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: RL. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>RL</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Reinforcement Learning, un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc0" data-state="know" onclick="markCard(event,'topic_3__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc0" data-state="review" onclick="markCard(event,'topic_3__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc1" data-fcid="topic_3__fc1" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Q-learning. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Q-learning</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un algoritmo fundamental que permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc1" data-state="know" onclick="markCard(event,'topic_3__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc1" data-state="review" onclick="markCard(event,'topic_3__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc2" data-fcid="topic_3__fc2" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: SARSA. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>SARSA</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un algoritmo que incorporó estrategias de exploración y explotación, equilibrando la búsqueda de nuevas acciones con la explotación de conocimientos previos.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc2" data-state="know" onclick="markCard(event,'topic_3__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc2" data-state="review" onclick="markCard(event,'topic_3__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc3" data-fcid="topic_3__fc3" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Markov Decision Process (MDP). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Markov Decision Process (MDP)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un marco matemático esencial para modelar problemas de toma de decisiones en entornos estocásticos.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc3" data-state="know" onclick="markCard(event,'topic_3__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc3" data-state="review" onclick="markCard(event,'topic_3__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc4" data-fcid="topic_3__fc4" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Deep Reinforcement Learning (DRL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Deep Reinforcement Learning (DRL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Técnicas de aprendizaje por refuerzo que utilizan redes neuronales profundas para mejorar la eficiencia y aplicabilidad del aprendizaje por refuerzo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc4" data-state="know" onclick="markCard(event,'topic_3__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc4" data-state="review" onclick="markCard(event,'topic_3__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc5" data-fcid="topic_3__fc5" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Monte Carlo. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Monte Carlo</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un método que permite estimar valores de estados y acciones a través de simulaciones.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc5" data-state="know" onclick="markCard(event,'topic_3__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc5" data-state="review" onclick="markCard(event,'topic_3__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc6" data-fcid="topic_3__fc6" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Temporal Difference Learning (TD). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Temporal Difference Learning (TD)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un algoritmo que introdujo una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc6" data-state="know" onclick="markCard(event,'topic_3__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc6" data-state="review" onclick="markCard(event,'topic_3__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc7" data-fcid="topic_3__fc7" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: RL vs Supervised Learning. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>RL vs Supervised Learning</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El aprendizaje por refuerzo se diferencia del aprendizaje supervisado en que el agente recibe recompensas como retroalimentación, en lugar de datos etiquetados.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc7" data-state="know" onclick="markCard(event,'topic_3__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc7" data-state="review" onclick="markCard(event,'topic_3__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc8" data-fcid="topic_3__fc8" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Exploración-Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Exploración-Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un concepto clave en el aprendizaje por refuerzo, que se refiere a la búsqueda de nuevas acciones y la explotación de conocimientos previos para optimizar el desempeño.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc8" data-state="know" onclick="markCard(event,'topic_3__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc8" data-state="review" onclick="markCard(event,'topic_3__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc9" data-fcid="topic_3__fc9" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Ley del efecto de Thorndike. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Ley del efecto de Thorndike</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una ley que establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc9" data-state="know" onclick="markCard(event,'topic_3__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc9" data-state="review" onclick="markCard(event,'topic_3__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc10" data-fcid="topic_3__fc10" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Condicionamiento clásico. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Condicionamiento clásico</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un concepto clave en la psicología del aprendizaje que demostró cómo los estímulos pueden asociarse con respuestas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc10" data-state="know" onclick="markCard(event,'topic_3__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc10" data-state="review" onclick="markCard(event,'topic_3__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc11" data-fcid="topic_3__fc11" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Condicionamiento operante. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Condicionamiento operante</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un concepto clave en la psicología del aprendizaje que introdujo la idea de refuerzo positivo y negativo para modificar comportamientos.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc11" data-state="know" onclick="markCard(event,'topic_3__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc11" data-state="review" onclick="markCard(event,'topic_3__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>❓ Quiz — Métodos y algoritmos en Reinforcement Learning</h3>
+      <p>Preguntas tipo test con feedback inmediato. Las opciones se mezclan para que no memorices la posición.</p>
+    </div></div>
+    <div class="quiz-grid" data-topic="topic_3"><div class="quiz-card" id="card-topic_3_q0" data-qid="topic_3_q0" data-topic="topic_3" data-correct="3">
+          <h3>1. ¿Qué es el objetivo principal del aprendizaje por refuerzo (RL)?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q0',0,3,this,'El objetivo principal del RL es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra a través de la interacción con el entorno y la exploración-explotación de acciones.')">a. Optimizar la estrategia para el entorno</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q0',1,3,this,'El objetivo principal del RL es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra a través de la interacción con el entorno y la exploración-explotación de acciones.')">b. Minimizar la suma acumulada de recompensas</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q0',2,3,this,'El objetivo principal del RL es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra a través de la interacción con el entorno y la exploración-explotación de acciones.')">c. Explorar acciones nuevas</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q0',3,3,this,'El objetivo principal del RL es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra a través de la interacción con el entorno y la exploración-explotación de acciones.')">d. Maximizar la suma acumulada de recompensas</button></div>
+          <div class="quiz-note" id="note-topic_3_q0" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q0" style="display:none"
+            onclick="retryQuestion('topic_3_q0')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q1" data-qid="topic_3_q1" data-topic="topic_3" data-correct="0">
+          <h3>2. ¿Cuál es el algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q1',0,0,this,'El algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno es el Q-learning.')">a. SARSA</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q1',1,0,this,'El algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno es el Q-learning.')">b. Temporal Difference Learning</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q1',2,0,this,'El algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno es el Q-learning.')">c. Monte Carlo</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q1',3,0,this,'El algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno es el Q-learning.')">d. Q-learning</button></div>
+          <div class="quiz-note" id="note-topic_3_q1" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q1" style="display:none"
+            onclick="retryQuestion('topic_3_q1')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q2" data-qid="topic_3_q2" data-topic="topic_3" data-correct="0">
+          <h3>3. ¿Qué es la ley del efecto de Thorndike?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q2',0,0,this,'La ley del efecto de Thorndike establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.')">a. Las acciones con consecuencias positivas tienen más probabilidades de repetirse</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q2',1,0,this,'La ley del efecto de Thorndike establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.')">b. Las acciones con consecuencias negativas tienen más probabilidades de repetirse</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q2',2,0,this,'La ley del efecto de Thorndike establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.')">c. Las acciones con consecuencias desconocidas no se pueden predecir</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q2',3,0,this,'La ley del efecto de Thorndike establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.')">d. Las acciones con consecuencias neutras no tienen impacto</button></div>
+          <div class="quiz-note" id="note-topic_3_q2" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q2" style="display:none"
+            onclick="retryQuestion('topic_3_q2')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q3" data-qid="topic_3_q3" data-topic="topic_3" data-correct="3">
+          <h3>4. ¿Cuál es el principal beneficio del aprendizaje por refuerzo (RL) en comparación con el aprendizaje supervisado?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q3',0,3,this,'El principal beneficio del RL es que el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas.')">a. El agente solo aprende a reconocer patrones</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q3',1,3,this,'El principal beneficio del RL es que el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas.')">b. El agente recibe datos etiquetados</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q3',2,3,this,'El principal beneficio del RL es que el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas.')">c. El agente no aprende a tomar decisiones secuenciales</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q3',3,3,this,'El principal beneficio del RL es que el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas.')">d. El agente recibe recompensas como retroalimentación</button></div>
+          <div class="quiz-note" id="note-topic_3_q3" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q3" style="display:none"
+            onclick="retryQuestion('topic_3_q3')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q4" data-qid="topic_3_q4" data-topic="topic_3" data-correct="2">
+          <h3>5. ¿Cuál es el algoritmo de RL que utiliza una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q4',0,2,this,'El algoritmo de RL que utiliza una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio es el Temporal Difference Learning.')">a. SARSA</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q4',1,2,this,'El algoritmo de RL que utiliza una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio es el Temporal Difference Learning.')">b. Q-learning</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q4',2,2,this,'El algoritmo de RL que utiliza una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio es el Temporal Difference Learning.')">c. Monte Carlo</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q4',3,2,this,'El algoritmo de RL que utiliza una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio es el Temporal Difference Learning.')">d. Temporal Difference Learning</button></div>
+          <div class="quiz-note" id="note-topic_3_q4" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q4" style="display:none"
+            onclick="retryQuestion('topic_3_q4')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q5" data-qid="topic_3_q5" data-topic="topic_3" data-correct="0">
+          <h3>6. ¿Qué es el Proceso de Decisión de Markov (MDP)?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q5',0,0,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos.')">a. Un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q5',1,0,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos.')">b. Un algoritmo de RL</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q5',2,0,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos.')">c. Un objetivo del RL</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q5',3,0,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos.')">d. Un tipo de recompensa</button></div>
+          <div class="quiz-note" id="note-topic_3_q5" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q5" style="display:none"
+            onclick="retryQuestion('topic_3_q5')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q6" data-qid="topic_3_q6" data-topic="topic_3" data-correct="2">
+          <h3>7. ¿Cuál es el principal desafío en el aprendizaje por refuerzo (RL) en entornos complejos?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q6',0,2,this,'El principal desafío en el RL en entornos complejos es la interpretabilidad de las acciones tomadas, ya que es difícil entender por qué se tomaron ciertas decisiones.')">a. La falta de datos etiquetados</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q6',1,2,this,'El principal desafío en el RL en entornos complejos es la interpretabilidad de las acciones tomadas, ya que es difícil entender por qué se tomaron ciertas decisiones.')">b. La complejidad de la estrategia</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q6',2,2,this,'El principal desafío en el RL en entornos complejos es la interpretabilidad de las acciones tomadas, ya que es difícil entender por qué se tomaron ciertas decisiones.')">c. La interpretabilidad de las acciones tomadas</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q6',3,2,this,'El principal desafío en el RL en entornos complejos es la interpretabilidad de las acciones tomadas, ya que es difícil entender por qué se tomaron ciertas decisiones.')">d. La necesidad de conocer un modelo del entorno</button></div>
+          <div class="quiz-note" id="note-topic_3_q6" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q6" style="display:none"
+            onclick="retryQuestion('topic_3_q6')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q7" data-qid="topic_3_q7" data-topic="topic_3" data-correct="0">
+          <h3>8. ¿Qué es el Deep Reinforcement Learning (DRL)?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q7',0,0,this,'El Deep Reinforcement Learning (DRL) es un tipo de RL que utiliza redes neuronales profundas para mejorar la eficiencia y aplicabilidad del aprendizaje por refuerzo.')">a. Un tipo de RL que utiliza redes neuronales profundas</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q7',1,0,this,'El Deep Reinforcement Learning (DRL) es un tipo de RL que utiliza redes neuronales profundas para mejorar la eficiencia y aplicabilidad del aprendizaje por refuerzo.')">b. Un algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q7',2,0,this,'El Deep Reinforcement Learning (DRL) es un tipo de RL que utiliza redes neuronales profundas para mejorar la eficiencia y aplicabilidad del aprendizaje por refuerzo.')">c. Un objetivo del RL</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q7',3,0,this,'El Deep Reinforcement Learning (DRL) es un tipo de RL que utiliza redes neuronales profundas para mejorar la eficiencia y aplicabilidad del aprendizaje por refuerzo.')">d. Un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos</button></div>
+          <div class="quiz-note" id="note-topic_3_q7" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q7" style="display:none"
+            onclick="retryQuestion('topic_3_q7')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_3_q8" data-qid="topic_3_q8" data-topic="topic_3" data-correct="0">
+          <h3>9. ¿Cuál es el principal beneficio del aprendizaje por refuerzo (RL) en comparación con otros enfoques de aprendizaje automático?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_3_q8',0,0,this,'El principal beneficio del RL es que el agente puede aprender a tomar decisiones secuenciales, lo que lo permite adaptarse a entornos dinámicos y cambiantes.')">a. El agente puede aprender a tomar decisiones secuenciales</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_3_q8',1,0,this,'El principal beneficio del RL es que el agente puede aprender a tomar decisiones secuenciales, lo que lo permite adaptarse a entornos dinámicos y cambiantes.')">b. El agente puede aprender a clasificar datos</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_3_q8',2,0,this,'El principal beneficio del RL es que el agente puede aprender a tomar decisiones secuenciales, lo que lo permite adaptarse a entornos dinámicos y cambiantes.')">c. El agente puede aprender a reconocer patrones</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_3_q8',3,0,this,'El principal beneficio del RL es que el agente puede aprender a tomar decisiones secuenciales, lo que lo permite adaptarse a entornos dinámicos y cambiantes.')">d. El agente no puede aprender a tomar decisiones</button></div>
+          <div class="quiz-note" id="note-topic_3_q8" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_3_q8" style="display:none"
+            onclick="retryQuestion('topic_3_q8')">🔄 Reintentar</button>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_4">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">4</span>Aplicaciones y casos de uso de Reinforcement Learning</h2>
+      <p>Juegos  ·  Robótica y control de sistemas</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_4__topic_4_sub_1" aria-controls="topic_4__topic_4_sub_1" aria-selected="true" onclick="openTab('topic_4__topic_4_sub_1', this, 'topic_4')">Juegos</button><button class="tab" role="tab" id="tabbtn-topic_4__topic_4_sub_2" aria-controls="topic_4__topic_4_sub_2" aria-selected="false" onclick="openTab('topic_4__topic_4_sub_2', this, 'topic_4')">Robótica y control de sistemas</button></div>
+  <div class="tab-content active" id="topic_4__topic_4_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_4__topic_4_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (Reinforcement Learning, RL) es un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño.</p><p>El RL tiene raíces en la psicología del aprendizaje y el condicionamiento. El condicionamiento clásico de Pavlov demostró cómo los estímulos pueden asociarse con respuestas, mientras que el condicionamiento operante de Skinner introdujo la idea de refuerzo positivo y negativo para modificar comportamientos. La ley del efecto de Thorndike establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse.</p><p>A nivel computacional, el RL se vio impulsado por el desarrollo de diversos algoritmos que mejoraron la eficiencia y aplicabilidad del aprendizaje. Los métodos de Monte Carlo permiten estimar valores de estados y acciones a través de simulaciones, mientras que el aprendizaje por diferencias temporales (Temporal Difference Learning, TD) introdujo una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio. El Q-learning (1989, Watkins) es un algoritmo fundamental que permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno.</p><p>En resumen, el RL es un enfoque del aprendizaje automático que utiliza recompensas para ajustar el comportamiento del agente, y se basa en la exploración y explotación de conocimientos previos. El RL tiene raíces en la psicología del aprendizaje y el condicionamiento, y se ha desarrollado a través de la creación de algoritmos computacionales que mejoran la eficiencia y aplicabilidad del aprendizaje.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático que utiliza recompensas para ajustar el comportamiento del agente</td></tr><tr><td><strong>Condicionamiento clásico</strong></td><td>Un tipo de condicionamiento que muestra cómo los estímulos pueden asociarse con respuestas</td></tr><tr><td><strong>Condicionamiento operante</strong></td><td>Un tipo de condicionamiento que introduce la idea de refuerzo positivo y negativo para modificar comportamientos</td></tr><tr><td><strong>Ley del efecto de Thorndike</strong></td><td>Una ley que establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse</td></tr><tr><td><strong>Métodos de Monte Carlo</strong></td><td>Un tipo de algoritmo que permite estimar valores de estados y acciones a través de simulaciones</td></tr><tr><td><strong>Aprendizaje por diferencias temporales (TD)</strong></td><td>Un tipo de algoritmo que introduce una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio</td></tr><tr><td><strong>Q-learning</strong></td><td>Un algoritmo fundamental que permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno</td></tr><tr><td><strong>SARSA</strong></td><td>Un algoritmo que incorpora estrategias de exploración y explotación, equilibrando la búsqueda de recompensas y la conservación de conocimientos</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>RL</td><td>Aprendizaje supervisado</td><td>RL utiliza recompensas para ajustar el comportamiento, mientras que el aprendizaje supervisado trabaja con datos etiquetados</td></tr><tr><td>Q-learning</td><td>SARSA</td><td>Q-learning es un algoritmo fundamental que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno, mientras que SARSA incorpora estrategias de exploración y explotación</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_4__topic_4_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_4__topic_4_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>Reinforcement Learning (RL) es un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno. A diferencia del aprendizaje supervisado, donde se trabaja con datos etiquetados, en RL el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas a lo largo del tiempo. Este proceso implica la exploración de acciones nuevas y la explotación de conocimientos previos para optimizar su desempeño. La historia del RL se remonta a la psicología del aprendizaje y el condicionamiento, con influencias de Pavlov, Skinner y la ley del efecto de Thorndike. En computación, el RL se desarrolló en la teoría del control y la toma de decisiones secuenciales, con contribuciones de Richard Bellman y algoritmos como Q-learning y SARSA. Los algoritmos de RL se utilizan para optimizar políticas y tomar decisiones en entornos complejos, y se han aplicado en diversas áreas, como la robótica, la optimización de estrategias en juegos y el ajuste de modelos de lenguaje de gran escala (LLMs).</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Aprendizaje por Refuerzo (RL)</strong></td><td>Un enfoque del aprendizaje automático que permite a un agente aprender a tomar decisiones secuenciales mediante la interacción con un entorno</td></tr><tr><td><strong>Aprendizaje Supervisado</strong></td><td>Un enfoque del aprendizaje automático que se trabaja con datos etiquetados</td></tr><tr><td><strong>Política</strong></td><td>Una función que define las acciones a tomar en un estado dado</td></tr><tr><td><strong>Entorno</strong></td><td>Un espacio de estados y acciones en el que se desarrolla el agente</td></tr><tr><td><strong>Recompensa</strong></td><td>Una valoración que se asigna a una acción para incentivar el comportamiento deseado</td></tr><tr><td><strong>Exploración</strong></td><td>La acción de probar nuevas acciones para obtener información sobre el entorno</td></tr><tr><td><strong>Explotación</strong></td><td>La acción de elegir acciones conocidas que maximizan la recompensa</td></tr><tr><td><strong>Q-learning</strong></td><td>Un algoritmo fundamental que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno</td></tr><tr><td><strong>SARSA</strong></td><td>Un algoritmo que incorpora estrategias de exploración y explotación</td></tr>
+      </table>
+    </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>⚠️ Confusiones frecuentes</h4>
+      <table>
+        <tr><th scope="col">Concepto A</th><th scope="col">Concepto B</th><th scope="col">Diferencia clave</th></tr>
+        <tr><td>Aprendizaje por Refuerzo (RL)</td><td>Aprendizaje Supervisado</td><td>RL se enfoca en la interacción con un entorno y la recepción de recompensas, mientras que el aprendizaje supervisado se enfoca en la recepción de datos etiquetados</td></tr><tr><td>Exploración</td><td>Explotación</td><td>La exploración se enfoca en probar nuevas acciones para obtener información sobre el entorno, mientras que la explotación se enfoca en elegir acciones conocidas que maximizan la recompensa</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Aplicaciones y casos de uso de Reinforcement Learning</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_4"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_4"><div class="flip" id="flip-topic_4__fc0" data-fcid="topic_4__fc0" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: RL. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>RL</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Aprendizaje por Refuerzo (Reinforcement Learning), un enfoque del aprendizaje automático en el que un agente aprende a tomar decisiones secuenciales mediante la interacción con un entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc0" data-state="know" onclick="markCard(event,'topic_4__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc0" data-state="review" onclick="markCard(event,'topic_4__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc1" data-fcid="topic_4__fc1" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje Supervisado. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje Supervisado</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Aprendizaje automático en el que se trabaja con datos etiquetados, en oposición al aprendizaje por refuerzo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc1" data-state="know" onclick="markCard(event,'topic_4__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc1" data-state="review" onclick="markCard(event,'topic_4__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc2" data-fcid="topic_4__fc2" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Politica. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Politica</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una funcion que define la estrategia de accion del agente en un entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc2" data-state="know" onclick="markCard(event,'topic_4__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc2" data-state="review" onclick="markCard(event,'topic_4__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc3" data-fcid="topic_4__fc3" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Funcion de Valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Funcion de Valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una funcion que asigna un valor numérico a cada estado del entorno, que se utiliza para tomar decisiones.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc3" data-state="know" onclick="markCard(event,'topic_4__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc3" data-state="review" onclick="markCard(event,'topic_4__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc4" data-fcid="topic_4__fc4" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Diferencia Temporal. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Diferencia Temporal</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un algoritmo de aprendizaje que introduce una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc4" data-state="know" onclick="markCard(event,'topic_4__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc4" data-state="review" onclick="markCard(event,'topic_4__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc5" data-fcid="topic_4__fc5" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Q-learning. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Q-learning</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un algoritmo fundamental que permiti la optimización de politicas sin la necesidad de conocer un modelo del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc5" data-state="know" onclick="markCard(event,'topic_4__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc5" data-state="review" onclick="markCard(event,'topic_4__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc6" data-fcid="topic_4__fc6" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: SARSA. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>SARSA</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un algoritmo que incorpora estrategias de exploración y explotación, equilibrando la búsqueda de nuevos estados con la optimización de acciones.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc6" data-state="know" onclick="markCard(event,'topic_4__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc6" data-state="review" onclick="markCard(event,'topic_4__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc7" data-fcid="topic_4__fc7" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un espacio en el que se desarrolla el juego o problema que el agente debe resolver.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc7" data-state="know" onclick="markCard(event,'topic_4__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc7" data-state="review" onclick="markCard(event,'topic_4__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc8" data-fcid="topic_4__fc8" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una señal que el agente recibe después de tomar una acción, que le indica si la acción fue correcta o no.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc8" data-state="know" onclick="markCard(event,'topic_4__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc8" data-state="review" onclick="markCard(event,'topic_4__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc9" data-fcid="topic_4__fc9" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Exploración. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Exploración</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La acción de buscar nuevos estados o acciones para aprender más sobre el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc9" data-state="know" onclick="markCard(event,'topic_4__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc9" data-state="review" onclick="markCard(event,'topic_4__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc10" data-fcid="topic_4__fc10" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La acción de tomar acciones conocidas y optimizadas para maximizar la suma acumulada de recompensas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc10" data-state="know" onclick="markCard(event,'topic_4__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc10" data-state="review" onclick="markCard(event,'topic_4__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc11" data-fcid="topic_4__fc11" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Politica de Exploración. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Politica de Exploración</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una funcion que define la estrategia de exploración del agente en un entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc11" data-state="know" onclick="markCard(event,'topic_4__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc11" data-state="review" onclick="markCard(event,'topic_4__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc12" data-fcid="topic_4__fc12" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Episodio. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc12')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc12');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Episodio</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una unidad de tiempo en la que se evalú el progreso del agente en un entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc12" data-state="know" onclick="markCard(event,'topic_4__fc12','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc12" data-state="review" onclick="markCard(event,'topic_4__fc12','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>❓ Quiz — Aplicaciones y casos de uso de Reinforcement Learning</h3>
+      <p>Preguntas tipo test con feedback inmediato. Las opciones se mezclan para que no memorices la posición.</p>
+    </div></div>
+    <div class="quiz-grid" data-topic="topic_4"><div class="quiz-card" id="card-topic_4_q0" data-qid="topic_4_q0" data-topic="topic_4" data-correct="3">
+          <h3>1. ¿Qué es el objetivo principal del aprendizaje por refuerzo en el contexto del aprendizaje automático?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q0',0,3,this,'El objetivo principal del aprendizaje por refuerzo es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra mediante la exploración y explotación de acciones, lo que permite al agente ajustar su comportamiento para optimizar su rendimiento.')">a. Explorar el entorno del agente</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q0',1,3,this,'El objetivo principal del aprendizaje por refuerzo es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra mediante la exploración y explotación de acciones, lo que permite al agente ajustar su comportamiento para optimizar su rendimiento.')">b. Minimizar la suma acumulada de recompensas</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q0',2,3,this,'El objetivo principal del aprendizaje por refuerzo es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra mediante la exploración y explotación de acciones, lo que permite al agente ajustar su comportamiento para optimizar su rendimiento.')">c. Optimizar la estrategia del agente</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q0',3,3,this,'El objetivo principal del aprendizaje por refuerzo es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra mediante la exploración y explotación de acciones, lo que permite al agente ajustar su comportamiento para optimizar su rendimiento.')">d. Maximizar la suma acumulada de recompensas</button></div>
+          <div class="quiz-note" id="note-topic_4_q0" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q0" style="display:none"
+            onclick="retryQuestion('topic_4_q0')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q1" data-qid="topic_4_q1" data-topic="topic_4" data-correct="1">
+          <h3>2. ¿Cuál es el algoritmo de aprendizaje por refuerzo que se considera un clásico y fundamental en el campo?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q1',0,1,this,'Q-learning es considerado un clásico y fundamental en el campo del aprendizaje por refuerzo. Fue introducido en 1989 por Watkins y permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno.')">a. Q-learning</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q1',1,1,this,'Q-learning es considerado un clásico y fundamental en el campo del aprendizaje por refuerzo. Fue introducido en 1989 por Watkins y permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno.')">b. SARSA</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q1',2,1,this,'Q-learning es considerado un clásico y fundamental en el campo del aprendizaje por refuerzo. Fue introducido en 1989 por Watkins y permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno.')">c. TD-Learning</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q1',3,1,this,'Q-learning es considerado un clásico y fundamental en el campo del aprendizaje por refuerzo. Fue introducido en 1989 por Watkins y permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno.')">d. Monte Carlo</button></div>
+          <div class="quiz-note" id="note-topic_4_q1" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q1" style="display:none"
+            onclick="retryQuestion('topic_4_q1')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q2" data-qid="topic_4_q2" data-topic="topic_4" data-correct="3">
+          <h3>3. ¿Qué es el Proceso de Decisión de Markov (MDP) y su importancia en el aprendizaje por refuerzo?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q2',0,3,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático que permite modelar problemas de toma de decisiones en entornos estocásticos. Es fundamental en el aprendizaje por refuerzo ya que proporciona una forma estructurada de abordar problemas de optimización en entornos inciertos.')">a. Un tipo de recompensa</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q2',1,3,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático que permite modelar problemas de toma de decisiones en entornos estocásticos. Es fundamental en el aprendizaje por refuerzo ya que proporciona una forma estructurada de abordar problemas de optimización en entornos inciertos.')">b. Un tipo de estrategia del agente</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q2',2,3,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático que permite modelar problemas de toma de decisiones en entornos estocásticos. Es fundamental en el aprendizaje por refuerzo ya que proporciona una forma estructurada de abordar problemas de optimización en entornos inciertos.')">c. Un algoritmo de aprendizaje por refuerzo</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q2',3,3,this,'El Proceso de Decisión de Markov (MDP) es un marco matemático que permite modelar problemas de toma de decisiones en entornos estocásticos. Es fundamental en el aprendizaje por refuerzo ya que proporciona una forma estructurada de abordar problemas de optimización en entornos inciertos.')">d. Un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos</button></div>
+          <div class="quiz-note" id="note-topic_4_q2" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q2" style="display:none"
+            onclick="retryQuestion('topic_4_q2')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q3" data-qid="topic_4_q3" data-topic="topic_4" data-correct="1">
+          <h3>4. ¿Cuál es la ventaja principal del aprendizaje por refuerzo en comparación con el aprendizaje supervisado?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q3',0,1,this,'La ventaja principal del aprendizaje por refuerzo en comparación con el aprendizaje supervisado es la capacidad de ajustar el comportamiento del agente a través de la exploración y explotación de acciones. Esto permite al agente adaptarse a entornos dinámicos y optimizar su rendimiento.')">a. La capacidad de aprender a partir de datos no etiquetados</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q3',1,1,this,'La ventaja principal del aprendizaje por refuerzo en comparación con el aprendizaje supervisado es la capacidad de ajustar el comportamiento del agente a través de la exploración y explotación de acciones. Esto permite al agente adaptarse a entornos dinámicos y optimizar su rendimiento.')">b. La capacidad de ajustar el comportamiento del agente</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q3',2,1,this,'La ventaja principal del aprendizaje por refuerzo en comparación con el aprendizaje supervisado es la capacidad de ajustar el comportamiento del agente a través de la exploración y explotación de acciones. Esto permite al agente adaptarse a entornos dinámicos y optimizar su rendimiento.')">c. La capacidad de aprender a partir de datos etiquetados</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q3',3,1,this,'La ventaja principal del aprendizaje por refuerzo en comparación con el aprendizaje supervisado es la capacidad de ajustar el comportamiento del agente a través de la exploración y explotación de acciones. Esto permite al agente adaptarse a entornos dinámicos y optimizar su rendimiento.')">d. La capacidad de optimizar la estrategia del agente</button></div>
+          <div class="quiz-note" id="note-topic_4_q3" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q3" style="display:none"
+            onclick="retryQuestion('topic_4_q3')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q4" data-qid="topic_4_q4" data-topic="topic_4" data-correct="2">
+          <h3>5. ¿Qué es el Deep Reinforcement Learning (DRL) y su importancia en el aprendizaje por refuerzo?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q4',0,2,this,'El Deep Reinforcement Learning (DRL) es un enfoque del aprendizaje automático que utiliza redes neuronales profundas para aprender a tomar decisiones en entornos complejos. Es importante en el aprendizaje por refuerzo ya que proporciona una forma poderosa de abordar problemas de optimización en entornos inciertos.')">a. Un tipo de recompensa</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q4',1,2,this,'El Deep Reinforcement Learning (DRL) es un enfoque del aprendizaje automático que utiliza redes neuronales profundas para aprender a tomar decisiones en entornos complejos. Es importante en el aprendizaje por refuerzo ya que proporciona una forma poderosa de abordar problemas de optimización en entornos inciertos.')">b. Un tipo de estrategia del agente</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q4',2,2,this,'El Deep Reinforcement Learning (DRL) es un enfoque del aprendizaje automático que utiliza redes neuronales profundas para aprender a tomar decisiones en entornos complejos. Es importante en el aprendizaje por refuerzo ya que proporciona una forma poderosa de abordar problemas de optimización en entornos inciertos.')">c. Un enfoque del aprendizaje automático que utiliza redes neuronales profundas para aprender a tomar decisiones</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q4',3,2,this,'El Deep Reinforcement Learning (DRL) es un enfoque del aprendizaje automático que utiliza redes neuronales profundas para aprender a tomar decisiones en entornos complejos. Es importante en el aprendizaje por refuerzo ya que proporciona una forma poderosa de abordar problemas de optimización en entornos inciertos.')">d. Un algoritmo de aprendizaje por refuerzo</button></div>
+          <div class="quiz-note" id="note-topic_4_q4" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q4" style="display:none"
+            onclick="retryQuestion('topic_4_q4')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q5" data-qid="topic_4_q5" data-topic="topic_4" data-correct="0">
+          <h3>6. ¿Cuál es el desafío principal en la implementación del aprendizaje por refuerzo en problemas reales?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q5',0,0,this,'El desafío principal en la implementación del aprendizaje por refuerzo en problemas reales es la necesidad de ajustar el comportamiento del agente para optimizar su rendimiento en entornos dinámicos y complejos. Esto requiere la capacidad de explorar y explotar acciones de manera efectiva.')">a. La necesidad de optimizar la estrategia del agente</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q5',1,0,this,'El desafío principal en la implementación del aprendizaje por refuerzo en problemas reales es la necesidad de ajustar el comportamiento del agente para optimizar su rendimiento en entornos dinámicos y complejos. Esto requiere la capacidad de explorar y explotar acciones de manera efectiva.')">b. La necesidad de tener acceso a datos etiquetados</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q5',2,0,this,'El desafío principal en la implementación del aprendizaje por refuerzo en problemas reales es la necesidad de ajustar el comportamiento del agente para optimizar su rendimiento en entornos dinámicos y complejos. Esto requiere la capacidad de explorar y explotar acciones de manera efectiva.')">c. La necesidad de conocer un modelo del entorno</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q5',3,0,this,'El desafío principal en la implementación del aprendizaje por refuerzo en problemas reales es la necesidad de ajustar el comportamiento del agente para optimizar su rendimiento en entornos dinámicos y complejos. Esto requiere la capacidad de explorar y explotar acciones de manera efectiva.')">d. La necesidad de ajustar el comportamiento del agente</button></div>
+          <div class="quiz-note" id="note-topic_4_q5" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q5" style="display:none"
+            onclick="retryQuestion('topic_4_q5')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q6" data-qid="topic_4_q6" data-topic="topic_4" data-correct="2">
+          <h3>7. ¿Qué es la relación entre el aprendizaje por refuerzo y la psicología del aprendizaje?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q6',0,2,this,'El aprendizaje por refuerzo se basa en la psicología del aprendizaje, ya que utiliza conceptos como el condicionamiento clásico y el condicionamiento operante para modelar el comportamiento del agente.')">a. El aprendizaje por refuerzo se basa en la psicología del aprendizaje</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q6',1,2,this,'El aprendizaje por refuerzo se basa en la psicología del aprendizaje, ya que utiliza conceptos como el condicionamiento clásico y el condicionamiento operante para modelar el comportamiento del agente.')">b. El aprendizaje por refuerzo se basa en la teoría del condicionamiento</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q6',2,2,this,'El aprendizaje por refuerzo se basa en la psicología del aprendizaje, ya que utiliza conceptos como el condicionamiento clásico y el condicionamiento operante para modelar el comportamiento del agente.')">c. El aprendizaje por refuerzo es independiente de la psicología del aprendizaje</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q6',3,2,this,'El aprendizaje por refuerzo se basa en la psicología del aprendizaje, ya que utiliza conceptos como el condicionamiento clásico y el condicionamiento operante para modelar el comportamiento del agente.')">d. El aprendizaje por refuerzo es independiente de la teoría del condicionamiento</button></div>
+          <div class="quiz-note" id="note-topic_4_q6" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q6" style="display:none"
+            onclick="retryQuestion('topic_4_q6')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q7" data-qid="topic_4_q7" data-topic="topic_4" data-correct="3">
+          <h3>8. ¿Cuál es el papel del aprendizaje por refuerzo en la optimización de modelos de lenguaje?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q7',0,3,this,'El aprendizaje por refuerzo permite la optimización de modelos de lenguaje a través de la exploración y explotación de acciones, lo que permite al modelo adaptarse a entornos dinámicos y optimizar su rendimiento.')">a. Permitir la optimización de modelos de lenguaje a través de la regresión lineal</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q7',1,3,this,'El aprendizaje por refuerzo permite la optimización de modelos de lenguaje a través de la exploración y explotación de acciones, lo que permite al modelo adaptarse a entornos dinámicos y optimizar su rendimiento.')">b. Permitir la optimización de modelos de lenguaje a través de la programación dinámica</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q7',2,3,this,'El aprendizaje por refuerzo permite la optimización de modelos de lenguaje a través de la exploración y explotación de acciones, lo que permite al modelo adaptarse a entornos dinámicos y optimizar su rendimiento.')">c. Permitir la optimización de modelos de lenguaje a través de la supervisión y el aprendizaje supervisado</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q7',3,3,this,'El aprendizaje por refuerzo permite la optimización de modelos de lenguaje a través de la exploración y explotación de acciones, lo que permite al modelo adaptarse a entornos dinámicos y optimizar su rendimiento.')">d. Permitir la optimización de modelos de lenguaje a través de la exploración y explotación de acciones</button></div>
+          <div class="quiz-note" id="note-topic_4_q7" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q7" style="display:none"
+            onclick="retryQuestion('topic_4_q7')">🔄 Reintentar</button>
+        </div><div class="quiz-card" id="card-topic_4_q8" data-qid="topic_4_q8" data-topic="topic_4" data-correct="1">
+          <h3>9. ¿Qué es la relación entre el aprendizaje por refuerzo y la robótica?</h3>
+          <div class="opciones"><button type="button" class="quiz-option" data-idx="0" onclick="answer('topic_4_q8',0,1,this,'El aprendizaje por refuerzo se utiliza en la robótica para optimizar la estrategia del agente, lo que permite al robot adaptarse a entornos dinámicos y complejos.')">a. El aprendizaje por refuerzo se basa en la robótica</button><button type="button" class="quiz-option" data-idx="1" onclick="answer('topic_4_q8',1,1,this,'El aprendizaje por refuerzo se utiliza en la robótica para optimizar la estrategia del agente, lo que permite al robot adaptarse a entornos dinámicos y complejos.')">b. El aprendizaje por refuerzo se utiliza en la robótica para optimizar la estrategia del agente</button><button type="button" class="quiz-option" data-idx="2" onclick="answer('topic_4_q8',2,1,this,'El aprendizaje por refuerzo se utiliza en la robótica para optimizar la estrategia del agente, lo que permite al robot adaptarse a entornos dinámicos y complejos.')">c. El aprendizaje por refuerzo es independiente de la robótica</button><button type="button" class="quiz-option" data-idx="3" onclick="answer('topic_4_q8',3,1,this,'El aprendizaje por refuerzo se utiliza en la robótica para optimizar la estrategia del agente, lo que permite al robot adaptarse a entornos dinámicos y complejos.')">d. El aprendizaje por refuerzo es independiente de la robótica</button></div>
+          <div class="quiz-note" id="note-topic_4_q8" role="status"></div>
+          <button type="button" class="retry-btn" id="retry-topic_4_q8" style="display:none"
+            onclick="retryQuestion('topic_4_q8')">🔄 Reintentar</button>
+        </div></div>
+  </div>
+
+</section>
+  <section id="exam">
+  <div class="section-title">
+    <div><h2>🎓 Simulacro global</h2>
+    <p>Preguntas mezcladas de todos los temas. Configura y empieza cuando estés listo.</p></div>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="exam-toolbar">
+      <div class="exam-control">
+        <label for="examCount">Preguntas</label>
+        <input type="number" id="examCount" value="20" min="5" max="200" style="width:80px">
+      </div>
+      <label class="toggle-label"><input type="checkbox" id="examShuffle" checked> Mezclar</label>
+      <label class="toggle-label"><input type="checkbox" id="examShowTopic"> Mostrar tema</label>
+      <button class="primary" type="button" onclick="startExam()">▶ Iniciar</button>
+      <button type="button" onclick="gradeExam()">✅ Corregir</button>
+      <button type="button" onclick="resetExam()">🔄 Reiniciar</button>
+      <div class="score" id="examScore" role="status">Sin iniciar</div>
+    </div>
+  </div>
+  <div id="examGrid" class="quiz-grid"></div>
+  <div id="examBreakdown" class="result" style="display:none;margin-top:14px"></div>
+  <div id="examHistory" class="panel" style="margin-top:14px;display:none">
+    <h4>📈 Historial de simulacros</h4>
+    <table id="examHistoryTable"><tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr></table>
+  </div>
+</section>
+</main>
+
+<script>
+const QUESTIONS = [{"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Qué es el objetivo principal del aprendizaje por refuerzo (RL)?", "options": ["Maximizar la suma acumulada de recompensas", "Minimizar la suma acumulada de recompensas", "Optimizar la estrategia para el entorno", "Explorar acciones nuevas"], "answer": 0, "why": "El objetivo principal del RL es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra a través de la interacción con el entorno y la exploración-explotación de acciones."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Cuál es el algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno?", "options": ["Q-learning", "SARSA", "Monte Carlo", "Temporal Difference Learning"], "answer": 1, "why": "El algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno es el Q-learning."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Qué es la ley del efecto de Thorndike?", "options": ["Las acciones con consecuencias positivas tienen más probabilidades de repetirse", "Las acciones con consecuencias negativas tienen más probabilidades de repetirse", "Las acciones con consecuencias neutras no tienen impacto", "Las acciones con consecuencias desconocidas no se pueden predecir"], "answer": 0, "why": "La ley del efecto de Thorndike establece que las acciones con consecuencias positivas tienen más probabilidades de repetirse."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Cuál es el principal beneficio del aprendizaje por refuerzo (RL) en comparación con el aprendizaje supervisado?", "options": ["El agente recibe datos etiquetados", "El agente recibe recompensas como retroalimentación", "El agente no aprende a tomar decisiones secuenciales", "El agente solo aprende a reconocer patrones"], "answer": 1, "why": "El principal beneficio del RL es que el agente recibe recompensas como retroalimentación, lo que le permite ajustar su comportamiento para maximizar la suma acumulada de recompensas."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Cuál es el algoritmo de RL que utiliza una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio?", "options": ["Q-learning", "SARSA", "Monte Carlo", "Temporal Difference Learning"], "answer": 2, "why": "El algoritmo de RL que utiliza una forma más eficiente de actualizar estimaciones sin esperar el final de un episodio es el Temporal Difference Learning."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Qué es el Proceso de Decisión de Markov (MDP)?", "options": ["Un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos", "Un algoritmo de RL", "Un tipo de recompensa", "Un objetivo del RL"], "answer": 0, "why": "El Proceso de Decisión de Markov (MDP) es un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Cuál es el principal desafío en el aprendizaje por refuerzo (RL) en entornos complejos?", "options": ["La falta de datos etiquetados", "La complejidad de la estrategia", "La necesidad de conocer un modelo del entorno", "La interpretabilidad de las acciones tomadas"], "answer": 3, "why": "El principal desafío en el RL en entornos complejos es la interpretabilidad de las acciones tomadas, ya que es difícil entender por qué se tomaron ciertas decisiones."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Qué es el Deep Reinforcement Learning (DRL)?", "options": ["Un tipo de RL que utiliza redes neuronales profundas", "Un algoritmo de RL que permite la optimización de políticas sin la necesidad de conocer un modelo del entorno", "Un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos", "Un objetivo del RL"], "answer": 0, "why": "El Deep Reinforcement Learning (DRL) es un tipo de RL que utiliza redes neuronales profundas para mejorar la eficiencia y aplicabilidad del aprendizaje por refuerzo."}, {"topicId": "topic_3", "topicName": "Métodos y algoritmos en Reinforcement Learning", "q": "¿Cuál es el principal beneficio del aprendizaje por refuerzo (RL) en comparación con otros enfoques de aprendizaje automático?", "options": ["El agente puede aprender a tomar decisiones secuenciales", "El agente puede aprender a reconocer patrones", "El agente puede aprender a clasificar datos", "El agente no puede aprender a tomar decisiones"], "answer": 0, "why": "El principal beneficio del RL es que el agente puede aprender a tomar decisiones secuenciales, lo que lo permite adaptarse a entornos dinámicos y cambiantes."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Qué es el objetivo principal del aprendizaje por refuerzo en el contexto del aprendizaje automático?", "options": ["Maximizar la suma acumulada de recompensas", "Minimizar la suma acumulada de recompensas", "Optimizar la estrategia del agente", "Explorar el entorno del agente"], "answer": 0, "why": "El objetivo principal del aprendizaje por refuerzo es maximizar la suma acumulada de recompensas a lo largo del tiempo. Esto se logra mediante la exploración y explotación de acciones, lo que permite al agente ajustar su comportamiento para optimizar su rendimiento."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Cuál es el algoritmo de aprendizaje por refuerzo que se considera un clásico y fundamental en el campo?", "options": ["Q-learning", "SARSA", "Monte Carlo", "TD-Learning"], "answer": 1, "why": "Q-learning es considerado un clásico y fundamental en el campo del aprendizaje por refuerzo. Fue introducido en 1989 por Watkins y permitió la optimización de políticas sin la necesidad de conocer un modelo del entorno."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Qué es el Proceso de Decisión de Markov (MDP) y su importancia en el aprendizaje por refuerzo?", "options": ["Un marco matemático para modelar problemas de toma de decisiones en entornos estocásticos", "Un algoritmo de aprendizaje por refuerzo", "Un tipo de recompensa", "Un tipo de estrategia del agente"], "answer": 0, "why": "El Proceso de Decisión de Markov (MDP) es un marco matemático que permite modelar problemas de toma de decisiones en entornos estocásticos. Es fundamental en el aprendizaje por refuerzo ya que proporciona una forma estructurada de abordar problemas de optimización en entornos inciertos."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Cuál es la ventaja principal del aprendizaje por refuerzo en comparación con el aprendizaje supervisado?", "options": ["La capacidad de aprender a partir de datos etiquetados", "La capacidad de aprender a partir de datos no etiquetados", "La capacidad de ajustar el comportamiento del agente", "La capacidad de optimizar la estrategia del agente"], "answer": 2, "why": "La ventaja principal del aprendizaje por refuerzo en comparación con el aprendizaje supervisado es la capacidad de ajustar el comportamiento del agente a través de la exploración y explotación de acciones. Esto permite al agente adaptarse a entornos dinámicos y optimizar su rendimiento."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Qué es el Deep Reinforcement Learning (DRL) y su importancia en el aprendizaje por refuerzo?", "options": ["Un enfoque del aprendizaje automático que utiliza redes neuronales profundas para aprender a tomar decisiones", "Un tipo de recompensa", "Un tipo de estrategia del agente", "Un algoritmo de aprendizaje por refuerzo"], "answer": 0, "why": "El Deep Reinforcement Learning (DRL) es un enfoque del aprendizaje automático que utiliza redes neuronales profundas para aprender a tomar decisiones en entornos complejos. Es importante en el aprendizaje por refuerzo ya que proporciona una forma poderosa de abordar problemas de optimización en entornos inciertos."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Cuál es el desafío principal en la implementación del aprendizaje por refuerzo en problemas reales?", "options": ["La necesidad de conocer un modelo del entorno", "La necesidad de tener acceso a datos etiquetados", "La necesidad de ajustar el comportamiento del agente", "La necesidad de optimizar la estrategia del agente"], "answer": 3, "why": "El desafío principal en la implementación del aprendizaje por refuerzo en problemas reales es la necesidad de ajustar el comportamiento del agente para optimizar su rendimiento en entornos dinámicos y complejos. Esto requiere la capacidad de explorar y explotar acciones de manera efectiva."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Qué es la relación entre el aprendizaje por refuerzo y la psicología del aprendizaje?", "options": ["El aprendizaje por refuerzo se basa en la psicología del aprendizaje", "El aprendizaje por refuerzo es independiente de la psicología del aprendizaje", "El aprendizaje por refuerzo se basa en la teoría del condicionamiento", "El aprendizaje por refuerzo es independiente de la teoría del condicionamiento"], "answer": 1, "why": "El aprendizaje por refuerzo se basa en la psicología del aprendizaje, ya que utiliza conceptos como el condicionamiento clásico y el condicionamiento operante para modelar el comportamiento del agente."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Cuál es el papel del aprendizaje por refuerzo en la optimización de modelos de lenguaje?", "options": ["Permitir la optimización de modelos de lenguaje a través de la exploración y explotación de acciones", "Permitir la optimización de modelos de lenguaje a través de la supervisión y el aprendizaje supervisado", "Permitir la optimización de modelos de lenguaje a través de la regresión lineal", "Permitir la optimización de modelos de lenguaje a través de la programación dinámica"], "answer": 0, "why": "El aprendizaje por refuerzo permite la optimización de modelos de lenguaje a través de la exploración y explotación de acciones, lo que permite al modelo adaptarse a entornos dinámicos y optimizar su rendimiento."}, {"topicId": "topic_4", "topicName": "Aplicaciones y casos de uso de Reinforcement Learning", "q": "¿Qué es la relación entre el aprendizaje por refuerzo y la robótica?", "options": ["El aprendizaje por refuerzo se basa en la robótica", "El aprendizaje por refuerzo es independiente de la robótica", "El aprendizaje por refuerzo se utiliza en la robótica para optimizar la estrategia del agente", "El aprendizaje por refuerzo es independiente de la robótica"], "answer": 2, "why": "El aprendizaje por refuerzo se utiliza en la robótica para optimizar la estrategia del agente, lo que permite al robot adaptarse a entornos dinámicos y complejos."}];
+const TOPIC_IDS = ["topic_1", "topic_2", "topic_3", "topic_4"];
+const NS = 'sf_reinforcement-learning_2026-08-25';
+
+// -- localStorage helpers ---------------------------------------------------
+function lsGet(key, fallback) {
+  try {
+    const v = localStorage.getItem(NS + '_' + key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch (e) { return fallback; }
+}
+function lsSet(key, value) {
+  try { localStorage.setItem(NS + '_' + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+}
+
+// -- Dark mode ----------------------------------------------------------------
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('darkModeBtn').setAttribute('aria-pressed', dark ? 'true' : 'false');
+  document.getElementById('darkModeBtn').textContent = dark ? '☀️ Claro' : '🌙 Oscuro';
+}
+function initTheme() {
+  const stored = lsGet('theme', null);
+  const dark = stored !== null ? stored : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(dark);
+}
+document.getElementById('darkModeBtn').addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+  lsSet('theme', !isDark);
+});
+initTheme();
+
+// -- Expand all tabs (fixes Ctrl+F only finding the active tab) --------------
+function applyExpandAll(on) {
+  document.body.classList.toggle('expand-all', on);
+  const btn = document.getElementById('expandAllBtn');
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.textContent = on ? '🔎 Ver por pestañas' : '🔎 Expandir todo';
+}
+document.getElementById('expandAllBtn').addEventListener('click', () => {
+  const on = !document.body.classList.contains('expand-all');
+  applyExpandAll(on);
+  lsSet('expandAll', on);
+});
+applyExpandAll(lsGet('expandAll', false));
+
+// -- Tab switching (scoped per topic section) ---------------------------------
+function openTab(tabId, btn, sectionId) {
+  const section = document.getElementById(sectionId);
+  section.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+  section.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// -- Per-topic quiz -------------------------------------------------------------
+function answer(qid, selected, correct, el, explanation) {
+  const card = document.getElementById('card-' + qid);
+  const note = document.getElementById('note-' + qid);
+  card.querySelectorAll('.quiz-option').forEach((opt, i) => {
+    opt.disabled = true;
+    if (i === correct) opt.classList.add('correct');
+  });
+  if (selected !== correct) el.classList.add('wrong');
+  const ok = selected === correct;
+  note.textContent = (ok ? '✅ Correcto. ' : '❌ Incorrecto. ') + explanation;
+  note.className = 'quiz-note show ' + (ok ? 'ok' : 'bad');
+  document.getElementById('retry-' + qid).style.display = 'inline-flex';
+  lsSet('quiz_' + qid, { selected, correct });
+  updateTopicProgress(card.dataset.topic);
+}
+
+function retryQuestion(qid) {
+  const card = document.getElementById('card-' + qid);
+  card.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.disabled = false;
+    opt.classList.remove('correct', 'wrong');
+  });
+  const note = document.getElementById('note-' + qid);
+  note.className = 'quiz-note';
+  note.textContent = '';
+  document.getElementById('retry-' + qid).style.display = 'none';
+  lsSet('quiz_' + qid, null);
+  updateTopicProgress(card.dataset.topic);
+}
+
+function restoreQuizState() {
+  document.querySelectorAll('.quiz-card').forEach(card => {
+    const qid = card.dataset.qid;
+    const saved = lsGet('quiz_' + qid, null);
+    if (!saved) return;
+    const opts = card.querySelectorAll('.quiz-option');
+    opts.forEach((opt, i) => {
+      opt.disabled = true;
+      if (i === saved.correct) opt.classList.add('correct');
+      if (i === saved.selected && saved.selected !== saved.correct) opt.classList.add('wrong');
+    });
+    const note = document.getElementById('note-' + qid);
+    const ok = saved.selected === saved.correct;
+    note.textContent = (ok ? '✅ Correcto. ' : '❌ Incorrecto. ') + '(restaurado de tu sesión anterior)';
+    note.className = 'quiz-note show ' + (ok ? 'ok' : 'bad');
+    document.getElementById('retry-' + qid).style.display = 'inline-flex';
+  });
+}
+
+// -- Flashcards: flip, know/review marking, filter, persistence --------------
+function flipCard(fcid) {
+  const el = document.getElementById('flip-' + fcid);
+  const flipped = el.classList.toggle('flipped');
+  el.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+}
+
+function markCard(evt, fcid, state) {
+  evt.stopPropagation();
+  const el = document.getElementById('flip-' + fcid);
+  const current = lsGet('flash_' + fcid, null);
+  const next = current === state ? null : state; // click again to unmark
+  lsSet('flash_' + fcid, next);
+  applyCardState(el, next);
+}
+
+function applyCardState(el, state) {
+  el.classList.remove('card-known', 'card-review');
+  el.querySelectorAll('.know-btn').forEach(b => b.classList.remove('active'));
+  if (state === 'know') {
+    el.classList.add('card-known');
+    el.querySelector('.know-btn[data-state="know"]').classList.add('active');
+  } else if (state === 'review') {
+    el.classList.add('card-review');
+    el.querySelector('.know-btn[data-state="review"]').classList.add('active');
+  }
+}
+
+function restoreFlashcardState() {
+  document.querySelectorAll('.flip').forEach(el => {
+    const state = lsGet('flash_' + el.dataset.fcid, null);
+    applyCardState(el, state);
+  });
+}
+
+document.querySelectorAll('.review-filter').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const topic = cb.dataset.topic;
+    const onlyReview = cb.checked;
+    document.querySelectorAll(`.flashcards[data-topic="${topic}"] .flip`).forEach(el => {
+      const isReview = el.classList.contains('card-review');
+      const notMarkedKnow = !el.classList.contains('card-known');
+      el.classList.toggle('filtered-out', onlyReview && !(isReview || notMarkedKnow && !isReview && false) && !isReview);
+    });
+  });
+});
+
+// -- Topic progress (overview checkmarks + header counter) --------------------
+function topicIsDone(topicId) {
+  const qs = document.querySelectorAll(`.quiz-card[data-topic="${topicId}"]`);
+  if (!qs.length) return false;
+  return Array.from(qs).every(card => lsGet('quiz_' + card.dataset.qid, null) !== null);
+}
+
+function updateTopicProgress(topicId) {
+  const done = topicIsDone(topicId);
+  const marker = document.querySelector(`#overview-${topicId} .topic-check`);
+  if (marker) marker.classList.toggle('done', done);
+  const doneCount = TOPIC_IDS.filter(topicIsDone).length;
+  const counter = document.getElementById('progressCount');
+  if (counter) counter.textContent = doneCount + '/' + TOPIC_IDS.length;
+}
+
+function initProgress() {
+  TOPIC_IDS.forEach(updateTopicProgress);
+}
+
+// -- Global exam ----------------------------------------------------------------
+let examQ = [], examState = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startExam() {
+  const count = Math.min(Number(document.getElementById('examCount').value) || 20, QUESTIONS.length);
+  const doShuffle = document.getElementById('examShuffle').checked;
+  const showTopic = document.getElementById('examShowTopic').checked;
+  const pool = doShuffle ? shuffle(QUESTIONS) : [...QUESTIONS];
+  examQ = pool.slice(0, count).map(q => {
+    const opts = shuffle(q.options.map((op, i) => ({text: op, idx: i})));
+    return { ...q, options: opts.map(o => o.text), answer: opts.findIndex(o => o.idx === q.answer) };
+  });
+  examState = new Array(examQ.length).fill(null);
+  document.getElementById('examGrid').innerHTML = examQ.map((q, idx) => `
+    <div class="quiz-card" id="exam-card-${idx}">
+      <h3>${idx + 1}. ${escapeHtml(q.q)}</h3>
+      ${showTopic ? `<div style="margin-bottom:8px"><span class="pill" style="background:var(--purple-bg);color:var(--purple)">${escapeHtml(q.topicName)}</span></div>` : ''}
+      <div class="opciones">
+        ${q.options.map((op, i) => `
+          <button type="button" class="quiz-option" onclick="answerExam(${idx},${i},this)">${String.fromCharCode(97+i)}. ${escapeHtml(op)}</button>
+        `).join('')}
+      </div>
+      <div class="quiz-note" id="exam-note-${idx}" role="status"></div>
+    </div>
+  `).join('');
+  updateScore();
+  document.getElementById('examBreakdown').style.display = 'none';
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function answerExam(idx, sel) {
+  if (examState[idx] !== null) return;
+  examState[idx] = sel;
+  updateScore();
+}
+
+function gradeExam() {
+  if (!examQ.length) startExam();
+  const byTopic = {};
+  examQ.forEach((q, idx) => {
+    const card = document.getElementById('exam-card-' + idx);
+    const note = document.getElementById('exam-note-' + idx);
+    const sel = examState[idx];
+    card.querySelectorAll('.quiz-option').forEach((op, i) => {
+      op.disabled = true;
+      if (i === q.answer) op.classList.add('correct');
+    });
+    if (sel !== null && sel !== q.answer) card.querySelectorAll('.quiz-option')[sel].classList.add('wrong');
+    const ok = sel === q.answer;
+    note.textContent = sel === null
+      ? '⚠️ Sin responder. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ' + q.why
+      : (ok ? '✅ Correcto. ' : '❌ Incorrecto. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ') + q.why;
+    note.className = 'quiz-note show ' + (ok ? 'ok' : 'bad');
+    if (!byTopic[q.topicName]) byTopic[q.topicName] = {total:0, correct:0};
+    byTopic[q.topicName].total++;
+    if (ok) byTopic[q.topicName].correct++;
+  });
+  const total = examQ.length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx].answer ? 1 : 0), 0);
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('examScore').textContent = `Resultado: ${correct}/${total} · ${pct}%`;
+  const rows = Object.entries(byTopic).map(([topic, v]) => {
+    const p = Math.round((v.correct/v.total)*100);
+    return `<tr><td>${escapeHtml(topic)}</td><td>${v.correct}/${v.total}</td><td>${p}%</td></tr>`;
+  }).join('');
+  const box = document.getElementById('examBreakdown');
+  box.style.display = 'block';
+  box.className = 'result ' + (pct >= 85 ? 'good' : pct >= 65 ? 'warn' : 'bad');
+  box.innerHTML = `<strong>Desglose por tema:</strong><table><tr><th scope="col">Tema</th><th scope="col">Aciertos</th><th scope="col">%</th></tr>${rows}</table>`;
+
+  const history = lsGet('exam_history', []);
+  history.push({ date: new Date().toLocaleString('es'), correct, total, pct });
+  lsSet('exam_history', history.slice(-20));
+  renderExamHistory();
+}
+
+function renderExamHistory() {
+  const history = lsGet('exam_history', []);
+  const panel = document.getElementById('examHistory');
+  if (!history.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const rows = history.slice().reverse().map(h =>
+    `<tr><td>${h.date}</td><td>${h.correct}/${h.total}</td><td>${h.pct}%</td></tr>`
+  ).join('');
+  document.getElementById('examHistoryTable').innerHTML =
+    '<tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr>' + rows;
+}
+
+function resetExam() {
+  document.getElementById('examGrid').innerHTML = '';
+  document.getElementById('examScore').textContent = 'Sin iniciar';
+  document.getElementById('examBreakdown').style.display = 'none';
+  examQ = []; examState = [];
+}
+
+function updateScore() {
+  if (!examQ.length) return;
+  const answered = examState.filter(x => x !== null).length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx]?.answer ? 1 : 0), 0);
+  document.getElementById('examScore').textContent =
+    `${correct}/${answered} correctas · ${answered}/${examQ.length} respondidas`;
+}
+
+// -- Init ------------------------------------------------------------------------
+restoreQuizState();
+restoreFlashcardState();
+renderExamHistory();
+initProgress();
+</script>
+</body>
+</html>

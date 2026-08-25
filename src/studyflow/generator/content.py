@@ -2,8 +2,7 @@
 generator/content.py — Study material generation per topic and subtopic.
 
 For each topic generates:
-    - Per subtopic: explanation, key concepts table, common confusions table
-    - Sister questions table (exam variants)
+    - Per subtopic: explanation, key concepts table
     - Flashcards (term -> definition)
     - Multiple-choice questions with explanation
 """
@@ -35,42 +34,12 @@ Return ONLY this JSON (no ```json, no extra text). Respond in the SAME language 
   "explanation": "Detailed explanation of this subtopic in 3-5 paragraphs. Be thorough and pedagogical.",
   "concepts": [
     {{"concept": "Term or concept", "definition": "Clear and precise definition"}}
-  ],
-  "confusions": [
-    {{"a": "Concept A", "b": "Concept B", "difference": "Key difference between A and B"}}
   ]
 }}
 
 Rules:
 - explanation must be detailed and cover the subtopic fully (minimum 3 paragraphs)
-- concepts: 4-8 key terms with precise definitions
-- confusions: 2-4 pairs of commonly confused concepts with clear distinctions"""
-
-
-def _prompt_sister_questions(topic_title: str, full_text: str) -> str:
-    excerpt = full_text[:8000]
-    return f"""Generate exam sister questions for this topic.
-
-TOPIC: {topic_title}
-MATERIAL:
-{excerpt}
-
-Sister questions are variants of the same concept that could appear in an exam.
-Return ONLY this JSON (no ```json, no extra text). Respond in the SAME language as the material:
-{{
-  "sisters": [
-    {{
-      "question": "If they ask...",
-      "variants": "They could also ask...",
-      "key_idea": "Core concept to remember"
-    }}
-  ]
-}}
-
-Rules:
-- Generate 5-8 sister question groups
-- Each group covers one concept from different angles
-- key_idea must be a single actionable sentence"""
+- concepts: 4-8 key terms with precise definitions"""
 
 
 def _prompt_questions(topic_title: str, full_text: str, n: int) -> str:
@@ -136,7 +105,7 @@ def generate_topic(
         print(f"      Subtopic: {sub_title}")
         data = parse_llm_json(
             llm, _prompt_subtopic(sub_title, topic_title, full_text), system=_SYSTEM,
-            fallback={"explanation": "", "concepts": [], "confusions": []},
+            fallback={"explanation": "", "concepts": []},
             max_tokens=2500, temperature=0.3, logger=logger,
             recorder=recorder, task="subtopic",
         )
@@ -145,18 +114,10 @@ def generate_topic(
             "title": sub_title,
             "explanation": data.get("explanation", ""),
             "concepts": data.get("concepts", []),
-            "confusions": data.get("confusions", []),
         })
 
-    # Sister questions
-    print(f"    Generating sister questions for: {topic_title}")
-    sisters_data = parse_llm_json(
-        llm, _prompt_sister_questions(topic_title, full_text), system=_SYSTEM,
-        fallback={"sisters": []}, max_tokens=2000, temperature=0.3, logger=logger,
-        recorder=recorder, task="sister_questions",
-    )
-
-    # Test questions
+    # Test questions (still generated — the global exam in the HTML uses these,
+    # even though there's no more per-topic quiz UI)
     print(f"    Generating {n_questions} questions for: {topic_title}")
     q_data = parse_llm_json(
         llm, _prompt_questions(topic_title, full_text, n_questions), system=_SYSTEM,
@@ -176,7 +137,6 @@ def generate_topic(
         "id": topic["id"],
         "title": topic_title,
         "subtopics": subtopics_generated,
-        "sisters": sisters_data.get("sisters", []),
         "questions": q_data.get("questions", []),
         "flashcards": fc_data.get("flashcards", []),
     }

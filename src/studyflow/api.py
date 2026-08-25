@@ -24,7 +24,9 @@ from tempfile import mkdtemp
 from threading import Lock
 
 from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from pipeline import run as run_pipeline
@@ -36,9 +38,22 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# -- In-memory job tracking ---------------------------------------------------
-# A simple dict is enough for a single-process local deployment. Swap for a
-# real queue (Redis/RQ, Celery) if this ever needs to run distributed.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+_WEB_DIR = Path(__file__).parent / "web"
+if _WEB_DIR.exists():
+    app.mount("/ui", StaticFiles(directory=str(_WEB_DIR), html=True), name="ui")
+
+
+@app.get("/", include_in_schema=False)
+def root_redirect():
+    """Send the bare root to the dashboard if it's available, otherwise to the API docs."""
+    return RedirectResponse("/ui" if _WEB_DIR.exists() else "/docs")
 
 _jobs: dict[str, dict] = {}
 _jobs_lock = Lock()

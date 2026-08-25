@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyFlow AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="mark">Study<em>Flow</em></span>
+      <span class="tag">/ local pipeline control</span>
+    </div>
+    <button class="btn primary" id="openCreate">+ Nuevo proyecto</button>
+  </header>
+
+  <div class="section-head">
+    <h2>Proyectos</h2>
+    <span class="count" id="projectCount">—</span>
+  </div>
+
+  <div id="shelf" class="shelf"></div>
+  <div id="emptyState" class="empty" style="display:none">
+    <div class="glyph">◇</div>
+    <p><strong>Aún no hay proyectos.</strong></p>
+    <p>Sube tus primeros apuntes para generar material de estudio.</p>
+    <button class="btn primary" id="emptyCreate">+ Nuevo proyecto</button>
+  </div>
+</div>
+
+<!-- Create / update project panel -->
+<div class="overlay" id="createOverlay">
+  <div class="panel">
+    <div class="panel-head">
+      <h3 id="formTitle">Nuevo proyecto</h3>
+      <button class="btn ghost" id="closeCreate">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="error-msg" id="formError"></div>
+
+      <div class="field" id="nameField">
+        <label for="pname">Nombre del proyecto</label>
+        <input type="text" id="pname" placeholder="p.ej. estadistica_t1" autocomplete="off">
+        <div class="hint">Sin espacios. Se usará como identificador.</div>
+      </div>
+
+      <div class="field">
+        <label>Archivos</label>
+        <div class="dropzone" id="dropzone">
+          <div class="icon">⤒</div>
+          <div>Arrastra archivos o haz clic para elegir</div>
+          <div class="sub">PDF, DOCX, PPTX, TXT, audio (mp3, wav, m4a…)</div>
+          <input type="file" id="fileInput" multiple>
+        </div>
+        <div class="filelist" id="fileList"></div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="qpt">Preguntas por tema</label>
+          <input type="number" id="qpt" value="8" min="1" max="30">
+        </div>
+        <div class="field">
+          <label for="modelInput">Modelo (opcional)</label>
+          <input type="text" id="modelInput" placeholder="llama3.2">
+        </div>
+      </div>
+
+      <div class="checkline">
+        <input type="checkbox" id="exportPdf">
+        <label for="exportPdf">Exportar también a PDF</label>
+      </div>
+    </div>
+    <div class="panel-foot">
+      <button class="btn" id="cancelCreate">Cancelar</button>
+      <button class="btn primary" id="submitCreate">Generar material</button>
+    </div>
+  </div>
+</div>
+
+<!-- Job progress panel -->
+<div class="overlay job-overlay" id="jobOverlay">
+  <div class="panel job-panel">
+    <div class="panel-head">
+      <h3 id="jobTitle">Procesando…</h3>
+      <button class="btn ghost" id="closeJob">✕</button>
+    </div>
+    <div class="panel-body">
+      <ul class="stepper" id="stepper">
+        <li data-key="setup"><span class="step-dot">1</span><div class="step-label"><div class="name">Preparando proyecto</div><div class="desc">Creando carpetas y copiando archivos</div></div></li>
+        <li data-key="extract"><span class="step-dot">2</span><div class="step-label"><div class="name">Extrayendo texto</div><div class="desc">Leyendo documentos y transcribiendo audio</div></div></li>
+        <li data-key="topics"><span class="step-dot">3</span><div class="step-label"><div class="name">Detectando temas</div><div class="desc">El modelo estructura el contenido</div></div></li>
+        <li data-key="material"><span class="step-dot">4</span><div class="step-label"><div class="name">Generando material</div><div class="desc">Explicaciones, flashcards, preguntas</div></div></li>
+        <li data-key="build"><span class="step-dot">5</span><div class="step-label"><div class="name">Construyendo HTML</div><div class="desc">Ensamblando el resultado navegable</div></div></li>
+      </ul>
+    </div>
+    <div class="job-status-line" id="jobStatusLine">queued</div>
+    <div class="panel-foot">
+      <button class="btn primary" id="jobDone" style="display:none">Ver resultado →</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

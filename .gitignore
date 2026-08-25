@@ -1,4 +1,10 @@
 .env
 .venv
 
-src/studyflow/projects/*
+src/studyflow/projects/
+__pycache__/
+
+.DS_Store
+.pyc
+.db
+.json
