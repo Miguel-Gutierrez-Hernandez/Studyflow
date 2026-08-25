@@ -20,8 +20,8 @@ from core.llm_cache import LLMCache
 class LLM:
     """Ollama local inference client."""
 
-    def __init__(self, cache: LLMCache | None = None):
-        self.model = config.OLLAMA_MODEL
+    def __init__(self, cache: LLMCache | None = None, model: str | None = None):
+        self.model = model or config.OLLAMA_MODEL
         self.url = config.OLLAMA_URL.rstrip("/") + "/api/chat"
         self.cache = cache
 

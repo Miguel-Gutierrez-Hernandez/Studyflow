@@ -27,6 +27,7 @@ from rich.panel import Panel
 from core.llm import LLM
 from core.llm_cache import LLMCache
 from core.logging_setup import get_logger
+from core.tracking import PipelineTracker
 from generator.content import generate_material
 from generator.html_builder import build_html
 from consumption.extractor import extract_all
@@ -42,6 +43,8 @@ def run(
     questions_per_topic: int = 8,
     overwrite: bool = False,
     export_pdf: bool = False,
+    track: bool = True,
+    model: str | None = None,
 ) -> Path:
     """
     Run the full StudyFlow AI pipeline.
@@ -52,6 +55,10 @@ def run(
         questions_per_topic:  Number of test questions generated per topic
         overwrite:            If True, recreate the project folder from scratch
         export_pdf:           If True, also export output/index.html to output/index.pdf
+        track:                If True, log this run to MLflow (see core/tracking.py)
+        model:                Ollama model name to use for this run. Defaults to
+                              config.OLLAMA_MODEL if not given. Useful for
+                              comparing models without editing .env (see compare_runs.py).
 
     Returns:
         Path to the generated index.html
@@ -75,6 +82,29 @@ def run(
     log = get_logger("pipeline", project.path)
     log.info("run_started", extra={"project": project_name, "n_input_files": len(files)})
 
+    llm_model = model or LLM().model  # peek at effective model before opening the tracker
+    tracker = PipelineTracker(project_name, model=llm_model, enabled=track)
+    with tracker:
+        tracker.log_params({
+            "questions_per_topic": questions_per_topic,
+            "overwrite": overwrite,
+            "n_input_files": len(files),
+        })
+        html_path = _run_steps(
+            project, files, questions_per_topic, export_pdf, log, tracker, model,
+        )
+    return html_path
+
+
+def _run_steps(
+    project: Project,
+    files: list[str | Path],
+    questions_per_topic: int,
+    export_pdf: bool,
+    log,
+    tracker: PipelineTracker,
+    model: str | None = None,
+) -> Path:
     console.print("\n[bold]2/6 · Adding files to project...[/bold]")
     project_files = []
     for f in files:
@@ -98,45 +128,52 @@ def run(
     console.print("\n[bold]3/6 · Extracting text...[/bold]")
     texts: dict[str, str] = {}
     reused, to_extract = [], []
-    for f in project_files:
-        cached = project.read_extracted(f.name)
-        if cached is not None:
-            texts[f.name] = cached
-            reused.append(f.name)
-        else:
-            to_extract.append(f)
-
-    if reused:
-        console.print(f"  ⏭️  Reused {len(reused)} previously extracted file(s)")
-    log.info("extraction_reused", extra={"n_files": len(reused), "files": reused})
-
-    if to_extract:
-        new_texts = extract_all(to_extract)
-        for name, text in new_texts.items():
-            if not text.startswith("[ERROR:"):
-                out = project.path_extracted / (Path(name).stem + ".txt")
-                out.write_text(text, encoding="utf-8")
+    with tracker.step("extraction"):
+        for f in project_files:
+            cached = project.read_extracted(f.name)
+            if cached is not None:
+                texts[f.name] = cached
+                reused.append(f.name)
             else:
-                log.error("extraction_failed", extra={"file": name, "error": text})
-            texts[name] = text
-        console.print(f"  ✅ Extracted {len(to_extract)} new file(s)")
-    log.info("extraction_done", extra={"n_new_files": len(to_extract)})
+                to_extract.append(f)
 
+        if reused:
+            console.print(f"  ⏭️  Reused {len(reused)} previously extracted file(s)")
+        log.info("extraction_reused", extra={"n_files": len(reused), "files": reused})
+
+        if to_extract:
+            new_texts = extract_all(to_extract)
+            for name, text in new_texts.items():
+                if not text.startswith("[ERROR:"):
+                    out = project.path_extracted / (Path(name).stem + ".txt")
+                    out.write_text(text, encoding="utf-8")
+                else:
+                    log.error("extraction_failed", extra={"file": name, "error": text})
+                texts[name] = text
+            console.print(f"  ✅ Extracted {len(to_extract)} new file(s)")
+        log.info("extraction_done", extra={"n_new_files": len(to_extract)})
+
+    tracker.log_metrics({
+        "n_files_reused": len(reused),
+        "n_files_extracted": len(to_extract),
+    })
     console.print(f"  ✅ Saved to: [dim]{project.path_extracted}[/dim]")
 
     console.print("\n[bold]4/6 · Detecting topics...[/bold]")
     cache = LLMCache(project.path)
-    llm = LLM(cache=cache)
+    llm = LLM(cache=cache, model=model)
     console.print(f"  🤖 {llm}")
-    analysis = analyze(texts, llm=llm, logger=log)
+    with tracker.step("topic_detection"):
+        analysis = analyze(texts, llm=llm, logger=log)
     n_topics = len(analysis["topics"])
     console.print(f"  ✅ {n_topics} topics: {', '.join(t['title'] for t in analysis['topics'])}")
     log.info("topics_detected", extra={"n_topics": n_topics})
 
     console.print(f"\n[bold]5/6 · Generating study material...[/bold]")
-    material = generate_material(
-        analysis, llm=llm, questions_per_topic=questions_per_topic, logger=log,
-    )
+    with tracker.step("material_generation"):
+        material = generate_material(
+            analysis, llm=llm, questions_per_topic=questions_per_topic, logger=log,
+        )
     console.print(f"  ✅ {n_topics} topics · {material['stats']['n_questions']} questions")
     cache_stats = cache.stats()
     console.print(
@@ -144,22 +181,37 @@ def run(
     )
     log.info("material_generated", extra={**material["stats"], "llm_cache": cache_stats})
 
+    n_flashcards = sum(len(t["flashcards"]) for t in material["topics"])
+    n_sisters = sum(len(t["sisters"]) for t in material["topics"])
+    tracker.log_metrics({
+        "n_topics": n_topics,
+        "n_questions": material["stats"]["n_questions"],
+        "n_flashcards": n_flashcards,
+        "n_sisters": n_sisters,
+        "llm_cache_hits": cache_stats["hits"],
+        "llm_cache_misses": cache_stats["misses"],
+    })
+
     console.print("\n[bold]6/6 · Building HTML...[/bold]")
-    html = build_html(material)
-    html_path = project.save_html(html)
+    with tracker.step("html_build"):
+        html = build_html(material)
+        html_path = project.save_html(html)
+    tracker.log_artifact(html_path)
 
     pdf_path = None
     if export_pdf:
         console.print("\n[bold]Exporting PDF...[/bold]")
         try:
-            pdf_path = project.save_pdf()
+            with tracker.step("pdf_export"):
+                pdf_path = project.save_pdf()
+            tracker.log_artifact(pdf_path)
             console.print(f"  ✅ Saved to: [dim]{pdf_path}[/dim]")
         except ImportError as e:
             console.print(f"  ⚠️  [yellow]{e}[/yellow]")
 
     console.print(Panel.fit(
         f"[bold green]Done![/bold green]\n\n"
-        f"  Project:   [bold]{project_name}[/bold]\n"
+        f"  Project:   [bold]{project.name}[/bold]\n"
         f"  Topics:    {n_topics}\n"
         f"  Questions: {material['stats']['n_questions']}\n"
         f"  Output:    [dim]{html_path}[/dim]"

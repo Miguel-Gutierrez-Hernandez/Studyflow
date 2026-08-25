@@ -73,7 +73,7 @@ class ProjectSummary(BaseModel):
 # -- Background job runner -----------------------------------------------------
 
 def _run_job(job_id: str, project_name: str, file_paths: list[Path], questions_per_topic: int,
-             overwrite: bool, export_pdf: bool) -> None:
+             overwrite: bool, export_pdf: bool, model: str | None = None) -> None:
     _set_job(job_id, status="running")
     try:
         html_path = run_pipeline(
@@ -82,6 +82,7 @@ def _run_job(job_id: str, project_name: str, file_paths: list[Path], questions_p
             questions_per_topic=questions_per_topic,
             overwrite=overwrite,
             export_pdf=export_pdf,
+            model=model,
         )
         project = Project(project_name)
         pdf_path = project.path_output / "index.pdf"
@@ -157,6 +158,7 @@ def create_project(
     files: list[UploadFile] = File(...),
     questions_per_topic: int = 8,
     export_pdf: bool = False,
+    model: str | None = None,
 ):
     """
     Create a new project from uploaded files and run the full pipeline.
@@ -176,7 +178,7 @@ def create_project(
             "error": None, "html_path": None, "pdf_path": None,
         }
     background_tasks.add_task(
-        _run_job, job_id, name, file_paths, questions_per_topic, False, export_pdf,
+        _run_job, job_id, name, file_paths, questions_per_topic, False, export_pdf, model,
     )
     return JobStatus(**_jobs[job_id])
 
@@ -188,6 +190,7 @@ def update_project(
     files: list[UploadFile] = File(default=[]),
     questions_per_topic: int = 8,
     export_pdf: bool = False,
+    model: str | None = None,
 ):
     """
     Add new files (optional) to an existing project and regenerate its HTML.
@@ -205,7 +208,7 @@ def update_project(
             "error": None, "html_path": None, "pdf_path": None,
         }
     background_tasks.add_task(
-        _run_job, job_id, name, file_paths, questions_per_topic, False, export_pdf,
+        _run_job, job_id, name, file_paths, questions_per_topic, False, export_pdf, model,
     )
     return JobStatus(**_jobs[job_id])
 
