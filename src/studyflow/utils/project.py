@@ -5,6 +5,9 @@ Layout:
     projects/
     └── project_name/
         ├── project.json     <- metadata
+        ├── index.json       <- persistent topic/subtopic classification index
+        │                       (built incrementally by process.classifier
+        │                       as documents are added — see build_index)
         ├── documents/       <- original uploaded files
         ├── extracted/       <- plain text extracted from each file
         └── output/
@@ -28,6 +31,7 @@ class Project:
         self.path_extracted: Path = self.path / "extracted"
         self.path_output: Path = self.path / "output"
         self._meta_file: Path = self.path / "project.json"
+        self._index_file: Path = self.path / "index.json"
 
     # -- Lifecycle ------------------------------------------------------------
 
@@ -39,6 +43,7 @@ class Project:
         for folder in (self.path_documents, self.path_extracted, self.path_output):
             folder.mkdir(parents=True, exist_ok=True)
         self._write_meta({"name": self.name, "created": datetime.now().isoformat(), "files": []})
+        self.write_index({"topics": []})
         return self
 
     def delete(self) -> None:
@@ -74,6 +79,25 @@ class Project:
         """Read previously extracted text for a document by its original filename, if it exists."""
         path = self.path_extracted / (Path(name).stem + ".txt")
         return path.read_text(encoding="utf-8") if path.exists() else None
+
+    # -- Index (topic/subtopic classification) ---------------------------------
+
+    def read_index(self) -> dict:
+        """The persistent classification index: {"topics": [{"id","title",
+        "subtopics": [{"id","title","content","sources"}]}]}. Built and
+        updated incrementally by process.analyzer.build_index /
+        process.classifier.classify_document as documents are added to this
+        project — never recomputed from scratch, so re-running the pipeline
+        on an existing project only classifies genuinely new files."""
+        if not self._index_file.exists():
+            return {"topics": []}
+        return json.loads(self._index_file.read_text(encoding="utf-8"))
+
+    def write_index(self, index: dict) -> None:
+        self._index_file.write_text(
+            json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        self._patch_meta({"last_index_update": datetime.now().isoformat()})
 
     # -- Output -------------------------------------------------------------------
 

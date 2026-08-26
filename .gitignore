@@ -5,6 +5,6 @@ src/studyflow/projects/
 __pycache__/
 
 .DS_Store
-.pyc
-.db
-.json
+*.pyc
+*.db
+*.json

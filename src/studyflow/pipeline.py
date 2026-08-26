@@ -5,11 +5,12 @@ Runs the full pipeline:
     1. Create or load the project folder structure
     2. Copy input files into the project
     3. Extract text (skips files already extracted in a previous run)
-    4. Save extracted text to extracted/
-    5. Detect topics with LLM
-    6. Generate study material with LLM
-    7. Build the HTML output
-    8. Save HTML to output/index.html
+    4. Classify each new document into the project's persistent topic/subtopic
+       index (Lector -> Enrutador -> Redactor, see process/classifier.py),
+       then run the saturation check
+    5. Generate study material with LLM from the resulting index
+    6. Build the HTML output
+    7. Save HTML to output/index.html
 
 Usage (interactive):
     python pipeline.py
@@ -32,7 +33,7 @@ from core.distillation import DistillationRecorder
 from generator.content import generate_material
 from generator.html_builder import build_html
 from consumption.extractor import extract_all
-from process.analyzer import analyze
+from process.analyzer import build_index
 from utils.project import Project
 
 console = Console()
@@ -166,23 +167,30 @@ def _run_steps(
     })
     console.print(f"  ✅ Saved to: [dim]{project.path_extracted}[/dim]")
 
-    console.print("\n[bold]4/6 · Detecting topics...[/bold]")
+    console.print("\n[bold]4/6 · Classifying documents into the project index...[/bold]")
     cache = LLMCache(project.path)
     llm = LLM(cache=cache, model=model)
     console.print(f"  🤖 {llm}")
     recorder = DistillationRecorder(enabled=distill) if distill else None
     if distill:
         console.print(f"  🎓 Recording training data to: [dim]{recorder.dir}[/dim]")
-    with tracker.step("topic_detection"):
-        analysis = analyze(texts, llm=llm, logger=log, recorder=recorder)
-    n_topics = len(analysis["topics"])
-    console.print(f"  ✅ {n_topics} topics: {', '.join(t['title'] for t in analysis['topics'])}")
-    log.info("topics_detected", extra={"n_topics": n_topics})
+
+    with tracker.step("classification"):
+        n_topics_before = len(project.read_index().get("topics", []))
+        index = build_index(texts, project, llm, logger=log, recorder=recorder)
+    n_topics = len(index["topics"])
+    n_new_topics = max(0, n_topics - n_topics_before)
+    console.print(
+        f"  ✅ {n_topics} topics in index"
+        + (f" (+{n_new_topics} new)" if n_new_topics else "")
+        + ": " + ", ".join(t["title"] for t in index["topics"])
+    )
+    log.info("index_updated", extra={"n_topics": n_topics})
 
     console.print(f"\n[bold]5/6 · Generating study material...[/bold]")
     with tracker.step("material_generation"):
         material = generate_material(
-            analysis, llm=llm, questions_per_topic=questions_per_topic, logger=log,
+            index, llm=llm, questions_per_topic=questions_per_topic, logger=log,
             recorder=recorder,
         )
     console.print(f"  ✅ {n_topics} topics · {material['stats']['n_questions']} questions")
@@ -195,12 +203,10 @@ def _run_steps(
     log.info("material_generated", extra={**material["stats"], "llm_cache": cache_stats})
 
     n_flashcards = sum(len(t["flashcards"]) for t in material["topics"])
-    n_sisters = sum(len(t["sisters"]) for t in material["topics"])
     tracker.log_metrics({
         "n_topics": n_topics,
         "n_questions": material["stats"]["n_questions"],
         "n_flashcards": n_flashcards,
-        "n_sisters": n_sisters,
         "llm_cache_hits": cache_stats["hits"],
         "llm_cache_misses": cache_stats["misses"],
     })
@@ -279,7 +285,7 @@ if __name__ == "__main__":
         selected = projects[int(choice) - 1]
         name = selected["name"]
         console.print(f"\n[bold]Project:[/bold] {name}")
-        console.print("[dim]Already-extracted files will be reused; only new files are re-extracted.[/dim]")
+        console.print("[dim]Already-classified files will be reused; only new files are re-processed.[/dim]")
         add_more = input("Add new files too? (path, empty to skip): ").strip()
         files = []
         if add_more:

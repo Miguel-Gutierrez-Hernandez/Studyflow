@@ -1,29 +1,3 @@
-"""
-generator/html_builder.py — Builds the final study HTML.
-
-Structure per topic (matching reference guide style):
-  - Tabs per subtopic, each with: explanation, concepts table
-  - Sister questions table
-  - Flashcards grid (with know/review tracking, persisted in localStorage)
-  - Quiz with immediate feedback (options shuffled server-side to avoid
-    LLM positional bias, retry-per-question, answers persisted)
-
-Notable properties vs. earlier versions:
-  - All LLM/user-derived text is HTML-escaped before interpolation.
-  - Subtopic DOM ids are namespaced per topic to avoid collisions across
-    topics that happen to share an id.
-  - Tabs and quiz options are real, keyboard-accessible controls
-    (buttons with ARIA roles), not click-only <div>s.
-  - Printing/PDF export shows ALL tab content (not just the active tab),
-    and avoids splitting cards/tables across pages.
-  - An "expand all tabs" toggle makes browser find-in-page (Ctrl+F) work
-    across every subtopic, not just the currently visible one.
-  - Progress (quiz answers, flashcard know/review state, exam history) is
-    persisted in the browser's localStorage, scoped per generated title,
-    so re-opening the file later resumes where you left off.
-  - Optional dark mode, toggled and persisted client-side.
-"""
-
 import html
 import json
 import re
@@ -45,11 +19,6 @@ def _js_str(value) -> str:
         .replace('"', '\\"')
         .replace("\n", " ")
     )
-
-
-def _reading_minutes(text: str) -> int:
-    words = len(re.findall(r"\S+", text or ""))
-    return max(1, round(words / 200))
 
 
 def build_html(material: dict) -> str:
@@ -109,8 +78,6 @@ def build_html(material: dict) -> str:
     <a class="nav-link" href="#overview">📋 Índice</a>
     {"".join(f'<a class="nav-link" href="#{_e(t["id"])}">{_e(t["title"])}</a>' for t in topics)}
     <a class="nav-link" href="#exam">🎓 Simulacro</a>
-    <button class="nav-link toggle-btn" id="expandAllBtn" type="button"
-      title="Muestra todas las pestañas a la vez (útil para buscar con Ctrl+F)">🔎 Expandir todo</button>
     <button class="nav-link toggle-btn" id="darkModeBtn" type="button"
       aria-pressed="false" title="Alternar modo oscuro">🌙 Oscuro</button>
   </div>
@@ -142,7 +109,7 @@ def _section_overview(topics: list[dict]) -> str:
           <h3><a href="#{_e(t['id'])}" class="topic-link">
             <span class="topic-num">{i+1}</span>{_e(t['title'])}
             <span class="topic-check" aria-hidden="true"></span>
-          </h3>
+          </a></h3>
           <div class="pills">
             {"".join(f'<span class="pill">{_e(s["title"])}</span>' for s in t.get("subtopics", []))}
           </div>
@@ -154,7 +121,8 @@ def _section_overview(topics: list[dict]) -> str:
     <div><h2>📋 Índice de contenidos</h2>
     <p>Visión general. Haz clic en un tema para ir directamente. El check aparece cuando superas el 70% en ese tema dentro del simulacro global.</p></div>
   </div>
-  <div class="grid3">{items}</div>
+  <!-- Cambiado grid3 por overview-list para forzar filas en lugar de columnas -->
+  <div class="overview-list">{items}</div>
 </section>"""
 
 
@@ -166,7 +134,7 @@ def _section_topic(topic: dict, idx: int) -> str:
     subtopics = topic.get("subtopics", [])
     flashcards = topic.get("flashcards", [])
 
-    subtopic_tabs = _subtopic_tabs(tid, subtopics)
+    subtopic_tabs = _subtopic_list(tid, subtopics)
     flashcards_html = _flashcards_grid(tid, flashcards)
 
     return f"""<section id="{_e(tid)}">
@@ -194,40 +162,24 @@ def _section_topic(topic: dict, idx: int) -> str:
 </section>"""
 
 
-# ── Subtopic tabs ─────────────────────────────────────────────────────────────
+# ── Subtopics (sequential, non-tabbed) ──────────────────────────────────────
 
-def _subtopic_tabs(tid: str, subtopics: list[dict]) -> str:
+def _subtopic_list(tid: str, subtopics: list[dict]) -> str:
     if not subtopics:
         return ""
-
-    dom_ids = [f"{tid}__{sub['id']}" for sub in subtopics]
-
-    tabs = "".join(
-        f'<button class="tab{" active" if i == 0 else ""}" role="tab" '
-        f'id="tabbtn-{_e(dom_ids[i])}" aria-controls="{_e(dom_ids[i])}" '
-        f'aria-selected="{"true" if i == 0 else "false"}" '
-        f'onclick="openTab(\'{_js_str(dom_ids[i])}\', this, \'{_js_str(tid)}\')">{_e(sub["title"])}</button>'
-        for i, sub in enumerate(subtopics)
-    )
-
-    contents = "".join(
-        f'<div class="tab-content{" active" if i == 0 else ""}" id="{_e(dom_ids[i])}" '
-        f'role="tabpanel" aria-labelledby="tabbtn-{_e(dom_ids[i])}">'
+    items = "".join(
+        f'<div class="subtopic-item" id="{_e(tid)}__{_e(sub["id"])}">'
+        f'<h3>{i+1}. {_e(sub["title"])}</h3>'
         f'{_subtopic_content(sub)}'
         f'</div>'
         for i, sub in enumerate(subtopics)
     )
-
-    return f"""<div class="subtopic-block">
-  <div class="tabs" role="tablist">{tabs}</div>
-  {contents}
-</div>"""
+    return f'<div class="subtopic-block">{items}</div>'
 
 
 def _subtopic_content(sub: dict) -> str:
-    explanation = sub.get("explanation", "")
+    explanation = (sub.get("explanation") or "").strip()
     concepts = sub.get("concepts", [])
-    minutes = _reading_minutes(explanation)
 
     concepts_rows = "".join(
         f"<tr><td><strong>{_e(c.get('concept',''))}</strong></td><td>{_e(c.get('definition',''))}</td></tr>"
@@ -242,11 +194,19 @@ def _subtopic_content(sub: dict) -> str:
       </table>
     </div>""" if concepts_rows else ""
 
-    return f"""<div class="subtopic-content">
-  <div class="panel explanation-panel">
-    <div class="reading-time">⏱ ~{minutes} min de lectura</div>
+    if not explanation and not concepts_rows:
+        return """<div class="panel muted-panel">
+      <p class="muted-note">⚠️ No se pudo generar contenido para este subtema (el modelo no devolvió una
+      respuesta válida). Prueba a regenerar este proyecto con un modelo más grande, o revisa el documento
+      fuente para este apartado.</p>
+    </div>"""
+
+    explanation_panel = f"""<div class="panel explanation-panel">
     <div class="explanation-text">{_paragraphs(explanation)}</div>
-  </div>
+  </div>""" if explanation else ""
+
+    return f"""<div class="subtopic-content">
+  {explanation_panel}
   {concepts_table}
 </div>"""
 
@@ -320,8 +280,6 @@ def _paragraphs(text: str) -> str:
 
 
 def _serialize_questions(topics: list[dict]) -> str:
-    """Used only by the global exam (which already shuffles client-side),
-    so options are kept in original order here — startExam() shuffles them."""
     all_q = []
     for t in topics:
         for q in t.get("questions", []):
@@ -426,7 +384,7 @@ section{margin:32px 0;padding-top:8px}
 .section-title h3{margin:0;font-size:1.25rem}
 .section-title p{margin:6px 0 0;color:var(--muted);max-width:850px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.overview-list{display:flex;flex-direction:column;gap:14px}
 .panel,.card,.quiz-card,.module{padding:18px}
 .muted-note{color:var(--muted)}
 .topic-num{display:inline-flex;align-items:center;justify-content:center;
@@ -443,23 +401,17 @@ section{margin:32px 0;padding-top:8px}
 .pill{display:inline-flex;border-radius:999px;font-weight:800;align-items:center;
   padding:4px 10px;font-size:.77rem;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe}
 html[data-theme="dark"] .pill{background:#1e2144;color:#a5b4fc;border-color:#312e70}
-/* Tabs */
-.subtopic-block{margin-bottom:10px}
-.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.tab{border:1px solid var(--border);background:var(--card);color:var(--text);
-  border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:.88rem;
-  transition:all .15s ease}
-.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.tab-content{display:none}.tab-content.active{display:block}
-body.expand-all .tab-content{display:block !important;margin-bottom:18px;
-  border-top:2px dashed var(--border);padding-top:14px}
-body.expand-all .tabs{display:none}
-/* Subtopic content */
+/* Subtopics (sequential) */
+.subtopic-block{display:grid;gap:22px;margin-bottom:10px}
+.subtopic-item{border-top:1px solid var(--border);padding-top:18px}
+.subtopic-item:first-child{border-top:none;padding-top:0}
+.subtopic-item h3{font-size:1.1rem;color:var(--primary);margin-bottom:12px}
 .subtopic-content{display:grid;gap:14px}
 .explanation-panel{border-left:4px solid var(--primary)}
-.reading-time{font-size:.8rem;color:var(--muted);font-weight:700;margin-bottom:8px}
 .explanation-text p{margin:0 0 10px;color:var(--text);line-height:1.65}
 .explanation-text p:last-child{margin-bottom:0}
+.muted-panel{border-left:4px solid var(--warn);background:var(--warn-bg)}
+.muted-panel .muted-note{color:inherit;margin:0}
 /* Tables */
 table{width:100%;border-collapse:collapse;border:1px solid var(--border);
   border-radius:18px;overflow:hidden;background:var(--card)}
@@ -527,15 +479,14 @@ html[data-theme="dark"] .result.good{color:#86efac}
 html[data-theme="dark"] .result.bad{color:#fca5a5}
 html[data-theme="dark"] .result.warn{color:#fbbf24}
 @media(max-width:900px){
-  .hero,.grid2,.grid3{grid-template-columns:1fr}
+  .hero,.grid2,.overview-list{grid-template-columns:1fr}
   .score{margin-left:0;width:100%;text-align:center}
   .section-title{display:block}
 }
 @media print{
   nav,.exam-toolbar,.toggle-btn,.retry-btn,.flip-actions,.skip-link{display:none !important}
   body{background:white;color:#000}
-  .tabs{display:none !important}
-  .tab-content{display:block !important;page-break-inside:avoid;margin-bottom:16px}
+  .subtopic-item{page-break-inside:avoid;margin-bottom:16px}
   .panel,.quiz-card,.module,table,.flip{page-break-inside:avoid}
   .flip{perspective:none;min-height:auto}
   .flip-inner{position:static;transform:none !important;display:block}
@@ -584,30 +535,6 @@ document.getElementById('darkModeBtn').addEventListener('click', () => {{
   lsSet('theme', !isDark);
 }});
 initTheme();
-
-// -- Expand all tabs (fixes Ctrl+F only finding the active tab) --------------
-function applyExpandAll(on) {{
-  document.body.classList.toggle('expand-all', on);
-  const btn = document.getElementById('expandAllBtn');
-  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  btn.textContent = on ? '🔎 Ver por pestañas' : '🔎 Expandir todo';
-}}
-document.getElementById('expandAllBtn').addEventListener('click', () => {{
-  const on = !document.body.classList.contains('expand-all');
-  applyExpandAll(on);
-  lsSet('expandAll', on);
-}});
-applyExpandAll(lsGet('expandAll', false));
-
-// -- Tab switching (scoped per topic section) ---------------------------------
-function openTab(tabId, btn, sectionId) {{
-  const section = document.getElementById(sectionId);
-  section.querySelectorAll('.tab').forEach(t => {{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); }});
-  section.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  btn.setAttribute('aria-selected', 'true');
-  document.getElementById(tabId).classList.add('active');
-}}
 
 // -- Flashcards: flip, know/review marking, filter, persistence --------------
 function flipCard(fcid) {{

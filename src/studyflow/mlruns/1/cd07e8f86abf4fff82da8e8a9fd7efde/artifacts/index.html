@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aprendizaje por Refuerzo — StudyFlow AI</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--text:#152033;--muted:#64748b;--border:#dbe3ef;
+  --primary:#2563eb;--primary-dark:#1e40af;--ok:#16a34a;--ok-bg:#dcfce7;
+  --bad:#dc2626;--bad-bg:#fee2e2;--warn:#d97706;--warn-bg:#fef3c7;
+  --purple:#7c3aed;--purple-bg:#f3e8ff;--cyan-bg:#ecfeff;--cyan:#0e7490;
+  --shadow:0 16px 42px rgba(15,23,42,.08);--radius:24px;
+}
+html[data-theme="dark"]{
+  --bg:#0f1420;--card:#1a2233;--text:#e6ebf5;--muted:#93a0bd;--border:#2c3650;
+  --primary:#5b8def;--primary-dark:#7ea6f5;--ok:#22c55e;--ok-bg:#14301f;
+  --bad:#f87171;--bad-bg:#3a1717;--warn:#fbbf24;--warn-bg:#3a2c0d;
+  --purple:#a78bfa;--purple-bg:#2a2044;--cyan-bg:#0d2b30;--cyan:#5eead4;
+  --shadow:0 16px 42px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--primary);color:#fff;
+  padding:10px 16px;border-radius:0 0 10px 0;z-index:999;font-weight:800}
+.skip-link:focus{left:0}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:radial-gradient(circle at 10% 0%,#dbeafe 0%,rgba(219,234,254,0) 34%),
+             radial-gradient(circle at 90% 8%,#ccfbf1 0%,rgba(204,251,241,0) 34%),
+             var(--bg);
+  line-height:1.55;
+  transition:background-color .2s ease,color .2s ease
+}
+html[data-theme="dark"] body{
+  background:radial-gradient(circle at 10% 0%,#1b2a4a 0%,rgba(27,42,74,0) 34%),
+             radial-gradient(circle at 90% 8%,#0d3b3a 0%,rgba(13,59,58,0) 34%),
+             var(--bg)
+}
+header,main,.nav-inner{max-width:1220px;margin:0 auto}
+header{padding:34px 20px 18px}
+.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:16px}
+.hero-card,.stat-card,.panel,.card,.quiz-card,.module{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow)
+}
+.hero-card{padding:30px}
+.sf-badge{display:inline-block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;
+  border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:800;margin-bottom:12px}
+html[data-theme="dark"] .sf-badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+h1{font-size:clamp(2rem,4vw,4rem);line-height:.96;letter-spacing:-.065em;margin:0 0 12px}
+h3,h4{letter-spacing:-.025em;margin:0 0 10px}
+h4{font-size:1rem;color:var(--text)}
+.subtitle{color:var(--muted);font-size:1.05rem;margin:0 0 14px}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.badge{display:inline-flex;border-radius:999px;font-weight:900;align-items:center;
+  padding:6px 11px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:.82rem}
+html[data-theme="dark"] .badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+.badge.source{background:#f3e8ff;color:#6d28d9;border-color:#ddd6fe}
+html[data-theme="dark"] .badge.source{background:#241a3d;color:#c4a9f7;border-color:#382a5c}
+.stat-grid{display:grid;gap:12px}
+.stat-card{padding:18px}
+.stat-number{font-size:2.1rem;font-weight:950;letter-spacing:-.05em}
+.stat-label{color:var(--muted);font-size:.93rem}
+.progress-card .stat-number{color:var(--ok)}
+nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.91);
+  backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.55);
+  border-bottom:1px solid var(--border)}
+html[data-theme="dark"] nav{background:rgba(15,20,32,.88);border-top-color:rgba(255,255,255,.06)}
+.nav-inner{padding:11px 20px;display:flex;gap:9px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link,button{
+  border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;
+  padding:9px 13px;font-weight:850;white-space:nowrap;cursor:pointer;font-size:.9rem;
+  transition:transform .12s ease,border .18s ease,background .18s ease;
+  text-decoration:none;display:inline-flex;align-items:center;font-family:inherit
+}
+.nav-link:hover,button:hover{transform:translateY(-1px);border-color:#93c5fd;background:#f8fbff}
+html[data-theme="dark"] .nav-link:hover,html[data-theme="dark"] button:hover{background:#22304d;border-color:#3d5a80}
+button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+button.primary:hover{background:var(--primary-dark)}
+.toggle-btn{margin-left:auto}
+.toggle-btn[aria-pressed="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+main{padding:24px 20px 70px}
+section{margin:32px 0;padding-top:8px}
+.subsection{margin-top:24px}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:0 0 14px;flex-wrap:wrap}
+.section-title h2{margin:0;font-size:clamp(1.45rem,2.3vw,2.25rem);letter-spacing:-.045em;line-height:1.05}
+.section-title h3{margin:0;font-size:1.25rem}
+.section-title p{margin:6px 0 0;color:var(--muted);max-width:850px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.panel,.card,.quiz-card,.module{padding:18px}
+.muted-note{color:var(--muted)}
+.topic-num{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;background:var(--primary);color:#fff;border-radius:8px;
+  font-size:.8rem;font-weight:900;margin-right:10px;flex-shrink:0}
+.topic-num-lg{display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:38px;background:var(--primary);color:#fff;border-radius:12px;
+  font-size:1.05rem;font-weight:900;margin-right:12px;flex-shrink:0;vertical-align:middle}
+.topic-link{color:var(--text);text-decoration:none;display:flex;align-items:center}
+.topic-link:hover{color:var(--primary)}
+.topic-check{margin-left:8px;color:var(--ok);font-weight:900}
+.topic-check.done::after{content:"✓ dominado"}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{display:inline-flex;border-radius:999px;font-weight:800;align-items:center;
+  padding:4px 10px;font-size:.77rem;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe}
+html[data-theme="dark"] .pill{background:#1e2144;color:#a5b4fc;border-color:#312e70}
+/* Tabs */
+.subtopic-block{margin-bottom:10px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{border:1px solid var(--border);background:var(--card);color:var(--text);
+  border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:.88rem;
+  transition:all .15s ease}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tab-content{display:none}.tab-content.active{display:block}
+body.expand-all .tab-content{display:block !important;margin-bottom:18px;
+  border-top:2px dashed var(--border);padding-top:14px}
+body.expand-all .tabs{display:none}
+/* Subtopic content */
+.subtopic-content{display:grid;gap:14px}
+.explanation-panel{border-left:4px solid var(--primary)}
+.reading-time{font-size:.8rem;color:var(--muted);font-weight:700;margin-bottom:8px}
+.explanation-text p{margin:0 0 10px;color:var(--text);line-height:1.65}
+.explanation-text p:last-child{margin-bottom:0}
+/* Tables */
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;background:var(--card)}
+th,td{padding:11px 13px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:rgba(0,0,0,.02);font-weight:800}
+html[data-theme="dark"] th{background:rgba(255,255,255,.03)}
+tr:last-child td{border-bottom:0}
+/* Quiz */
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.quiz-card{padding:18px}
+.quiz-card h3{margin:0 0 12px;font-size:.97rem;line-height:1.4;letter-spacing:-.01em}
+.opciones{display:grid;gap:7px}
+.quiz-option{border:1px solid var(--border);border-radius:12px;padding:10px 13px;
+  background:var(--card);cursor:pointer;font-size:.9rem;transition:all .15s ease;font-weight:600;
+  text-align:left;width:100%;color:var(--text)}
+.quiz-option:hover{background:#f0f7ff;border-color:#93c5fd}
+html[data-theme="dark"] .quiz-option:hover{background:#1c2b4a}
+.quiz-option.correct{background:var(--ok-bg);border-color:#22c55e;color:#14532d}
+html[data-theme="dark"] .quiz-option.correct{color:#86efac}
+.quiz-option.wrong{background:var(--bad-bg);border-color:#ef4444;color:#7f1d1d}
+html[data-theme="dark"] .quiz-option.wrong{color:#fca5a5}
+.quiz-option:disabled{cursor:default}
+.quiz-note{margin-top:10px;font-size:.88rem;font-weight:700;border-radius:12px;
+  padding:10px 12px;display:none}
+.quiz-note.show{display:block}
+.quiz-note.ok{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.quiz-note.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+html[data-theme="dark"] .quiz-note.ok{color:#86efac}
+html[data-theme="dark"] .quiz-note.bad{color:#fca5a5}
+.retry-btn{margin-top:10px;font-size:.8rem;padding:6px 12px;display:none}
+/* Flashcards */
+.flashcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.flip{perspective:1000px;min-height:180px;cursor:pointer}
+.flip-inner{position:relative;width:100%;min-height:180px;transform-style:preserve-3d;
+  transition:transform .45s ease}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;border-radius:20px;border:1px solid var(--border);
+  background:var(--card);padding:18px;backface-visibility:hidden;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;justify-content:center}
+.flip-back{transform:rotateY(180deg);background:var(--ok-bg);border-color:#86efac}
+.flip-front strong{font-size:1rem;color:var(--primary);display:block;margin-bottom:6px}
+.flip-front p{color:var(--muted);font-size:.85rem;margin:0}
+.flip-back p{color:#14532d;margin:0 0 10px;font-size:.92rem;line-height:1.5}
+html[data-theme="dark"] .flip-back p{color:#bbf7d0}
+.flip-actions{display:flex;gap:6px}
+.know-btn{font-size:.72rem;padding:5px 9px;border-radius:8px}
+.know-btn[data-state="know"].active{background:var(--ok);color:#fff;border-color:var(--ok)}
+.know-btn[data-state="review"].active{background:var(--warn);color:#fff;border-color:var(--warn)}
+.flip.card-known{opacity:.55}
+.flip.card-review .flip-front{border-color:var(--warn);border-width:2px}
+.flip.filtered-out{display:none}
+/* Exam */
+.exam-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.exam-control{display:flex;align-items:center;gap:8px;font-weight:700}
+.exam-control input{border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:.9rem;
+  background:var(--card);color:var(--text)}
+.toggle-label{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
+.score{margin-left:auto;background:var(--card);border:1px solid var(--border);
+  border-radius:999px;padding:8px 14px;font-weight:900;font-size:.9rem}
+.result{border-radius:16px;padding:14px}
+.result.good{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.result.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+.result.warn{background:var(--warn-bg);color:#78350f;border:1px solid #fcd34d}
+html[data-theme="dark"] .result.good{color:#86efac}
+html[data-theme="dark"] .result.bad{color:#fca5a5}
+html[data-theme="dark"] .result.warn{color:#fbbf24}
+@media(max-width:900px){
+  .hero,.grid2,.grid3{grid-template-columns:1fr}
+  .score{margin-left:0;width:100%;text-align:center}
+  .section-title{display:block}
+}
+@media print{
+  nav,.exam-toolbar,.toggle-btn,.retry-btn,.flip-actions,.skip-link{display:none !important}
+  body{background:white;color:#000}
+  .tabs{display:none !important}
+  .tab-content{display:block !important;page-break-inside:avoid;margin-bottom:16px}
+  .panel,.quiz-card,.module,table,.flip{page-break-inside:avoid}
+  .flip{perspective:none;min-height:auto}
+  .flip-inner{position:static;transform:none !important;display:block}
+  .flip-front,.flip-back{position:static;transform:none !important;box-shadow:none;
+    border-radius:8px;margin-bottom:6px}
+  .flip-back{background:#f0fdf4}
+  .quiz-option{border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+<header>
+  <div class="hero">
+    <div class="hero-card">
+      <div class="sf-badge">⚡ StudyFlow AI</div>
+      <h1>Aprendizaje por Refuerzo</h1>
+      <p class="subtitle">Material generado automáticamente · 2026-08-26</p>
+      <div class="badges">
+        <span class="badge">Aprendizaje Automático</span><span class="badge">Conceptos Clave</span><span class="badge">Entorno y Agente</span><span class="badge">Algoritmos y Técnicas</span><span class="badge">Aplicaciones y Casos de Uso</span><span class="badge">Limitaciones y Desafíos</span><span class="badge">Evaluación y Comparación</span><span class="badge">Conclusión y Futuras Direcciones</span>
+        <span class="badge source">📄 notas.txt</span>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">8</div>
+        <div class="stat-label">temas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">64</div>
+        <div class="stat-label">preguntas test</div>
+      </div>
+      <div class="stat-card progress-card">
+        <div class="stat-number" id="progressCount">0/8</div>
+        <div class="stat-label">temas dominados</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-link" href="#overview">📋 Índice</a>
+    <a class="nav-link" href="#topic_1">Aprendizaje Automático</a><a class="nav-link" href="#topic_2">Conceptos Clave</a><a class="nav-link" href="#topic_3">Entorno y Agente</a><a class="nav-link" href="#topic_4">Algoritmos y Técnicas</a><a class="nav-link" href="#topic_5">Aplicaciones y Casos de Uso</a><a class="nav-link" href="#topic_6">Limitaciones y Desafíos</a><a class="nav-link" href="#topic_7">Evaluación y Comparación</a><a class="nav-link" href="#topic_8">Conclusión y Futuras Direcciones</a>
+    <a class="nav-link" href="#exam">🎓 Simulacro</a>
+    <button class="nav-link toggle-btn" id="expandAllBtn" type="button"
+      title="Muestra todas las pestañas a la vez (útil para buscar con Ctrl+F)">🔎 Expandir todo</button>
+    <button class="nav-link toggle-btn" id="darkModeBtn" type="button"
+      aria-pressed="false" title="Alternar modo oscuro">🌙 Oscuro</button>
+  </div>
+</nav>
+
+<main id="main-content">
+  <section id="overview">
+  <div class="section-title">
+    <div><h2>📋 Índice de contenidos</h2>
+    <p>Visión general. Haz clic en un tema para ir directamente. El check aparece cuando superas el 70% en ese tema dentro del simulacro global.</p></div>
+  </div>
+  <div class="grid3"><div class="module" id="overview-topic_1" data-topic-id="topic_1">
+          <h3><a href="#topic_1" class="topic-link">
+            <span class="topic-num">1</span>Aprendizaje Automático
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Política</span><span class="pill">Función de Valor</span><span class="pill">Dilema Exploración-Explotación</span>
+          </div>
+        </div><div class="module" id="overview-topic_2" data-topic-id="topic_2">
+          <h3><a href="#topic_2" class="topic-link">
+            <span class="topic-num">2</span>Conceptos Clave
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Definición de Aprendizaje por Refuerzo</span><span class="pill">Objetivos del Aprendizaje por Refuerzo</span>
+          </div>
+        </div><div class="module" id="overview-topic_3" data-topic-id="topic_3">
+          <h3><a href="#topic_3" class="topic-link">
+            <span class="topic-num">3</span>Entorno y Agente
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Entorno del Aprendizaje por Refuerzo</span><span class="pill">Agente del Aprendizaje por Refuerzo</span>
+          </div>
+        </div><div class="module" id="overview-topic_4" data-topic-id="topic_4">
+          <h3><a href="#topic_4" class="topic-link">
+            <span class="topic-num">4</span>Algoritmos y Técnicas
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Algoritmos de Aprendizaje por Refuerzo</span><span class="pill">Técnicas de Aprendizaje por Refuerzo</span>
+          </div>
+        </div><div class="module" id="overview-topic_5" data-topic-id="topic_5">
+          <h3><a href="#topic_5" class="topic-link">
+            <span class="topic-num">5</span>Aplicaciones y Casos de Uso
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Aplicaciones de Aprendizaje por Refuerzo</span><span class="pill">Casos de Uso de Aprendizaje por Refuerzo</span>
+          </div>
+        </div><div class="module" id="overview-topic_6" data-topic-id="topic_6">
+          <h3><a href="#topic_6" class="topic-link">
+            <span class="topic-num">6</span>Limitaciones y Desafíos
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Limitaciones del Aprendizaje por Refuerzo</span><span class="pill">Desafíos del Aprendizaje por Refuerzo</span>
+          </div>
+        </div><div class="module" id="overview-topic_7" data-topic-id="topic_7">
+          <h3><a href="#topic_7" class="topic-link">
+            <span class="topic-num">7</span>Evaluación y Comparación
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Evaluación del Aprendizaje por Refuerzo</span><span class="pill">Comparación con otros Métodos de Aprendizaje</span>
+          </div>
+        </div><div class="module" id="overview-topic_8" data-topic-id="topic_8">
+          <h3><a href="#topic_8" class="topic-link">
+            <span class="topic-num">8</span>Conclusión y Futuras Direcciones
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Conclusión del Aprendizaje por Refuerzo</span><span class="pill">Futuras Direcciones del Aprendizaje por Refuerzo</span>
+          </div>
+        </div></div>
+</section>
+  <section id="topic_1">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">1</span>Aprendizaje Automático</h2>
+      <p>Política  ·  Función de Valor  ·  Dilema Exploración-Explotación</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_1__topic_1_sub_1" aria-controls="topic_1__topic_1_sub_1" aria-selected="true" onclick="openTab('topic_1__topic_1_sub_1', this, 'topic_1')">Política</button><button class="tab" role="tab" id="tabbtn-topic_1__topic_1_sub_2" aria-controls="topic_1__topic_1_sub_2" aria-selected="false" onclick="openTab('topic_1__topic_1_sub_2', this, 'topic_1')">Función de Valor</button><button class="tab" role="tab" id="tabbtn-topic_1__topic_1_sub_3" aria-controls="topic_1__topic_1_sub_3" aria-selected="false" onclick="openTab('topic_1__topic_1_sub_3', this, 'topic_1')">Dilema Exploración-Explotación</button></div>
+  <div class="tab-content active" id="topic_1__topic_1_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_1__topic_1_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_1__topic_1_sub_3" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_3"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Aprendizaje Automático</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_1"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_1"><div class="flip" id="flip-topic_1__fc0" data-fcid="topic_1__fc0" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por Refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por Refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc0" data-state="know" onclick="markCard(event,'topic_1__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc0" data-state="review" onclick="markCard(event,'topic_1__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc1" data-fcid="topic_1__fc1" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Función que describe la probabilidad de elegir cada acción en un estado dado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc1" data-state="know" onclick="markCard(event,'topic_1__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc1" data-state="review" onclick="markCard(event,'topic_1__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc2" data-fcid="topic_1__fc2" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de Valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de Valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Representación numérica de la recompensa esperada en un estado dado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc2" data-state="know" onclick="markCard(event,'topic_1__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc2" data-state="review" onclick="markCard(event,'topic_1__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc3" data-fcid="topic_1__fc3" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema Exploración-Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema Exploración-Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problema de elegir entre explorar nuevos estados o explotar estados conocidos con recompensas altas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc3" data-state="know" onclick="markCard(event,'topic_1__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc3" data-state="review" onclick="markCard(event,'topic_1__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc4" data-fcid="topic_1__fc4" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Entidad que aprende a tomar decisiones en un entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc4" data-state="know" onclick="markCard(event,'topic_1__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc4" data-state="review" onclick="markCard(event,'topic_1__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc5" data-fcid="topic_1__fc5" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Mundo en el que el agente interactúa y recibe recompensas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc5" data-state="know" onclick="markCard(event,'topic_1__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc5" data-state="review" onclick="markCard(event,'topic_1__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc6" data-fcid="topic_1__fc6" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Valor numérico que se asigna a cada acción o estado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc6" data-state="know" onclick="markCard(event,'topic_1__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc6" data-state="review" onclick="markCard(event,'topic_1__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc7" data-fcid="topic_1__fc7" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Interacción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Interacción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Proceso por el cual el agente toma decisiones y el entorno responde con recompensas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc7" data-state="know" onclick="markCard(event,'topic_1__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc7" data-state="review" onclick="markCard(event,'topic_1__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc8" data-fcid="topic_1__fc8" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Maximizar recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Maximizar recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Objetivo del agente en el aprendizaje por refuerzo, es maximizar la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc8" data-state="know" onclick="markCard(event,'topic_1__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc8" data-state="review" onclick="markCard(event,'topic_1__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc9" data-fcid="topic_1__fc9" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política óptima. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política óptima</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Política que maximiza la recompensa esperada en cada estado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc9" data-state="know" onclick="markCard(event,'topic_1__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc9" data-state="review" onclick="markCard(event,'topic_1__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc10" data-fcid="topic_1__fc10" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de valor óptima. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de valor óptima</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Función de valor que representa la recompensa esperada en cada estado, maximizada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc10" data-state="know" onclick="markCard(event,'topic_1__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc10" data-state="review" onclick="markCard(event,'topic_1__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc11" data-fcid="topic_1__fc11" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema de exploración. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema de exploración</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problema de elegir entre explorar nuevos estados o seguir una política conocida.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc11" data-state="know" onclick="markCard(event,'topic_1__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc11" data-state="review" onclick="markCard(event,'topic_1__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc12" data-fcid="topic_1__fc12" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema de explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc12')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc12');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema de explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problema de elegir entre explotar estados conocidos con recompensas altas o seguir una política óptima.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc12" data-state="know" onclick="markCard(event,'topic_1__fc12','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc12" data-state="review" onclick="markCard(event,'topic_1__fc12','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_2">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">2</span>Conceptos Clave</h2>
+      <p>Definición de Aprendizaje por Refuerzo  ·  Objetivos del Aprendizaje por Refuerzo</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_2__topic_2_sub_1" aria-controls="topic_2__topic_2_sub_1" aria-selected="true" onclick="openTab('topic_2__topic_2_sub_1', this, 'topic_2')">Definición de Aprendizaje por Refuerzo</button><button class="tab" role="tab" id="tabbtn-topic_2__topic_2_sub_2" aria-controls="topic_2__topic_2_sub_2" aria-selected="false" onclick="openTab('topic_2__topic_2_sub_2', this, 'topic_2')">Objetivos del Aprendizaje por Refuerzo</button></div>
+  <div class="tab-content active" id="topic_2__topic_2_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_2__topic_2_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (RL) es un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada. Esto se logra a través de la interacción con el entorno y la recepción de recompensas o penalizaciones por las acciones realizadas. El objetivo principal del RL es encontrar la política óptima, que es la secuencia de acciones que maximiza la recompensa acumulada. Para lograr esto, el agente utiliza la función de valor, que es una representación matemática de la recompensa esperada por cada estado del entorno. La función de valor se utiliza para predecir la recompensa esperada por cada acción y estado, lo que permite al agente tomar decisiones informadas. Sin embargo, el RL también enfrenta el dilema exploración-explotación, que es la decisión de explorar nuevos estados y acciones para maximizar la recompensa a largo plazo o explotar las políticas conocidas para maximizar la recompensa inmediata.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Política</strong></td><td>Secuencia de acciones que maximiza la recompensa acumulada</td></tr><tr><td><strong>Función de valor</strong></td><td>Representación matemática de la recompensa esperada por cada estado del entorno</td></tr><tr><td><strong>Dilema exploración-explotación</strong></td><td>Decisión de explorar nuevos estados y acciones para maximizar la recompensa a largo plazo o explotar las políticas conocidas para maximizar la recompensa inmediata</td></tr><tr><td><strong>Recompensa</strong></td><td>Valor asignado a cada acción o estado del entorno</td></tr><tr><td><strong>Penalización</strong></td><td>Valor negativo asignado a cada acción o estado del entorno</td></tr><tr><td><strong>Entorno</strong></td><td>Sistema o espacio en el que se interactúa y se toman decisiones</td></tr><tr><td><strong>Agente</strong></td><td>Sistema o programa que aprende y toma decisiones en el entorno</td></tr><tr><td><strong>Aprendizaje automático</strong></td><td>Técnica o campo de estudio que se enfoca en el desarrollo de sistemas que pueden aprender y mejorar su desempeño automáticamente</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Conceptos Clave</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_2"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_2"><div class="flip" id="flip-topic_2__fc0" data-fcid="topic_2__fc0" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc0" data-state="know" onclick="markCard(event,'topic_2__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc0" data-state="review" onclick="markCard(event,'topic_2__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc1" data-fcid="topic_2__fc1" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La estrategia adoptada por el agente para tomar decisiones en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc1" data-state="know" onclick="markCard(event,'topic_2__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc1" data-state="review" onclick="markCard(event,'topic_2__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc2" data-fcid="topic_2__fc2" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un valor asociado a cada estado del entorno que representa la recompensa esperada en ese estado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc2" data-state="know" onclick="markCard(event,'topic_2__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc2" data-state="review" onclick="markCard(event,'topic_2__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc3" data-fcid="topic_2__fc3" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema exploración-explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema exploración-explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El problema de equilibrar la exploración del entorno para descubrir nuevas políticas y la explotación de la política actual para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc3" data-state="know" onclick="markCard(event,'topic_2__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc3" data-state="review" onclick="markCard(event,'topic_2__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc4" data-fcid="topic_2__fc4" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa acumulada. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa acumulada</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La suma de las recompensas obtenidas en cada paso del agente.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc4" data-state="know" onclick="markCard(event,'topic_2__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc4" data-state="review" onclick="markCard(event,'topic_2__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc5" data-fcid="topic_2__fc5" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El espacio en el que se desarrolla la interacción entre el agente y la política.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc5" data-state="know" onclick="markCard(event,'topic_2__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc5" data-state="review" onclick="markCard(event,'topic_2__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc6" data-fcid="topic_2__fc6" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El sistema que aprende a tomar decisiones en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc6" data-state="know" onclick="markCard(event,'topic_2__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc6" data-state="review" onclick="markCard(event,'topic_2__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc7" data-fcid="topic_2__fc7" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Interacción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Interacción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El proceso en el que el agente toma decisiones y recibe recompensas en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc7" data-state="know" onclick="markCard(event,'topic_2__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc7" data-state="review" onclick="markCard(event,'topic_2__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc8" data-fcid="topic_2__fc8" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Maximizar recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Maximizar recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El objetivo del agente es maximizar la recompensa acumulada en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc8" data-state="know" onclick="markCard(event,'topic_2__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc8" data-state="review" onclick="markCard(event,'topic_2__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc9" data-fcid="topic_2__fc9" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Exploración. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Exploración</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El proceso de descubrir nuevas políticas y estados del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc9" data-state="know" onclick="markCard(event,'topic_2__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc9" data-state="review" onclick="markCard(event,'topic_2__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc10" data-fcid="topic_2__fc10" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El proceso de maximizar la recompensa utilizando la política actual.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc10" data-state="know" onclick="markCard(event,'topic_2__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc10" data-state="review" onclick="markCard(event,'topic_2__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_3">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">3</span>Entorno y Agente</h2>
+      <p>Entorno del Aprendizaje por Refuerzo  ·  Agente del Aprendizaje por Refuerzo</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_3__topic_3_sub_1" aria-controls="topic_3__topic_3_sub_1" aria-selected="true" onclick="openTab('topic_3__topic_3_sub_1', this, 'topic_3')">Entorno del Aprendizaje por Refuerzo</button><button class="tab" role="tab" id="tabbtn-topic_3__topic_3_sub_2" aria-controls="topic_3__topic_3_sub_2" aria-selected="false" onclick="openTab('topic_3__topic_3_sub_2', this, 'topic_3')">Agente del Aprendizaje por Refuerzo</button></div>
+  <div class="tab-content active" id="topic_3__topic_3_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_3__topic_3_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_3__topic_3_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_3__topic_3_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Entorno y Agente</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_3"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_3"><div class="flip" id="flip-topic_3__fc0" data-fcid="topic_3__fc0" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El espacio en el que se desarrolla la interacción entre el agente y la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc0" data-state="know" onclick="markCard(event,'topic_3__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc0" data-state="review" onclick="markCard(event,'topic_3__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc1" data-fcid="topic_3__fc1" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El sistema que toma decisiones y interactúa con el entorno para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc1" data-state="know" onclick="markCard(event,'topic_3__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc1" data-state="review" onclick="markCard(event,'topic_3__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc2" data-fcid="topic_3__fc2" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La estrategia de acción del agente en función de la situación actual y la recompensa esperada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc2" data-state="know" onclick="markCard(event,'topic_3__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc2" data-state="review" onclick="markCard(event,'topic_3__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc3" data-fcid="topic_3__fc3" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un valor asociado a cada estado del entorno que representa la recompensa esperada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc3" data-state="know" onclick="markCard(event,'topic_3__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc3" data-state="review" onclick="markCard(event,'topic_3__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc4" data-fcid="topic_3__fc4" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La recompensa es una medida de la buena o mala acción del agente en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc4" data-state="know" onclick="markCard(event,'topic_3__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc4" data-state="review" onclick="markCard(event,'topic_3__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc5" data-fcid="topic_3__fc5" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc5" data-state="know" onclick="markCard(event,'topic_3__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc5" data-state="review" onclick="markCard(event,'topic_3__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc6" data-fcid="topic_3__fc6" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema exploración-explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema exploración-explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El problema de elegir entre explorar nuevos estados o explotar estados conocidos.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc6" data-state="know" onclick="markCard(event,'topic_3__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc6" data-state="review" onclick="markCard(event,'topic_3__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc7" data-fcid="topic_3__fc7" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Interacción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Interacción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El proceso mediante el cual el agente toma decisiones y el entorno responde con recompensas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc7" data-state="know" onclick="markCard(event,'topic_3__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc7" data-state="review" onclick="markCard(event,'topic_3__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc8" data-fcid="topic_3__fc8" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Estado. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Estado</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La situación actual del entorno en la que el agente toma decisiones.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc8" data-state="know" onclick="markCard(event,'topic_3__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc8" data-state="review" onclick="markCard(event,'topic_3__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_3__fc9" data-fcid="topic_3__fc9" data-topic="topic_3"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Acción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_3__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_3__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Acción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La decisión tomada por el agente en un estado determinado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_3__fc9" data-state="know" onclick="markCard(event,'topic_3__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_3__fc9" data-state="review" onclick="markCard(event,'topic_3__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_4">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">4</span>Algoritmos y Técnicas</h2>
+      <p>Algoritmos de Aprendizaje por Refuerzo  ·  Técnicas de Aprendizaje por Refuerzo</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_4__topic_4_sub_1" aria-controls="topic_4__topic_4_sub_1" aria-selected="true" onclick="openTab('topic_4__topic_4_sub_1', this, 'topic_4')">Algoritmos de Aprendizaje por Refuerzo</button><button class="tab" role="tab" id="tabbtn-topic_4__topic_4_sub_2" aria-controls="topic_4__topic_4_sub_2" aria-selected="false" onclick="openTab('topic_4__topic_4_sub_2', this, 'topic_4')">Técnicas de Aprendizaje por Refuerzo</button></div>
+  <div class="tab-content active" id="topic_4__topic_4_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_4__topic_4_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_4__topic_4_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_4__topic_4_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Algoritmos y Técnicas</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_4"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_4"><div class="flip" id="flip-topic_4__fc0" data-fcid="topic_4__fc0" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por Refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por Refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc0" data-state="know" onclick="markCard(event,'topic_4__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc0" data-state="review" onclick="markCard(event,'topic_4__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc1" data-fcid="topic_4__fc1" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La estrategia que describe las acciones a tomar en cada estado del entorno para maximizar la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc1" data-state="know" onclick="markCard(event,'topic_4__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc1" data-state="review" onclick="markCard(event,'topic_4__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc2" data-fcid="topic_4__fc2" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de Valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de Valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una representación numérica de la recompensa esperada en cada estado del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc2" data-state="know" onclick="markCard(event,'topic_4__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc2" data-state="review" onclick="markCard(event,'topic_4__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc3" data-fcid="topic_4__fc3" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema Exploración-Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema Exploración-Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El problema de elegir entre explorar nuevos estados o explotar los conocimientos actuales para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc3" data-state="know" onclick="markCard(event,'topic_4__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc3" data-state="review" onclick="markCard(event,'topic_4__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc4" data-fcid="topic_4__fc4" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El componente que aprende y toma decisiones en el entorno de aprendizaje por refuerzo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc4" data-state="know" onclick="markCard(event,'topic_4__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc4" data-state="review" onclick="markCard(event,'topic_4__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc5" data-fcid="topic_4__fc5" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa Acumulada. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa Acumulada</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La suma de las recompensas recibidas en cada estado del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc5" data-state="know" onclick="markCard(event,'topic_4__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc5" data-state="review" onclick="markCard(event,'topic_4__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc6" data-fcid="topic_4__fc6" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El espacio en el que se encuentra el agente y donde interactúa para tomar decisiones.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc6" data-state="know" onclick="markCard(event,'topic_4__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc6" data-state="review" onclick="markCard(event,'topic_4__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc7" data-fcid="topic_4__fc7" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Interacción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Interacción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El proceso mediante el cual el agente toma decisiones y el entorno responde con recompensas o penalizaciones.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc7" data-state="know" onclick="markCard(event,'topic_4__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc7" data-state="review" onclick="markCard(event,'topic_4__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc8" data-fcid="topic_4__fc8" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Maximizar Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Maximizar Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El objetivo principal del aprendizaje por refuerzo, que es maximizar la recompensa acumulada en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc8" data-state="know" onclick="markCard(event,'topic_4__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc8" data-state="review" onclick="markCard(event,'topic_4__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_4__fc9" data-fcid="topic_4__fc9" data-topic="topic_4"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Evaluación de Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_4__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_4__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Evaluación de Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El proceso de evaluar la efectividad de una política en el entorno de aprendizaje por refuerzo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_4__fc9" data-state="know" onclick="markCard(event,'topic_4__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_4__fc9" data-state="review" onclick="markCard(event,'topic_4__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_5">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">5</span>Aplicaciones y Casos de Uso</h2>
+      <p>Aplicaciones de Aprendizaje por Refuerzo  ·  Casos de Uso de Aprendizaje por Refuerzo</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_5__topic_5_sub_1" aria-controls="topic_5__topic_5_sub_1" aria-selected="true" onclick="openTab('topic_5__topic_5_sub_1', this, 'topic_5')">Aplicaciones de Aprendizaje por Refuerzo</button><button class="tab" role="tab" id="tabbtn-topic_5__topic_5_sub_2" aria-controls="topic_5__topic_5_sub_2" aria-selected="false" onclick="openTab('topic_5__topic_5_sub_2', this, 'topic_5')">Casos de Uso de Aprendizaje por Refuerzo</button></div>
+  <div class="tab-content active" id="topic_5__topic_5_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_5__topic_5_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (RL) es un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada. Esto se logra mediante la interacción con el entorno y la recepción de recompensas o penalizaciones por las acciones realizadas. El objetivo principal es encontrar la política óptima, que es la secuencia de acciones que maximiza la recompensa acumulada. Para lograr esto, el agente utiliza la función de valor, que es una representación matemática de la recompensa esperada por cada estado del entorno. La función de valor es fundamental en RL, ya que permite al agente evaluar las posibles acciones y elegir la mejor opción. Sin embargo, el dilema exploración-explotación es un problema común en RL, ya que el agente debe equilibrar la explotación de la política óptima conocida con la exploración de nuevas acciones y estados para mejorar la política en el futuro.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Política</strong></td><td>Secuencia de acciones que maximiza la recompensa acumulada</td></tr><tr><td><strong>Función de valor</strong></td><td>Representación matemática de la recompensa esperada por cada estado del entorno</td></tr><tr><td><strong>Dilema exploración-explotación</strong></td><td>Problema de equilibrar la explotación de la política óptima conocida con la exploración de nuevas acciones y estados</td></tr><tr><td><strong>Recompensa</strong></td><td>Valor asignado a cada acción o estado del entorno</td></tr><tr><td><strong>Penalización</strong></td><td>Valor negativo asignado a cada acción o estado del entorno</td></tr><tr><td><strong>Entorno</strong></td><td>Espacio en el que se desarrolla la interacción entre el agente y el entorno</td></tr><tr><td><strong>Agente</strong></td><td>Sistema que aprende a tomar decisiones interactuando con el entorno</td></tr><tr><td><strong>Aprendizaje automático</strong></td><td>Técnica de programación que permite a los sistemas aprender de la experiencia</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_5__topic_5_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_5__topic_5_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Aplicaciones y Casos de Uso</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_5"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_5"><div class="flip" id="flip-topic_5__fc0" data-fcid="topic_5__fc0" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por Refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por Refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc0" data-state="know" onclick="markCard(event,'topic_5__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc0" data-state="review" onclick="markCard(event,'topic_5__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc1" data-fcid="topic_5__fc1" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Función que asigna una acción a cada estado del entorno para maximizar la recompensa esperada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc1" data-state="know" onclick="markCard(event,'topic_5__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc1" data-state="review" onclick="markCard(event,'topic_5__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc2" data-fcid="topic_5__fc2" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de Valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de Valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Representación numérica de la recompensa esperada de estar en un estado determinado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc2" data-state="know" onclick="markCard(event,'topic_5__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc2" data-state="review" onclick="markCard(event,'topic_5__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc3" data-fcid="topic_5__fc3" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema Exploración-Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema Exploración-Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problema de elegir entre explorar nuevos estados o explotar estados conocidos para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc3" data-state="know" onclick="markCard(event,'topic_5__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc3" data-state="review" onclick="markCard(event,'topic_5__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc4" data-fcid="topic_5__fc4" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Espacio en el que se desarrolla la interacción entre el agente y el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc4" data-state="know" onclick="markCard(event,'topic_5__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc4" data-state="review" onclick="markCard(event,'topic_5__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc5" data-fcid="topic_5__fc5" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Beneficio o penalización recibido por el agente por tomar una acción en un estado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc5" data-state="know" onclick="markCard(event,'topic_5__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc5" data-state="review" onclick="markCard(event,'topic_5__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc6" data-fcid="topic_5__fc6" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Sistema que aprende a tomar decisiones interactuando con el entorno para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc6" data-state="know" onclick="markCard(event,'topic_5__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc6" data-state="review" onclick="markCard(event,'topic_5__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc7" data-fcid="topic_5__fc7" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Interacción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Interacción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Proceso de tomar decisiones y recibir recompensas en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc7" data-state="know" onclick="markCard(event,'topic_5__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc7" data-state="review" onclick="markCard(event,'topic_5__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc8" data-fcid="topic_5__fc8" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Maximizar Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Maximizar Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Objetivo de aprender a tomar decisiones que maximicen la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc8" data-state="know" onclick="markCard(event,'topic_5__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc8" data-state="review" onclick="markCard(event,'topic_5__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc9" data-fcid="topic_5__fc9" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de Valor Estimada. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de Valor Estimada</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Representación numérica de la recompensa esperada de estar en un estado determinado, estimada a partir de experiencias pasadas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc9" data-state="know" onclick="markCard(event,'topic_5__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc9" data-state="review" onclick="markCard(event,'topic_5__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_5__fc10" data-fcid="topic_5__fc10" data-topic="topic_5"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política Óptima. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_5__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_5__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política Óptima</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Política que maximiza la recompensa esperada en cada estado del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_5__fc10" data-state="know" onclick="markCard(event,'topic_5__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_5__fc10" data-state="review" onclick="markCard(event,'topic_5__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_6">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">6</span>Limitaciones y Desafíos</h2>
+      <p>Limitaciones del Aprendizaje por Refuerzo  ·  Desafíos del Aprendizaje por Refuerzo</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_6__topic_6_sub_1" aria-controls="topic_6__topic_6_sub_1" aria-selected="true" onclick="openTab('topic_6__topic_6_sub_1', this, 'topic_6')">Limitaciones del Aprendizaje por Refuerzo</button><button class="tab" role="tab" id="tabbtn-topic_6__topic_6_sub_2" aria-controls="topic_6__topic_6_sub_2" aria-selected="false" onclick="openTab('topic_6__topic_6_sub_2', this, 'topic_6')">Desafíos del Aprendizaje por Refuerzo</button></div>
+  <div class="tab-content active" id="topic_6__topic_6_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_6__topic_6_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_6__topic_6_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_6__topic_6_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El aprendizaje por refuerzo (RL) es un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada. Esto se logra a través de la interacción con el entorno, donde el agente recibe recompensas o penalizaciones por sus acciones. La política es la función que describe las acciones que el agente debe tomar en cada estado del entorno para maximizar la recompensa acumulada. La función de valor, por otro lado, es una función que asigna un valor a cada estado del entorno, representando la recompensa esperada si se toma la acción óptima en ese estado. Sin embargo, el dilema exploración-explotación es un desafío clave en el RL, ya que el agente debe equilibrar la exploración del entorno para descubrir nuevas políticas y la explotación de las políticas conocidas para maximizar la recompensa acumulada.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Política</strong></td><td>Función que describe las acciones que el agente debe tomar en cada estado del entorno para maximizar la recompensa acumulada.</td></tr><tr><td><strong>Función de valor</strong></td><td>Función que asigna un valor a cada estado del entorno, representando la recompensa esperada si se toma la acción óptima en ese estado.</td></tr><tr><td><strong>Dilema exploración-explotación</strong></td><td>Desafío de equilibrar la exploración del entorno para descubrir nuevas políticas y la explotación de las políticas conocidas para maximizar la recompensa acumulada.</td></tr><tr><td><strong>Recompensa</strong></td><td>Valor asignado a cada acción o estado del entorno, que se utiliza para guiar la toma de decisiones del agente.</td></tr><tr><td><strong>Entorno</strong></td><td>Espacio en el que se desarrolla la interacción entre el agente y el entorno.</td></tr><tr><td><strong>Agente</strong></td><td>Sistema que aprende a tomar decisiones interactuando con el entorno para maximizar la recompensa acumulada.</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Limitaciones y Desafíos</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_6"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_6"><div class="flip" id="flip-topic_6__fc0" data-fcid="topic_6__fc0" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por Refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por Refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc0" data-state="know" onclick="markCard(event,'topic_6__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc0" data-state="review" onclick="markCard(event,'topic_6__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc1" data-fcid="topic_6__fc1" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La estrategia de toma de decisiones de un agente en un entorno de RL.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc1" data-state="know" onclick="markCard(event,'topic_6__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc1" data-state="review" onclick="markCard(event,'topic_6__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc2" data-fcid="topic_6__fc2" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de Valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de Valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un valor asociado a cada estado del entorno que representa la recompensa esperada de tomar una acción en ese estado.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc2" data-state="know" onclick="markCard(event,'topic_6__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc2" data-state="review" onclick="markCard(event,'topic_6__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc3" data-fcid="topic_6__fc3" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema Exploración-Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema Exploración-Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El conflicto entre explorar nuevos estados o acciones y explotar las acciones que ya se sabe que funcionan.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc3" data-state="know" onclick="markCard(event,'topic_6__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc3" data-state="review" onclick="markCard(event,'topic_6__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc4" data-fcid="topic_6__fc4" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa Acumulada. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa Acumulada</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La suma de las recompensas obtenidas en cada paso del proceso de aprendizaje.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc4" data-state="know" onclick="markCard(event,'topic_6__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc4" data-state="review" onclick="markCard(event,'topic_6__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc5" data-fcid="topic_6__fc5" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El espacio de estados y acciones en el que se desarrolla el proceso de aprendizaje.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc5" data-state="know" onclick="markCard(event,'topic_6__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc5" data-state="review" onclick="markCard(event,'topic_6__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc6" data-fcid="topic_6__fc6" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El sistema que aprende y toma decisiones en el entorno de RL.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc6" data-state="know" onclick="markCard(event,'topic_6__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc6" data-state="review" onclick="markCard(event,'topic_6__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc7" data-fcid="topic_6__fc7" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Interacción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Interacción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El proceso de tomar decisiones y recibir recompensas en el entorno de RL.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc7" data-state="know" onclick="markCard(event,'topic_6__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc7" data-state="review" onclick="markCard(event,'topic_6__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc8" data-fcid="topic_6__fc8" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Maximizar Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Maximizar Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El objetivo principal del aprendizaje por refuerzo, que es maximizar la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc8" data-state="know" onclick="markCard(event,'topic_6__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc8" data-state="review" onclick="markCard(event,'topic_6__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_6__fc9" data-fcid="topic_6__fc9" data-topic="topic_6"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: RL vs. RL+. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_6__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_6__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>RL vs. RL+</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>RL es un área del aprendizaje automático, RL+ es un término que se refiere a la aplicación de RL en problemas más complejos.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_6__fc9" data-state="know" onclick="markCard(event,'topic_6__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_6__fc9" data-state="review" onclick="markCard(event,'topic_6__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_7">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">7</span>Evaluación y Comparación</h2>
+      <p>Evaluación del Aprendizaje por Refuerzo  ·  Comparación con otros Métodos de Aprendizaje</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_7__topic_7_sub_1" aria-controls="topic_7__topic_7_sub_1" aria-selected="true" onclick="openTab('topic_7__topic_7_sub_1', this, 'topic_7')">Evaluación del Aprendizaje por Refuerzo</button><button class="tab" role="tab" id="tabbtn-topic_7__topic_7_sub_2" aria-controls="topic_7__topic_7_sub_2" aria-selected="false" onclick="openTab('topic_7__topic_7_sub_2', this, 'topic_7')">Comparación con otros Métodos de Aprendizaje</button></div>
+  <div class="tab-content active" id="topic_7__topic_7_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_7__topic_7_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_7__topic_7_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_7__topic_7_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>La comparación con otros métodos de aprendizaje es fundamental en el campo de la evaluación y comparación. El aprendizaje por refuerzo (RL) es un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada. Esta área se enfoca en la resolución de problemas complejos mediante la interacción con el entorno y la obtención de recompensas.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Política</strong></td><td>Estrategia de toma de decisiones del agente</td></tr><tr><td><strong>Función de valor</strong></td><td>Representa el valor esperado de cada estado del entorno</td></tr><tr><td><strong>Dilema exploración-explotación</strong></td><td>Decisión de explorar nuevos estados del entorno o explotar estados conocidos que proporcionan una recompensa alta</td></tr><tr><td><strong>Aprendizaje por refuerzo</strong></td><td>Área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada</td></tr><tr><td><strong>Recompensa</strong></td><td>Beneficio o resultado obtenido por el agente al tomar una acción en el entorno</td></tr><tr><td><strong>Entorno</strong></td><td>Espacio en el que se desarrolla la interacción entre el agente y el entorno</td></tr><tr><td><strong>Agente</strong></td><td>Sistema que aprende y toma decisiones en el entorno de aprendizaje</td></tr><tr><td><strong>Exploración</strong></td><td>Proceso de descubrir nuevos estados del entorno y sus recompensas</td></tr><tr><td><strong>Explotación</strong></td><td>Proceso de explotar estados conocidos que proporcionan una recompensa alta</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Evaluación y Comparación</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_7"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_7"><div class="flip" id="flip-topic_7__fc0" data-fcid="topic_7__fc0" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc0" data-state="know" onclick="markCard(event,'topic_7__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc0" data-state="review" onclick="markCard(event,'topic_7__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc1" data-fcid="topic_7__fc1" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Función que asigna una acción a cada estado del entorno para maximizar la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc1" data-state="know" onclick="markCard(event,'topic_7__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc1" data-state="review" onclick="markCard(event,'topic_7__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc2" data-fcid="topic_7__fc2" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Representación matemática de la recompensa esperada en cada estado del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc2" data-state="know" onclick="markCard(event,'topic_7__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc2" data-state="review" onclick="markCard(event,'topic_7__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc3" data-fcid="topic_7__fc3" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema exploración-explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema exploración-explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problema de elegir entre explorar nuevos estados o explotar estados conocidos para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc3" data-state="know" onclick="markCard(event,'topic_7__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc3" data-state="review" onclick="markCard(event,'topic_7__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc4" data-fcid="topic_7__fc4" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Espacio en el que se desarrolla la interacción entre el agente y el entorno para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc4" data-state="know" onclick="markCard(event,'topic_7__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc4" data-state="review" onclick="markCard(event,'topic_7__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc5" data-fcid="topic_7__fc5" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Valor numérico que se asigna a cada acción o estado del entorno para reflejar su utilidad.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc5" data-state="know" onclick="markCard(event,'topic_7__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc5" data-state="review" onclick="markCard(event,'topic_7__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc6" data-fcid="topic_7__fc6" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Sistema que aprende a tomar decisiones interactuando con el entorno para maximizar la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc6" data-state="know" onclick="markCard(event,'topic_7__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc6" data-state="review" onclick="markCard(event,'topic_7__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc7" data-fcid="topic_7__fc7" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Interacción. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Interacción</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Proceso por el cual el agente toma decisiones y el entorno responde con recompensas o castigos.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc7" data-state="know" onclick="markCard(event,'topic_7__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc7" data-state="review" onclick="markCard(event,'topic_7__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_7__fc8" data-fcid="topic_7__fc8" data-topic="topic_7"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Maximizar recompensa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_7__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_7__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Maximizar recompensa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Objetivo del agente en el aprendizaje por refuerzo, consiste en encontrar la política que maximice la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_7__fc8" data-state="know" onclick="markCard(event,'topic_7__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_7__fc8" data-state="review" onclick="markCard(event,'topic_7__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_8">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">8</span>Conclusión y Futuras Direcciones</h2>
+      <p>Conclusión del Aprendizaje por Refuerzo  ·  Futuras Direcciones del Aprendizaje por Refuerzo</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_8__topic_8_sub_1" aria-controls="topic_8__topic_8_sub_1" aria-selected="true" onclick="openTab('topic_8__topic_8_sub_1', this, 'topic_8')">Conclusión del Aprendizaje por Refuerzo</button><button class="tab" role="tab" id="tabbtn-topic_8__topic_8_sub_2" aria-controls="topic_8__topic_8_sub_2" aria-selected="false" onclick="openTab('topic_8__topic_8_sub_2', this, 'topic_8')">Futuras Direcciones del Aprendizaje por Refuerzo</button></div>
+  <div class="tab-content active" id="topic_8__topic_8_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_8__topic_8_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_8__topic_8_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_8__topic_8_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Conclusión y Futuras Direcciones</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_8"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_8"><div class="flip" id="flip-topic_8__fc0" data-fcid="topic_8__fc0" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Aprendizaje por Refuerzo (RL). Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Aprendizaje por Refuerzo (RL)</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un área del aprendizaje automático donde un agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc0" data-state="know" onclick="markCard(event,'topic_8__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc0" data-state="review" onclick="markCard(event,'topic_8__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc1" data-fcid="topic_8__fc1" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Política. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Política</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La función que asigna una acción a cada estado del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc1" data-state="know" onclick="markCard(event,'topic_8__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc1" data-state="review" onclick="markCard(event,'topic_8__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc2" data-fcid="topic_8__fc2" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de Valor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de Valor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un valor asociado a cada estado del entorno que representa la recompensa esperada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc2" data-state="know" onclick="markCard(event,'topic_8__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc2" data-state="review" onclick="markCard(event,'topic_8__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc3" data-fcid="topic_8__fc3" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dilema Exploración-Explotación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dilema Exploración-Explotación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El problema de elegir entre explorar nuevos estados o explotar estados conocidos para maximizar la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc3" data-state="know" onclick="markCard(event,'topic_8__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc3" data-state="review" onclick="markCard(event,'topic_8__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc4" data-fcid="topic_8__fc4" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Agente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Agente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El componente que aprende y toma decisiones en el entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc4" data-state="know" onclick="markCard(event,'topic_8__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc4" data-state="review" onclick="markCard(event,'topic_8__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc5" data-fcid="topic_8__fc5" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Entorno. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Entorno</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El espacio donde se desarrolla la interacción entre el agente y la recompensa.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc5" data-state="know" onclick="markCard(event,'topic_8__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc5" data-state="review" onclick="markCard(event,'topic_8__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc6" data-fcid="topic_8__fc6" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Recompensa Acumulada. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Recompensa Acumulada</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La suma de las recompensas obtenidas en cada tiempo t.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc6" data-state="know" onclick="markCard(event,'topic_8__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc6" data-state="review" onclick="markCard(event,'topic_8__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc7" data-fcid="topic_8__fc7" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: ¿Qué es el objetivo principal del aprendizaje por refuerzo?. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>¿Qué es el objetivo principal del aprendizaje por refuerzo?</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Maximizar la recompensa acumulada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc7" data-state="know" onclick="markCard(event,'topic_8__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc7" data-state="review" onclick="markCard(event,'topic_8__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc8" data-fcid="topic_8__fc8" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: ¿Qué es la política en RL?. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>¿Qué es la política en RL?</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La función que asigna una acción a cada estado del entorno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc8" data-state="know" onclick="markCard(event,'topic_8__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc8" data-state="review" onclick="markCard(event,'topic_8__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_8__fc9" data-fcid="topic_8__fc9" data-topic="topic_8"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: ¿Qué es la función de valor en RL?. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_8__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_8__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>¿Qué es la función de valor en RL?</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un valor asociado a cada estado del entorno que representa la recompensa esperada.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_8__fc9" data-state="know" onclick="markCard(event,'topic_8__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_8__fc9" data-state="review" onclick="markCard(event,'topic_8__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+  <section id="exam">
+  <div class="section-title">
+    <div><h2>🎓 Simulacro global</h2>
+    <p>Preguntas mezcladas de todos los temas. Configura y empieza cuando estés listo.</p></div>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="exam-toolbar">
+      <div class="exam-control">
+        <label for="examCount">Preguntas</label>
+        <input type="number" id="examCount" value="20" min="5" max="200" style="width:80px">
+      </div>
+      <label class="toggle-label"><input type="checkbox" id="examShuffle" checked> Mezclar</label>
+      <label class="toggle-label"><input type="checkbox" id="examShowTopic"> Mostrar tema</label>
+      <button class="primary" type="button" onclick="startExam()">▶ Iniciar</button>
+      <button type="button" onclick="gradeExam()">✅ Corregir</button>
+      <button type="button" onclick="resetExam()">🔄 Reiniciar</button>
+      <div class="score" id="examScore" role="status">Sin iniciar</div>
+    </div>
+  </div>
+  <div id="examGrid" class="quiz-grid"></div>
+  <div id="examBreakdown" class="result" style="display:none;margin-top:14px"></div>
+  <div id="examHistory" class="panel" style="margin-top:14px;display:none">
+    <h4>📈 Historial de simulacros</h4>
+    <table id="examHistoryTable"><tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr></table>
+  </div>
+</section>
+</main>
+
+<script>
+const QUESTIONS = [{"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Qué objetivo principal persigue el agente en el aprendizaje por refuerzo?", "options": ["Maximizar la recompensa acumulada", "Minimizar la pérdida acumulada", "Aprender el entorno", "Tener una política fija"], "answer": 0, "why": "El objetivo principal del agente es maximizar la recompensa acumulada, ya que esto es el objetivo central del aprendizaje por refuerzo."}, {"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Qué es la función de valor en el aprendizaje por refuerzo?", "options": ["La función que describe la probabilidad de cada acción", "La función que describe la recompensa esperada por cada estado", "La función que describe la política del agente", "La función que describe la complejidad del entorno"], "answer": 1, "why": "La función de valor es la función que describe la recompensa esperada por cada estado, lo que ayuda al agente a tomar decisiones más informadas."}, {"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Qué dilema enfrenta el agente en el aprendizaje por refuerzo?", "options": ["Dilema de exploración-explotación", "Dilema de decisión", "Dilema de información", "Dilema de tiempo"], "answer": 0, "why": "El dilema que enfrenta el agente en el aprendizaje por refuerzo es el dilema de exploración-explotación, ya que debe equilibrar la exploración del entorno con la explotación de las políticas conocidas."}, {"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Cuál es el propósito de la política en el aprendizaje por refuerzo?", "options": ["Describe la recompensa esperada por cada estado", "Describe la probabilidad de cada acción", "Describe la estrategia del agente para tomar decisiones", "Describe la complejidad del entorno"], "answer": 2, "why": "La política describe la estrategia del agente para tomar decisiones y maximizar la recompensa acumulada."}, {"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Qué sucede cuando el agente explora el entorno en el aprendizaje por refuerzo?", "options": ["Maximiza la recompensa acumulada", "Minimiza la pérdida acumulada", "Aprende el entorno", "Tiene una política fija"], "answer": 2, "why": "Cuando el agente explora el entorno, aprende más sobre el mismo y puede mejorar su política para maximizar la recompensa acumulada."}, {"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Qué es el aprendizaje por refuerzo un área del aprendizaje automático?", "options": ["Sí", "No", "Quizás", "Depende"], "answer": 0, "why": "El aprendizaje por refuerzo es un área del aprendizaje automático donde el agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada."}, {"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Qué función cumple la función de valor en el aprendizaje por refuerzo?", "options": ["Describe la política del agente", "Describe la recompensa esperada por cada estado", "Describe la complejidad del entorno", "Describe la probabilidad de cada acción"], "answer": 1, "why": "La función de valor describe la recompensa esperada por cada estado, lo que ayuda al agente a tomar decisiones más informadas."}, {"topicId": "topic_1", "topicName": "Aprendizaje Automático", "q": "¿Qué es el dilema de exploración-explotación en el aprendizaje por refuerzo?", "options": ["El dilema de decidir entre explorar o explotar", "El dilema de decidir entre maximizar la recompensa o minimizar la pérdida", "El dilema de decidir entre aprender el entorno o tener una política fija", "El dilema de decidir entre la complejidad del entorno y la política del agente"], "answer": 0, "why": "El dilema de exploración-explotación es el dilema de decidir entre explorar el entorno y explotar las políticas conocidas para maximizar la recompensa acumulada."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Cuál es el objetivo principal del aprendizaje por refuerzo?", "options": ["Maximizar la tasa de aprendizaje", "Minimizar la complejidad del entorno", "Maximizar la recompensa acumulada", "Minimizar la cantidad de interacciones"], "answer": 2, "why": "El objetivo principal del aprendizaje por refuerzo es maximizar la recompensa acumulada, lo que significa tomar decisiones que aumenten la recompensa en cada paso."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Qué es la política en el aprendizaje por refuerzo?", "options": ["Un plan de acción para tomar decisiones", "Una función que calcula la recompensa", "Un algoritmo para explorar el entorno", "Un conjunto de reglas para interactuar con el entorno"], "answer": 0, "why": "La política es un plan de acción para tomar decisiones en el entorno, lo que incluye elegir acciones para maximizar la recompensa."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Cuál es el dilema que enfrenta un agente en el aprendizaje por refuerzo?", "options": ["Explorar vs. explotar", "Aprender vs. olvidar", "Tomar decisiones vs. no tomar decisiones", "Maximizar vs. minimizar la recompensa"], "answer": 0, "why": "El dilema que enfrenta un agente en el aprendizaje por refuerzo es explorar el entorno para descubrir nuevas opciones y explotar las acciones que ya conocen para maximizar la recompensa."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Qué es la función de valor en el aprendizaje por refuerzo?", "options": ["Una función que calcula la recompensa", "Un algoritmo para explorar el entorno", "Un conjunto de reglas para interactuar con el entorno", "Una función que predice la recompensa futura"], "answer": 3, "why": "La función de valor es una función que predice la recompensa futura en función de la política y el estado actual del entorno."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Cuál es el beneficio de utilizar el aprendizaje por refuerzo en un problema?", "options": ["Mejora la eficiencia del algoritmo", "Aumenta la complejidad del entorno", "Mejora la precisión de las predicciones", "Mejora la capacidad de adaptarse al entorno"], "answer": 3, "why": "El aprendizaje por refuerzo puede mejorar la capacidad de adaptarse al entorno, ya que el agente puede aprender a tomar decisiones óptimas en función de la recompensa acumulada."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Qué es el problema de la exploración-explotación en el aprendizaje por refuerzo?", "options": ["El problema de maximizar la recompensa", "El problema de minimizar la complejidad del entorno", "El problema de elegir entre explorar y explotar", "El problema de tomar decisiones en un entorno desconocido"], "answer": 2, "why": "El problema de la exploración-explotación es elegir entre explorar el entorno para descubrir nuevas opciones y explotar las acciones que ya conocen para maximizar la recompensa."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Cuál es el papel de la política en la función de valor en el aprendizaje por refuerzo?", "options": ["La política es una función que calcula la recompensa", "La política es una función que predice la recompensa futura", "La política es una función que se utiliza para actualizar la función de valor", "La política no tiene relación con la función de valor"], "answer": 2, "why": "La política se utiliza para actualizar la función de valor, ya que la función de valor predice la recompensa futura en función de la política y el estado actual del entorno."}, {"topicId": "topic_2", "topicName": "Conceptos Clave", "q": "¿Qué es el resultado final del aprendizaje por refuerzo?", "options": ["Un algoritmo para explorar el entorno", "Un conjunto de reglas para interactuar con el entorno", "Un plan de acción para tomar decisiones", "Un modelo que predice la recompensa futura"], "answer": 2, "why": "El resultado final del aprendizaje por refuerzo es un plan de acción para tomar decisiones, que es la política óptima para maximizar la recompensa acumulada."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Cuál es el objetivo principal del aprendizaje por refuerzo (RL)?", "options": ["Maximizar una recompensa acumulada", "Minimizar una pérdida acumulada", "Aprender una función de valor", "Tener una política óptima"], "answer": 0, "why": "El objetivo principal del RL es maximizar una recompensa acumulada, lo que implica tomar decisiones que incrementen la recompensa en el entorno."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Qué es la política en el contexto del aprendizaje por refuerzo?", "options": ["Una función que asigna una acción a cada estado", "Una función que asigna una recompensa a cada estado", "Una función que asigna una probabilidad a cada acción", "Una función que asigna una acción a cada recompensa"], "answer": 0, "why": "La política es una función que asigna una acción a cada estado, lo que permite al agente tomar decisiones en el entorno."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Cuál es el dilema que enfrenta un agente en el aprendizaje por refuerzo?", "options": ["Dilema exploración-explotación", "Dilema maximización-minimización", "Dilema aleatorio-estático", "Dilema recompensa-pérdida"], "answer": 0, "why": "El dilema que enfrenta un agente en el RL es el dilema exploración-explotación, que implica elegir entre explorar nuevas acciones o explotar las acciones conocidas que han resultado en recompensas altas."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Qué es la función de valor en el contexto del aprendizaje por refuerzo?", "options": ["Una función que asigna una recompensa a cada estado", "Una función que asigna una probabilidad a cada acción", "Una función que asigna una acción a cada estado", "Una función que asigna una recompensa a cada acción"], "answer": 0, "why": "La función de valor es una función que asigna una recompensa a cada estado, lo que permite al agente evaluar la calidad de cada estado en el entorno."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Cuál es el beneficio de utilizar una función de valor en el aprendizaje por refuerzo?", "options": ["Mejora la velocidad de aprendizaje", "Mejora la precisión de la política", "Reduce la complejidad del algoritmo", "No tiene ningún beneficio"], "answer": 1, "why": "El beneficio de utilizar una función de valor en el RL es que mejora la precisión de la política, lo que permite al agente tomar decisiones más efectivas en el entorno."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Cómo se puede resolver el dilema exploración-explotación en el aprendizaje por refuerzo?", "options": ["Utilizando una política óptima", "Utilizando una función de valor", "Utilizando un algoritmo de exploración-explotación", "No hay forma de resolver el dilema"], "answer": 2, "why": "El dilema exploración-explotación se puede resolver utilizando un algoritmo de exploración-explotación, que permite al agente encontrar un equilibrio entre explorar nuevas acciones y explotar las acciones conocidas que han resultado en recompensas altas."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Qué es el aprendizaje por refuerzo en comparación con otros tipos de aprendizaje automático?", "options": ["Es un tipo de aprendizaje supervisado", "Es un tipo de aprendizaje no supervisado", "Es un tipo de aprendizaje por refuerzo", "No es un tipo de aprendizaje automático"], "answer": 2, "why": "El aprendizaje por refuerzo es un tipo de aprendizaje automático que se diferencia de otros tipos de aprendizaje automático en que el agente aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada."}, {"topicId": "topic_3", "topicName": "Entorno y Agente", "q": "¿Cuál es el objetivo principal de la función de valor en el aprendizaje por refuerzo?", "options": ["Maximizar una recompensa acumulada", "Minimizar una pérdida acumulada", "Aprender una política óptima", "Evaluar la calidad de cada estado"], "answer": 3, "why": "El objetivo principal de la función de valor en el RL es evaluar la calidad de cada estado en el entorno, lo que permite al agente tomar decisiones más efectivas."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Cuál es el objetivo principal del aprendizaje por refuerzo?", "options": ["Maximizar una recompensa instantánea", "Maximizar una recompensa acumulada", "Minimizar el tiempo de ejecución", "Minimizar la cantidad de datos necesarios"], "answer": 1, "why": "El objetivo principal del aprendizaje por refuerzo es maximizar la recompensa acumulada a lo largo de varias interacciones con el entorno."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Qué es la política en el aprendizaje por refuerzo?", "options": ["Un mapa que relaciona estados con acciones", "Un modelo que predice la recompensa futura", "Un algoritmo que maximiza la recompensa acumulada", "Un conjunto de reglas que determinan la acción a tomar"], "answer": 0, "why": "La política es un mapa que relaciona estados con acciones, y es un componente fundamental del aprendizaje por refuerzo."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Cuál es el dilema que enfrenta un agente en el aprendizaje por refuerzo?", "options": ["Exploración-explotación", "Optimismo-pesimismo", "Diversidad-convergencia", "Complejidad-simplificación"], "answer": 0, "why": "El dilema que enfrenta un agente en el aprendizaje por refuerzo es el dilema exploración-explotación, que consiste en elegir entre explorar nuevos estados o explotar los estados conocidos para maximizar la recompensa acumulada."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Qué es la función de valor en el aprendizaje por refuerzo?", "options": ["Un modelo que predice la recompensa futura", "Un mapa que relaciona estados con acciones", "Un algoritmo que maximiza la recompensa acumulada", "Un conjunto de reglas que determinan la acción a tomar"], "answer": 0, "why": "La función de valor es un modelo que predice la recompensa futura en función del estado actual y la acción tomada, y es un componente fundamental del aprendizaje por refuerzo."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Cuál es el beneficio principal del aprendizaje por refuerzo?", "options": ["Mejorar la velocidad de ejecución", "Mejorar la precisión de la predicción", "Mejorar la capacidad de generalización", "Mejorar la capacidad de adaptación a entornos cambiantes"], "answer": 3, "why": "El beneficio principal del aprendizaje por refuerzo es mejorar la capacidad de adaptación a entornos cambiantes, ya que permite a los agentes aprender a tomar decisiones en entornos desconocidos."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Qué es un agente en el aprendizaje por refuerzo?", "options": ["Un modelo que predice la recompensa futura", "Un algoritmo que maximiza la recompensa acumulada", "Un conjunto de reglas que determinan la acción a tomar", "Un ente que interactúa con el entorno para maximizar la recompensa acumulada"], "answer": 3, "why": "Un agente en el aprendizaje por refuerzo es un ente que interactúa con el entorno para maximizar la recompensa acumulada, y es el componente central del aprendizaje por refuerzo."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Cuál es el objetivo de la función de valor en el aprendizaje por refuerzo?", "options": ["Maximizar la recompensa instantánea", "Maximizar la recompensa acumulada", "Minimizar la cantidad de datos necesarios", "Minimizar el tiempo de ejecución"], "answer": 1, "why": "El objetivo de la función de valor en el aprendizaje por refuerzo es maximizar la recompensa acumulada, ya que predice la recompensa futura en función del estado actual y la acción tomada."}, {"topicId": "topic_4", "topicName": "Algoritmos y Técnicas", "q": "¿Qué es el dilema exploración-explotación en el aprendizaje por refuerzo?", "options": ["La decisión de elegir entre explorar nuevos estados o explotar los estados conocidos", "La decisión de elegir entre maximizar la recompensa acumulada o minimizar la cantidad de datos necesarios", "La decisión de elegir entre mejorar la velocidad de ejecución o mejorar la precisión de la predicción", "La decisión de elegir entre mejorar la capacidad de generalización o mejorar la capacidad de adaptación a entornos cambiantes"], "answer": 0, "why": "El dilema exploración-explotación en el aprendizaje por refuerzo es la decisión de elegir entre explorar nuevos estados o explotar los estados conocidos para maximizar la recompensa acumulada."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Cuál es el objetivo principal del aprendizaje por refuerzo (RL)?", "options": ["Maximizar una recompensa instantánea", "Maximizar una recompensa acumulada", "Minimizar una pérdida instantánea", "Minimizar una pérdida acumulada"], "answer": 1, "why": "El aprendizaje por refuerzo busca maximizar una recompensa acumulada a lo largo de un proceso interactivo con el entorno."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Cuál de los siguientes conceptos no es clave en el aprendizaje por refuerzo?", "options": ["Política", "Función de valor", "Dilema exploración-explotación", "Ecuación de estado"], "answer": 3, "why": "La ecuación de estado no es un concepto clave en el aprendizaje por refuerzo, aunque puede ser relevante en otros contextos de aprendizaje automático."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Qué es la función de valor en el aprendizaje por refuerzo?", "options": ["Una función que asigna una recompensa a cada acción", "Una función que predice la recompensa futura de cada acción", "Una función que representa la probabilidad de cada acción", "Una función que maximiza la recompensa acumulada"], "answer": 1, "why": "La función de valor es una función que predice la recompensa futura de cada acción, basada en la experiencia del agente."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Cuál es el dilema que enfrenta un agente en el aprendizaje por refuerzo?", "options": ["Exploración vs. explotación de una política óptima", "Exploración vs. explotación de una recompensa instantánea", "Exploración vs. explotación de una función de valor", "Exploración vs. explotación de un entorno"], "answer": 0, "why": "El dilema que enfrenta un agente en el aprendizaje por refuerzo es explorar el entorno para descubrir nuevas acciones y recompensas, o explotar una política óptima conocida para maximizar la recompensa acumulada."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Cómo se relaciona la política con la función de valor en el aprendizaje por refuerzo?", "options": ["La política es una función que maximiza la recompensa acumulada, mientras que la función de valor es una función que predice la recompensa futura de cada acción", "La política es una función que predice la recompensa futura de cada acción, mientras que la función de valor es una función que maximiza la recompensa acumulada", "La política es una función que asigna una probabilidad a cada acción, mientras que la función de valor es una función que representa la probabilidad de cada acción", "La política no se relaciona con la función de valor en el aprendizaje por refuerzo"], "answer": 0, "why": "La política es una función que maximiza la recompensa acumulada, mientras que la función de valor es una función que predice la recompensa futura de cada acción."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Qué tipo de aprendizaje es el aprendizaje por refuerzo?", "options": ["Aprendizaje supervisado", "Aprendizaje no supervisado", "Aprendizaje por refuerzo", "Aprendizaje por imitación"], "answer": 2, "why": "El aprendizaje por refuerzo es un tipo de aprendizaje no supervisado, ya que el agente aprende a tomar decisiones interactuando con el entorno sin recibir retroalimentación explícita."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Cuál es el beneficio principal del aprendizaje por refuerzo en comparación con otros tipos de aprendizaje?", "options": ["Puede aprender a tomar decisiones en entornos complejos", "Puede aprender a maximizar una recompensa acumulada", "Puede aprender a minimizar una pérdida instantánea", "Puede aprender a minimizar una pérdida acumulada"], "answer": 1, "why": "El aprendizaje por refuerzo puede aprender a maximizar una recompensa acumulada, lo que lo hace particularmente útil en entornos donde la recompensa no es instantánea."}, {"topicId": "topic_5", "topicName": "Aplicaciones y Casos de Uso", "q": "¿Cómo se puede aplicar el aprendizaje por refuerzo en la vida real?", "options": ["En juegos de azar, como el blackjack o el poker", "En entornos de producción, como la automatización de procesos industriales", "En entornos de transporte, como la navegación autónoma", "En todos los anteriores"], "answer": 3, "why": "El aprendizaje por refuerzo se puede aplicar en una variedad de entornos y contextos, incluyendo juegos de azar, entornos de producción y entornos de transporte."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Qué es el objetivo principal del aprendizaje por refuerzo (RL)?", "options": ["Maximizar una recompensa instantánea", "Maximizar una recompensa acumulada", "Minimizar la complejidad del entorno", "Aumentar la velocidad de aprendizaje"], "answer": 1, "why": "El objetivo principal del RL es maximizar una recompensa acumulada a lo largo del tiempo, lo que permite al agente tomar decisiones óptimas en un entorno dinámico."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Cuál es el papel de la función de valor en el aprendizaje por refuerzo?", "options": ["Representa la política del agente", "Representa la recompensa acumulada", "Representa el valor esperado de una acción", "Representa la complejidad del entorno"], "answer": 2, "why": "La función de valor representa el valor esperado de una acción en un estado determinado, lo que permite al agente tomar decisiones informadas."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Qué es el dilema exploración-explotación en el aprendizaje por refuerzo?", "options": ["El dilema de elegir entre dos políticas diferentes", "El dilema de elegir entre explorar y explotar", "El dilema de elegir entre dos funciones de valor diferentes", "El dilema de elegir entre dos entornos diferentes"], "answer": 1, "why": "El dilema exploración-explotación se refiere a la decisión de elegir entre explorar nuevos estados o acciones, y explotar las políticas conocidas y probadas."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Cuál es el beneficio principal de utilizar aprendizaje por refuerzo en un entorno dinámico?", "options": ["Mejora la velocidad de aprendizaje", "Mejora la complejidad del entorno", "Mejora la recompensa acumulada", "Mejora la política del agente"], "answer": 2, "why": "El beneficio principal de utilizar RL en un entorno dinámico es la mejora de la recompensa acumulada, lo que permite al agente tomar decisiones óptimas en un entorno en constante cambio."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Cuál es el desafío principal en el aprendizaje por refuerzo?", "options": ["La complejidad del entorno", "La complejidad de la función de valor", "La complejidad de la política del agente", "La complejidad de la recompensa acumulada"], "answer": 0, "why": "El desafío principal en el RL es la complejidad del entorno, lo que requiere al agente tomar decisiones en un espacio de estados y acciones muy grande."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Cómo se relaciona la política con la función de valor en el aprendizaje por refuerzo?", "options": ["La política es una función de la función de valor", "La función de valor es una función de la política", "La política y la función de valor son independientes", "La política es igual a la función de valor"], "answer": 1, "why": "La función de valor es una función de la política, ya que representa el valor esperado de una acción en un estado determinado, lo que permite al agente tomar decisiones informadas."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Cuál es el tipo de recompensa que se busca maximizar en el aprendizaje por refuerzo?", "options": ["Recompensa instantánea", "Recompensa acumulada", "Recompensa promedio", "Recompensa máxima"], "answer": 1, "why": "El objetivo principal del RL es maximizar la recompensa acumulada a lo largo del tiempo, lo que permite al agente tomar decisiones óptimas en un entorno dinámico."}, {"topicId": "topic_6", "topicName": "Limitaciones y Desafíos", "q": "¿Cómo se puede mejorar la velocidad de aprendizaje en el aprendizaje por refuerzo?", "options": ["Utilizando un algoritmo de aprendizaje más rápido", "Utilizando una función de valor más compleja", "Utilizando una política más simple", "Utilizando una recompensa más grande"], "answer": 0, "why": "La velocidad de aprendizaje se puede mejorar utilizando un algoritmo de aprendizaje más rápido, lo que permite al agente tomar decisiones más rápidas en un entorno dinámico."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Cuál es el objetivo principal del aprendizaje por refuerzo?", "options": ["Maximizar la recompensa acumulada", "Minimizar la recompensa acumulada", "Maximizar la recompensa instantánea", "Minimizar la recompensa instantánea"], "answer": 0, "why": "El objetivo principal del aprendizaje por refuerzo es maximizar la recompensa acumulada a lo largo del tiempo."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Qué es la política en el contexto del aprendizaje por refuerzo?", "options": ["Una función que asigna una acción a cada estado del entorno", "Una función que asigna una recompensa a cada estado del entorno", "Una función que asigna una probabilidad a cada acción en cada estado del entorno", "Una función que asigna una recompensa a cada acción en cada estado del entorno"], "answer": 2, "why": "La política es una función que asigna una probabilidad a cada acción en cada estado del entorno."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Qué es el dilema exploración-explotación en el contexto del aprendizaje por refuerzo?", "options": ["Un problema de optimización que se presenta en el aprendizaje por refuerzo", "Un algoritmo de búsqueda que se utiliza en el aprendizaje por refuerzo", "Un dilema que se presenta cuando se debe elegir entre explorar un nuevo estado o explotar una acción conocida", "Un tipo de recompensa que se utiliza en el aprendizaje por refuerzo"], "answer": 2, "why": "El dilema exploración-explotación es un dilema que se presenta cuando se debe elegir entre explorar un nuevo estado o explotar una acción conocida."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Cuál es la función de valor en el contexto del aprendizaje por refuerzo?", "options": ["Una función que asigna una recompensa a cada estado del entorno", "Una función que asigna una probabilidad a cada acción en cada estado del entorno", "Una función que asigna una recompensa esperada a cada estado del entorno", "Una función que asigna una probabilidad esperada a cada acción en cada estado del entorno"], "answer": 2, "why": "La función de valor es una función que asigna una recompensa esperada a cada estado del entorno."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Qué es un agente en el contexto del aprendizaje por refuerzo?", "options": ["Un algoritmo de búsqueda que se utiliza en el aprendizaje por refuerzo", "Un tipo de recompensa que se utiliza en el aprendizaje por refuerzo", "Un entorno en el que se aprende", "Un agente que aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada"], "answer": 3, "why": "Un agente es un agente que aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Cuál es el tipo de recompensa que se utiliza en el aprendizaje por refuerzo?", "options": ["Recompensa instantánea", "Recompensa acumulada", "Recompensa esperada", "Recompensa máxima"], "answer": 1, "why": "La recompensa que se utiliza en el aprendizaje por refuerzo es la recompensa acumulada a lo largo del tiempo."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Qué es el aprendizaje por refuerzo en comparación con otros tipos de aprendizaje?", "options": ["Un tipo de aprendizaje supervisado", "Un tipo de aprendizaje no supervisado", "Un tipo de aprendizaje que se enfoca en maximizar la recompensa acumulada", "Un tipo de aprendizaje que se enfoca en minimizar la recompensa acumulada"], "answer": 2, "why": "El aprendizaje por refuerzo es un tipo de aprendizaje que se enfoca en maximizar la recompensa acumulada."}, {"topicId": "topic_7", "topicName": "Evaluación y Comparación", "q": "¿Cómo se puede aplicar el aprendizaje por refuerzo en un problema real?", "options": ["Utilizando un algoritmo de búsqueda", "Utilizando una función de valor", "Utilizando un agente que aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada", "Utilizando una recompensa instantánea"], "answer": 2, "why": "El aprendizaje por refuerzo se puede aplicar en un problema real utilizando un agente que aprende a tomar decisiones interactuando con un entorno para maximizar una recompensa acumulada."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Cuál es el objetivo principal del aprendizaje por refuerzo (RL)?", "options": ["Maximizar la recompensa instantánea", "Maximizar la recompensa acumulada", "Minimizar la pérdida", "Aumentar la complejidad del entorno"], "answer": 1, "why": "El objetivo principal del RL es maximizar la recompensa acumulada a lo largo del tiempo, no solo la recompensa instantánea."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Qué es la política en el contexto del aprendizaje por refuerzo?", "options": ["Una función que describe la probabilidad de cada acción en un estado", "Una función que describe la recompensa esperada en cada estado", "Una función que describe la probabilidad de cada estado en un entorno", "Una función que describe la complejidad de cada entorno"], "answer": 0, "why": "La política es una función que describe la probabilidad de cada acción en un estado, es un concepto clave en el RL."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Cuál es el dilema principal en el aprendizaje por refuerzo?", "options": ["Dilema exploración-explotación", "Dilema de optimismo-pesimismo", "Dilema de decisión racional", "Dilema de información incompleta"], "answer": 0, "why": "El dilema principal en el RL es el dilema exploración-explotación, que se refiere a la decisión de explorar nuevos estados o explotar los conocimientos adquiridos."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Qué es la función de valor en el contexto del aprendizaje por refuerzo?", "options": ["Una función que describe la probabilidad de cada estado en un entorno", "Una función que describe la recompensa esperada en cada estado", "Una función que describe la complejidad de cada entorno", "Una función que describe la política de cada agente"], "answer": 1, "why": "La función de valor es una función que describe la recompensa esperada en cada estado, es un concepto clave en el RL."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Cómo se puede aplicar el aprendizaje por refuerzo en un juego de cartas?", "options": ["El agente puede aprender a jugar perfectamente, siempre ganando", "El agente puede aprender a jugar de manera óptima, pero no siempre ganando", "El agente puede aprender a jugar de manera aleatoria, sin importar la estrategia del rival", "El agente no puede aprender a jugar de manera efectiva"], "answer": 1, "why": "El RL se puede aplicar en juegos de cartas, donde el agente puede aprender a jugar de manera óptima, pero no siempre ganando, dependiendo de la estrategia del rival."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Qué es el agente en el contexto del aprendizaje por refuerzo?", "options": ["Un algoritmo que aprende a tomar decisiones", "Un entorno que proporciona recompensas y estados", "Un conjunto de reglas que describen la política de un agente", "Un modelo que describe la complejidad de un entorno"], "answer": 0, "why": "El agente es un algoritmo que aprende a tomar decisiones, es el componente clave en el RL."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Cuál es el objetivo de la función de valor en el contexto del aprendizaje por refuerzo?", "options": ["Maximizar la recompensa instantánea", "Maximizar la recompensa acumulada", "Minimizar la pérdida", "Aumentar la complejidad del entorno"], "answer": 1, "why": "El objetivo de la función de valor es maximizar la recompensa acumulada, es un concepto clave en el RL."}, {"topicId": "topic_8", "topicName": "Conclusión y Futuras Direcciones", "q": "¿Cuál es el beneficio principal del aprendizaje por refuerzo?", "options": ["Puede aprender a jugar perfectamente, siempre ganando", "Puede aprender a jugar de manera óptima, pero no siempre ganando", "Puede aprender a jugar de manera aleatoria, sin importar la estrategia del rival", "Puede aprender a jugar de manera efectiva en un entorno complejo"], "answer": 2, "why": "El beneficio principal del RL es que puede aprender a jugar de manera óptima, pero no siempre ganando, dependiendo de la estrategia del rival."}];
+const TOPIC_IDS = ["topic_1", "topic_2", "topic_3", "topic_4", "topic_5", "topic_6", "topic_7", "topic_8"];
+const NS = 'sf_aprendizaje-por-refuerzo_2026-08-26';
+
+// -- localStorage helpers ---------------------------------------------------
+function lsGet(key, fallback) {
+  try {
+    const v = localStorage.getItem(NS + '_' + key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch (e) { return fallback; }
+}
+function lsSet(key, value) {
+  try { localStorage.setItem(NS + '_' + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+}
+
+// -- Dark mode ----------------------------------------------------------------
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('darkModeBtn').setAttribute('aria-pressed', dark ? 'true' : 'false');
+  document.getElementById('darkModeBtn').textContent = dark ? '☀️ Claro' : '🌙 Oscuro';
+}
+function initTheme() {
+  const stored = lsGet('theme', null);
+  const dark = stored !== null ? stored : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(dark);
+}
+document.getElementById('darkModeBtn').addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+  lsSet('theme', !isDark);
+});
+initTheme();
+
+// -- Expand all tabs (fixes Ctrl+F only finding the active tab) --------------
+function applyExpandAll(on) {
+  document.body.classList.toggle('expand-all', on);
+  const btn = document.getElementById('expandAllBtn');
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.textContent = on ? '🔎 Ver por pestañas' : '🔎 Expandir todo';
+}
+document.getElementById('expandAllBtn').addEventListener('click', () => {
+  const on = !document.body.classList.contains('expand-all');
+  applyExpandAll(on);
+  lsSet('expandAll', on);
+});
+applyExpandAll(lsGet('expandAll', false));
+
+// -- Tab switching (scoped per topic section) ---------------------------------
+function openTab(tabId, btn, sectionId) {
+  const section = document.getElementById(sectionId);
+  section.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+  section.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// -- Flashcards: flip, know/review marking, filter, persistence --------------
+function flipCard(fcid) {
+  const el = document.getElementById('flip-' + fcid);
+  const flipped = el.classList.toggle('flipped');
+  el.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+}
+
+function markCard(evt, fcid, state) {
+  evt.stopPropagation();
+  const el = document.getElementById('flip-' + fcid);
+  const current = lsGet('flash_' + fcid, null);
+  const next = current === state ? null : state; // click again to unmark
+  lsSet('flash_' + fcid, next);
+  applyCardState(el, next);
+}
+
+function applyCardState(el, state) {
+  el.classList.remove('card-known', 'card-review');
+  el.querySelectorAll('.know-btn').forEach(b => b.classList.remove('active'));
+  if (state === 'know') {
+    el.classList.add('card-known');
+    el.querySelector('.know-btn[data-state="know"]').classList.add('active');
+  } else if (state === 'review') {
+    el.classList.add('card-review');
+    el.querySelector('.know-btn[data-state="review"]').classList.add('active');
+  }
+}
+
+function restoreFlashcardState() {
+  document.querySelectorAll('.flip').forEach(el => {
+    const state = lsGet('flash_' + el.dataset.fcid, null);
+    applyCardState(el, state);
+  });
+}
+
+document.querySelectorAll('.review-filter').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const topic = cb.dataset.topic;
+    const onlyReview = cb.checked;
+    document.querySelectorAll(`.flashcards[data-topic="${topic}"] .flip`).forEach(el => {
+      const isReview = el.classList.contains('card-review');
+      const notMarkedKnow = !el.classList.contains('card-known');
+      el.classList.toggle('filtered-out', onlyReview && !(isReview || notMarkedKnow && !isReview && false) && !isReview);
+    });
+  });
+});
+
+// -- Topic progress (overview checkmarks + header counter) --------------------
+// A topic counts as "dominado" once you've scored 70%+ on it within a graded
+// global exam (there's no more per-topic quiz to track individually).
+const MASTERY_THRESHOLD = 70;
+
+function topicIsDone(topicId) {
+  return !!lsGet('examtopic_' + topicId, false);
+}
+
+function updateTopicProgress(topicId) {
+  const done = topicIsDone(topicId);
+  const marker = document.querySelector(`#overview-${topicId} .topic-check`);
+  if (marker) marker.classList.toggle('done', done);
+  const doneCount = TOPIC_IDS.filter(topicIsDone).length;
+  const counter = document.getElementById('progressCount');
+  if (counter) counter.textContent = doneCount + '/' + TOPIC_IDS.length;
+}
+
+function initProgress() {
+  TOPIC_IDS.forEach(updateTopicProgress);
+}
+
+// -- Global exam ----------------------------------------------------------------
+let examQ = [], examState = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startExam() {
+  const count = Math.min(Number(document.getElementById('examCount').value) || 20, QUESTIONS.length);
+  const doShuffle = document.getElementById('examShuffle').checked;
+  const showTopic = document.getElementById('examShowTopic').checked;
+  const pool = doShuffle ? shuffle(QUESTIONS) : [...QUESTIONS];
+  examQ = pool.slice(0, count).map(q => {
+    const opts = shuffle(q.options.map((op, i) => ({text: op, idx: i})));
+    return { ...q, options: opts.map(o => o.text), answer: opts.findIndex(o => o.idx === q.answer) };
+  });
+  examState = new Array(examQ.length).fill(null);
+  document.getElementById('examGrid').innerHTML = examQ.map((q, idx) => `
+    <div class="quiz-card" id="exam-card-${idx}">
+      <h3>${idx + 1}. ${escapeHtml(q.q)}</h3>
+      ${showTopic ? `<div style="margin-bottom:8px"><span class="pill" style="background:var(--purple-bg);color:var(--purple)">${escapeHtml(q.topicName)}</span></div>` : ''}
+      <div class="opciones">
+        ${q.options.map((op, i) => `
+          <button type="button" class="quiz-option" onclick="answerExam(${idx},${i},this)">${String.fromCharCode(97+i)}. ${escapeHtml(op)}</button>
+        `).join('')}
+      </div>
+      <div class="quiz-note" id="exam-note-${idx}" role="status"></div>
+    </div>
+  `).join('');
+  updateScore();
+  document.getElementById('examBreakdown').style.display = 'none';
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function answerExam(idx, sel) {
+  if (examState[idx] !== null) return;
+  examState[idx] = sel;
+  updateScore();
+}
+
+function gradeExam() {
+  if (!examQ.length) startExam();
+  const byTopic = {};
+  examQ.forEach((q, idx) => {
+    const card = document.getElementById('exam-card-' + idx);
+    const note = document.getElementById('exam-note-' + idx);
+    const sel = examState[idx];
+    card.querySelectorAll('.quiz-option').forEach((op, i) => {
+      op.disabled = true;
+      if (i === q.answer) op.classList.add('correct');
+    });
+    if (sel !== null && sel !== q.answer) card.querySelectorAll('.quiz-option')[sel].classList.add('wrong');
+    const ok = sel === q.answer;
+    note.textContent = sel === null
+      ? '⚠️ Sin responder. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ' + q.why
+      : (ok ? '✅ Correcto. ' : '❌ Incorrecto. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ') + q.why;
+    note.className = 'quiz-note show ' + (ok ? 'ok' : 'bad');
+    if (!byTopic[q.topicId]) byTopic[q.topicId] = {name: q.topicName, total:0, correct:0};
+    byTopic[q.topicId].total++;
+    if (ok) byTopic[q.topicId].correct++;
+  });
+  const total = examQ.length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx].answer ? 1 : 0), 0);
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('examScore').textContent = `Resultado: ${correct}/${total} · ${pct}%`;
+  const rows = Object.values(byTopic).map(v => {
+    const p = Math.round((v.correct/v.total)*100);
+    return `<tr><td>${escapeHtml(v.name)}</td><td>${v.correct}/${v.total}</td><td>${p}%</td></tr>`;
+  }).join('');
+  const box = document.getElementById('examBreakdown');
+  box.style.display = 'block';
+  box.className = 'result ' + (pct >= 85 ? 'good' : pct >= 65 ? 'warn' : 'bad');
+  box.innerHTML = `<strong>Desglose por tema:</strong><table><tr><th scope="col">Tema</th><th scope="col">Aciertos</th><th scope="col">%</th></tr>${rows}</table>`;
+
+  // Mark each topic touched by this exam as mastered (or not) based on this attempt.
+  Object.entries(byTopic).forEach(([topicId, v]) => {
+    const topicPct = Math.round((v.correct / v.total) * 100);
+    lsSet('examtopic_' + topicId, topicPct >= MASTERY_THRESHOLD);
+    updateTopicProgress(topicId);
+  });
+
+  const history = lsGet('exam_history', []);
+  history.push({ date: new Date().toLocaleString('es'), correct, total, pct });
+  lsSet('exam_history', history.slice(-20));
+  renderExamHistory();
+}
+
+function renderExamHistory() {
+  const history = lsGet('exam_history', []);
+  const panel = document.getElementById('examHistory');
+  if (!history.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const rows = history.slice().reverse().map(h =>
+    `<tr><td>${h.date}</td><td>${h.correct}/${h.total}</td><td>${h.pct}%</td></tr>`
+  ).join('');
+  document.getElementById('examHistoryTable').innerHTML =
+    '<tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr>' + rows;
+}
+
+function resetExam() {
+  document.getElementById('examGrid').innerHTML = '';
+  document.getElementById('examScore').textContent = 'Sin iniciar';
+  document.getElementById('examBreakdown').style.display = 'none';
+  examQ = []; examState = [];
+}
+
+function updateScore() {
+  if (!examQ.length) return;
+  const answered = examState.filter(x => x !== null).length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx]?.answer ? 1 : 0), 0);
+  document.getElementById('examScore').textContent =
+    `${correct}/${answered} correctas · ${answered}/${examQ.length} respondidas`;
+}
+
+// -- Init ------------------------------------------------------------------------
+restoreFlashcardState();
+renderExamHistory();
+initProgress();
+</script>
+</body>
+</html>

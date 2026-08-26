@@ -25,7 +25,7 @@ from pathlib import Path
 from pipeline import run
 
 
-def compare(base_name: str, files: list[str], models: list[str], questions_per_topic: int = 8) -> None:
+def compare(base_name: str, files: list[str], models: list[str]) -> None:
     for model in models:
         project_name = f"{base_name}__{model.replace(':', '-').replace('.', '-')}"
         print(f"\n=== Running with model: {model} (project: {project_name}) ===")
@@ -33,7 +33,6 @@ def compare(base_name: str, files: list[str], models: list[str], questions_per_t
             run(
                 project_name=project_name,
                 files=files,
-                questions_per_topic=questions_per_topic,
                 overwrite=True,
                 export_pdf=False,
                 track=True,
@@ -48,10 +47,9 @@ if __name__ == "__main__":
     parser.add_argument("--base-name", default="compare", help="Prefix for the throwaway project names")
     parser.add_argument("--files", nargs="+", required=True, help="Input files (shared across all runs)")
     parser.add_argument("--models", nargs="+", required=True, help="Ollama model names to compare")
-    parser.add_argument("--questions-per-topic", type=int, default=8)
     args = parser.parse_args()
 
-    compare(args.base_name, args.files, args.models, args.questions_per_topic)
+    compare(args.base_name, args.files, args.models)
 
     print(
         "\nDone. Compare results with:\n"

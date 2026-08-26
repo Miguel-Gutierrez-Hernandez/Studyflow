@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Estadática Descriptiva y Probabilidad — StudyFlow AI</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--text:#152033;--muted:#64748b;--border:#dbe3ef;
+  --primary:#2563eb;--primary-dark:#1e40af;--ok:#16a34a;--ok-bg:#dcfce7;
+  --bad:#dc2626;--bad-bg:#fee2e2;--warn:#d97706;--warn-bg:#fef3c7;
+  --purple:#7c3aed;--purple-bg:#f3e8ff;--cyan-bg:#ecfeff;--cyan:#0e7490;
+  --shadow:0 16px 42px rgba(15,23,42,.08);--radius:24px;
+}
+html[data-theme="dark"]{
+  --bg:#0f1420;--card:#1a2233;--text:#e6ebf5;--muted:#93a0bd;--border:#2c3650;
+  --primary:#5b8def;--primary-dark:#7ea6f5;--ok:#22c55e;--ok-bg:#14301f;
+  --bad:#f87171;--bad-bg:#3a1717;--warn:#fbbf24;--warn-bg:#3a2c0d;
+  --purple:#a78bfa;--purple-bg:#2a2044;--cyan-bg:#0d2b30;--cyan:#5eead4;
+  --shadow:0 16px 42px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--primary);color:#fff;
+  padding:10px 16px;border-radius:0 0 10px 0;z-index:999;font-weight:800}
+.skip-link:focus{left:0}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:radial-gradient(circle at 10% 0%,#dbeafe 0%,rgba(219,234,254,0) 34%),
+             radial-gradient(circle at 90% 8%,#ccfbf1 0%,rgba(204,251,241,0) 34%),
+             var(--bg);
+  line-height:1.55;
+  transition:background-color .2s ease,color .2s ease
+}
+html[data-theme="dark"] body{
+  background:radial-gradient(circle at 10% 0%,#1b2a4a 0%,rgba(27,42,74,0) 34%),
+             radial-gradient(circle at 90% 8%,#0d3b3a 0%,rgba(13,59,58,0) 34%),
+             var(--bg)
+}
+header,main,.nav-inner{max-width:1220px;margin:0 auto}
+header{padding:34px 20px 18px}
+.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:16px}
+.hero-card,.stat-card,.panel,.card,.quiz-card,.module{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow)
+}
+.hero-card{padding:30px}
+.sf-badge{display:inline-block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;
+  border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:800;margin-bottom:12px}
+html[data-theme="dark"] .sf-badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+h1{font-size:clamp(2rem,4vw,4rem);line-height:.96;letter-spacing:-.065em;margin:0 0 12px}
+h3,h4{letter-spacing:-.025em;margin:0 0 10px}
+h4{font-size:1rem;color:var(--text)}
+.subtitle{color:var(--muted);font-size:1.05rem;margin:0 0 14px}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.badge{display:inline-flex;border-radius:999px;font-weight:900;align-items:center;
+  padding:6px 11px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:.82rem}
+html[data-theme="dark"] .badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+.badge.source{background:#f3e8ff;color:#6d28d9;border-color:#ddd6fe}
+html[data-theme="dark"] .badge.source{background:#241a3d;color:#c4a9f7;border-color:#382a5c}
+.stat-grid{display:grid;gap:12px}
+.stat-card{padding:18px}
+.stat-number{font-size:2.1rem;font-weight:950;letter-spacing:-.05em}
+.stat-label{color:var(--muted);font-size:.93rem}
+.progress-card .stat-number{color:var(--ok)}
+nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.91);
+  backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.55);
+  border-bottom:1px solid var(--border)}
+html[data-theme="dark"] nav{background:rgba(15,20,32,.88);border-top-color:rgba(255,255,255,.06)}
+.nav-inner{padding:11px 20px;display:flex;gap:9px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link,button{
+  border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;
+  padding:9px 13px;font-weight:850;white-space:nowrap;cursor:pointer;font-size:.9rem;
+  transition:transform .12s ease,border .18s ease,background .18s ease;
+  text-decoration:none;display:inline-flex;align-items:center;font-family:inherit
+}
+.nav-link:hover,button:hover{transform:translateY(-1px);border-color:#93c5fd;background:#f8fbff}
+html[data-theme="dark"] .nav-link:hover,html[data-theme="dark"] button:hover{background:#22304d;border-color:#3d5a80}
+button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+button.primary:hover{background:var(--primary-dark)}
+.toggle-btn{margin-left:auto}
+.toggle-btn[aria-pressed="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+main{padding:24px 20px 70px}
+section{margin:32px 0;padding-top:8px}
+.subsection{margin-top:24px}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:0 0 14px;flex-wrap:wrap}
+.section-title h2{margin:0;font-size:clamp(1.45rem,2.3vw,2.25rem);letter-spacing:-.045em;line-height:1.05}
+.section-title h3{margin:0;font-size:1.25rem}
+.section-title p{margin:6px 0 0;color:var(--muted);max-width:850px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.panel,.card,.quiz-card,.module{padding:18px}
+.muted-note{color:var(--muted)}
+.topic-num{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;background:var(--primary);color:#fff;border-radius:8px;
+  font-size:.8rem;font-weight:900;margin-right:10px;flex-shrink:0}
+.topic-num-lg{display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:38px;background:var(--primary);color:#fff;border-radius:12px;
+  font-size:1.05rem;font-weight:900;margin-right:12px;flex-shrink:0;vertical-align:middle}
+.topic-link{color:var(--text);text-decoration:none;display:flex;align-items:center}
+.topic-link:hover{color:var(--primary)}
+.topic-check{margin-left:8px;color:var(--ok);font-weight:900}
+.topic-check.done::after{content:"✓ dominado"}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{display:inline-flex;border-radius:999px;font-weight:800;align-items:center;
+  padding:4px 10px;font-size:.77rem;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe}
+html[data-theme="dark"] .pill{background:#1e2144;color:#a5b4fc;border-color:#312e70}
+/* Tabs */
+.subtopic-block{margin-bottom:10px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{border:1px solid var(--border);background:var(--card);color:var(--text);
+  border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:.88rem;
+  transition:all .15s ease}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tab-content{display:none}.tab-content.active{display:block}
+body.expand-all .tab-content{display:block !important;margin-bottom:18px;
+  border-top:2px dashed var(--border);padding-top:14px}
+body.expand-all .tabs{display:none}
+/* Subtopic content */
+.subtopic-content{display:grid;gap:14px}
+.explanation-panel{border-left:4px solid var(--primary)}
+.reading-time{font-size:.8rem;color:var(--muted);font-weight:700;margin-bottom:8px}
+.explanation-text p{margin:0 0 10px;color:var(--text);line-height:1.65}
+.explanation-text p:last-child{margin-bottom:0}
+/* Tables */
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;background:var(--card)}
+th,td{padding:11px 13px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:rgba(0,0,0,.02);font-weight:800}
+html[data-theme="dark"] th{background:rgba(255,255,255,.03)}
+tr:last-child td{border-bottom:0}
+/* Quiz */
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.quiz-card{padding:18px}
+.quiz-card h3{margin:0 0 12px;font-size:.97rem;line-height:1.4;letter-spacing:-.01em}
+.opciones{display:grid;gap:7px}
+.quiz-option{border:1px solid var(--border);border-radius:12px;padding:10px 13px;
+  background:var(--card);cursor:pointer;font-size:.9rem;transition:all .15s ease;font-weight:600;
+  text-align:left;width:100%;color:var(--text)}
+.quiz-option:hover{background:#f0f7ff;border-color:#93c5fd}
+html[data-theme="dark"] .quiz-option:hover{background:#1c2b4a}
+.quiz-option.correct{background:var(--ok-bg);border-color:#22c55e;color:#14532d}
+html[data-theme="dark"] .quiz-option.correct{color:#86efac}
+.quiz-option.wrong{background:var(--bad-bg);border-color:#ef4444;color:#7f1d1d}
+html[data-theme="dark"] .quiz-option.wrong{color:#fca5a5}
+.quiz-option:disabled{cursor:default}
+.quiz-note{margin-top:10px;font-size:.88rem;font-weight:700;border-radius:12px;
+  padding:10px 12px;display:none}
+.quiz-note.show{display:block}
+.quiz-note.ok{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.quiz-note.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+html[data-theme="dark"] .quiz-note.ok{color:#86efac}
+html[data-theme="dark"] .quiz-note.bad{color:#fca5a5}
+.retry-btn{margin-top:10px;font-size:.8rem;padding:6px 12px;display:none}
+/* Flashcards */
+.flashcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.flip{perspective:1000px;min-height:180px;cursor:pointer}
+.flip-inner{position:relative;width:100%;min-height:180px;transform-style:preserve-3d;
+  transition:transform .45s ease}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;border-radius:20px;border:1px solid var(--border);
+  background:var(--card);padding:18px;backface-visibility:hidden;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;justify-content:center}
+.flip-back{transform:rotateY(180deg);background:var(--ok-bg);border-color:#86efac}
+.flip-front strong{font-size:1rem;color:var(--primary);display:block;margin-bottom:6px}
+.flip-front p{color:var(--muted);font-size:.85rem;margin:0}
+.flip-back p{color:#14532d;margin:0 0 10px;font-size:.92rem;line-height:1.5}
+html[data-theme="dark"] .flip-back p{color:#bbf7d0}
+.flip-actions{display:flex;gap:6px}
+.know-btn{font-size:.72rem;padding:5px 9px;border-radius:8px}
+.know-btn[data-state="know"].active{background:var(--ok);color:#fff;border-color:var(--ok)}
+.know-btn[data-state="review"].active{background:var(--warn);color:#fff;border-color:var(--warn)}
+.flip.card-known{opacity:.55}
+.flip.card-review .flip-front{border-color:var(--warn);border-width:2px}
+.flip.filtered-out{display:none}
+/* Exam */
+.exam-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.exam-control{display:flex;align-items:center;gap:8px;font-weight:700}
+.exam-control input{border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:.9rem;
+  background:var(--card);color:var(--text)}
+.toggle-label{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
+.score{margin-left:auto;background:var(--card);border:1px solid var(--border);
+  border-radius:999px;padding:8px 14px;font-weight:900;font-size:.9rem}
+.result{border-radius:16px;padding:14px}
+.result.good{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.result.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+.result.warn{background:var(--warn-bg);color:#78350f;border:1px solid #fcd34d}
+html[data-theme="dark"] .result.good{color:#86efac}
+html[data-theme="dark"] .result.bad{color:#fca5a5}
+html[data-theme="dark"] .result.warn{color:#fbbf24}
+@media(max-width:900px){
+  .hero,.grid2,.grid3{grid-template-columns:1fr}
+  .score{margin-left:0;width:100%;text-align:center}
+  .section-title{display:block}
+}
+@media print{
+  nav,.exam-toolbar,.toggle-btn,.retry-btn,.flip-actions,.skip-link{display:none !important}
+  body{background:white;color:#000}
+  .tabs{display:none !important}
+  .tab-content{display:block !important;page-break-inside:avoid;margin-bottom:16px}
+  .panel,.quiz-card,.module,table,.flip{page-break-inside:avoid}
+  .flip{perspective:none;min-height:auto}
+  .flip-inner{position:static;transform:none !important;display:block}
+  .flip-front,.flip-back{position:static;transform:none !important;box-shadow:none;
+    border-radius:8px;margin-bottom:6px}
+  .flip-back{background:#f0fdf4}
+  .quiz-option{border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+<header>
+  <div class="hero">
+    <div class="hero-card">
+      <div class="sf-badge">⚡ StudyFlow AI</div>
+      <h1>Estadática Descriptiva y Probabilidad</h1>
+      <p class="subtitle">Material generado automáticamente · 2026-08-26</p>
+      <div class="badges">
+        <span class="badge">Estadética Descriptiva</span><span class="badge">Probabilidad y Distribuciones</span>
+        <span class="badge source">📄 notas.txt</span>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">2</div>
+        <div class="stat-label">temas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">0</div>
+        <div class="stat-label">preguntas test</div>
+      </div>
+      <div class="stat-card progress-card">
+        <div class="stat-number" id="progressCount">0/2</div>
+        <div class="stat-label">temas dominados</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-link" href="#overview">📋 Índice</a>
+    <a class="nav-link" href="#topic_1">Estadética Descriptiva</a><a class="nav-link" href="#topic_2">Probabilidad y Distribuciones</a>
+    <a class="nav-link" href="#exam">🎓 Simulacro</a>
+    <button class="nav-link toggle-btn" id="expandAllBtn" type="button"
+      title="Muestra todas las pestañas a la vez (útil para buscar con Ctrl+F)">🔎 Expandir todo</button>
+    <button class="nav-link toggle-btn" id="darkModeBtn" type="button"
+      aria-pressed="false" title="Alternar modo oscuro">🌙 Oscuro</button>
+  </div>
+</nav>
+
+<main id="main-content">
+  <section id="overview">
+  <div class="section-title">
+    <div><h2>📋 Índice de contenidos</h2>
+    <p>Visión general. Haz clic en un tema para ir directamente. El check aparece cuando superas el 70% en ese tema dentro del simulacro global.</p></div>
+  </div>
+  <div class="grid3"><div class="module" id="overview-topic_1" data-topic-id="topic_1">
+          <h3><a href="#topic_1" class="topic-link">
+            <span class="topic-num">1</span>Estadética Descriptiva
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Conceptos Básicos</span><span class="pill">Medidas de Tendencia Central</span><span class="pill">Medidas de Dispersión</span><span class="pill">Distribuciones de Frecuencia</span>
+          </div>
+        </div><div class="module" id="overview-topic_2" data-topic-id="topic_2">
+          <h3><a href="#topic_2" class="topic-link">
+            <span class="topic-num">2</span>Probabilidad y Distribuciones
+            <span class="topic-check" aria-hidden="true"></span>
+          </h3>
+          <div class="pills">
+            <span class="pill">Conceptos de Probabilidad</span><span class="pill">Probabilidad Condicionada e Independencia</span><span class="pill">Variables Aleatorias y Distribuciones</span><span class="pill">Teorema Central del Límite</span>
+          </div>
+        </div></div>
+</section>
+  <section id="topic_1">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">1</span>Estadética Descriptiva</h2>
+      <p>Conceptos Básicos  ·  Medidas de Tendencia Central  ·  Medidas de Dispersión  ·  Distribuciones de Frecuencia</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_1__topic_1_sub_1" aria-controls="topic_1__topic_1_sub_1" aria-selected="true" onclick="openTab('topic_1__topic_1_sub_1', this, 'topic_1')">Conceptos Básicos</button><button class="tab" role="tab" id="tabbtn-topic_1__topic_1_sub_2" aria-controls="topic_1__topic_1_sub_2" aria-selected="false" onclick="openTab('topic_1__topic_1_sub_2', this, 'topic_1')">Medidas de Tendencia Central</button><button class="tab" role="tab" id="tabbtn-topic_1__topic_1_sub_3" aria-controls="topic_1__topic_1_sub_3" aria-selected="false" onclick="openTab('topic_1__topic_1_sub_3', this, 'topic_1')">Medidas de Dispersión</button><button class="tab" role="tab" id="tabbtn-topic_1__topic_1_sub_4" aria-controls="topic_1__topic_1_sub_4" aria-selected="false" onclick="openTab('topic_1__topic_1_sub_4', this, 'topic_1')">Distribuciones de Frecuencia</button></div>
+  <div class="tab-content active" id="topic_1__topic_1_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_1__topic_1_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>La estadística descriptiva se ocupa de recopilar, organizar, resumir y presentar datos de manera informativa. Su objetivo principal es describir las características de un conjunto de datos sin extraer conclusiones más allá de los propios datos analizados. Las medidas de tendencia central son un aspecto fundamental de la estadística descriptiva, ya que indican el valor alrededor del cual se agrupan los datos. La media aritmética, la media, la moda y las medidas de dispersión como el rango, la varianza y la desviación típica son algunas de las medidas de tendencia central más comunes. Estas medidas permiten describir la tendencia central de los datos, pero también es importante considerar la dispersión de los datos para entender su variabilidad. La distribución de frecuencia, representada por el histograma, es una herramienta útil para visualizar la forma de la distribución de los datos. La estadística descriptiva es fundamental para comprender los datos y tomar decisiones informadas.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Media aritmética</strong></td><td>La suma de todos los valores dividida entre el número de observaciones</td></tr><tr><td><strong>Media</strong></td><td>El valor que ocupa la posición central cuando los datos están ordenados</td></tr><tr><td><strong>Moda</strong></td><td>El valor que aparece con mayor frecuencia</td></tr><tr><td><strong>Rango</strong></td><td>La diferencia entre el valor máximo y el mínimo</td></tr><tr><td><strong>Varianza</strong></td><td>La media de los cuadrados de las desviaciones respecto a la media</td></tr><tr><td><strong>Desviación típica</strong></td><td>La raíz cuadrada de la varianza</td></tr><tr><td><strong>Coeficiente de variación</strong></td><td>El cociente entre la desviación típica y la media, expresado en porcentaje</td></tr><tr><td><strong>Histograma</strong></td><td>La representación gráfica de una distribución de frecuencias para variables cuantitativas continuas</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_1__topic_1_sub_3" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_3"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>Medidas de dispersión son estadísticas que nos permiten evaluar la variabilidad de un conjunto de datos. La dispersión se mide en función de la distancia entre los valores más y menos extremos del conjunto. La mediana y la moda son medidas de tendencia central que no son afectadas por los valores extremos, mientras que la media aritmética sí lo es. La varianza y la desviación típica son medidas de dispersión que se calculan a partir de la diferencia entre cada valor y la media, y se utilizan para evaluar la dispersión de un conjunto de datos. El coeficiente de variación es una medida que compara la dispersión de una variable con su media. Las distribuciones de frecuencia, como el histograma, nos permiten visualizar la forma en que se agrupan los datos en diferentes intervalos. La distribución de Poisson y la distribución normal son dos de las distribuciones más importantes en estadística, y se utilizan para modelar y analizar datos. La tipificación o estandarización transforma cualquier variable normal en la Normal Estándar N(0,1), lo que nos permite comparar y analizar datos de diferentes fuentes.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Media aritmética</strong></td><td>La suma de todos los valores dividida entre el número de observaciones</td></tr><tr><td><strong>Media</strong></td><td>El valor que ocupa la posición central cuando los datos están ordenados</td></tr><tr><td><strong>Moda</strong></td><td>El valor que aparece con mayor frecuencia</td></tr><tr><td><strong>Varianza</strong></td><td>La media de los cuadrados de las desviaciones respecto a la media</td></tr><tr><td><strong>Desviación típica</strong></td><td>La raíz cuadrada de la varianza</td></tr><tr><td><strong>Coeficiente de variación</strong></td><td>El cociente entre la desviación típica y la media, expresado en porcentaje</td></tr><tr><td><strong>Distribución de frecuencia</strong></td><td>Una tabla de frecuencias que organiza los datos en clases o intervalos</td></tr><tr><td><strong>Histograma</strong></td><td>La representación gráfica de una distribución de frecuencias para variables cuantitativas continuas</td></tr><tr><td><strong>Distribución Binomial</strong></td><td>Modela el número de éxitos en n ensayos independientes, cada uno con probabilidad p de éxito</td></tr><tr><td><strong>Distribución de Poisson</strong></td><td>Modela el número de eventos en un intervalo de tiempo o espacio fijo</td></tr><tr><td><strong>Distribución Normal</strong></td><td>La distribución continua más importante, definida por su media μ y desviación típica σ</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_1__topic_1_sub_4" role="tabpanel" aria-labelledby="tabbtn-topic_1__topic_1_sub_4"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Estadética Descriptiva</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_1"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_1"><div class="flip" id="flip-topic_1__fc0" data-fcid="topic_1__fc0" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Población. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Población</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El conjunto completo de elementos sobre los que queremos obtener información.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc0" data-state="know" onclick="markCard(event,'topic_1__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc0" data-state="review" onclick="markCard(event,'topic_1__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc1" data-fcid="topic_1__fc1" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Muestra. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Muestra</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un subconjunto representativo de la población, seleccionado para su análisis.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc1" data-state="know" onclick="markCard(event,'topic_1__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc1" data-state="review" onclick="markCard(event,'topic_1__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc2" data-fcid="topic_1__fc2" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Variable. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Variable</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Cualquier característica medible de los elementos de la población.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc2" data-state="know" onclick="markCard(event,'topic_1__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc2" data-state="review" onclick="markCard(event,'topic_1__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc3" data-fcid="topic_1__fc3" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Media aritmética. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Media aritmética</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La suma de todos los valores dividida entre el número de observaciones.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc3" data-state="know" onclick="markCard(event,'topic_1__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc3" data-state="review" onclick="markCard(event,'topic_1__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc4" data-fcid="topic_1__fc4" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Media. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Media</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El valor que ocupa la posición central cuando los datos están ordenados.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc4" data-state="know" onclick="markCard(event,'topic_1__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc4" data-state="review" onclick="markCard(event,'topic_1__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc5" data-fcid="topic_1__fc5" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Moda. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Moda</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El valor que aparece con mayor frecuencia en un conjunto de datos.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc5" data-state="know" onclick="markCard(event,'topic_1__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc5" data-state="review" onclick="markCard(event,'topic_1__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc6" data-fcid="topic_1__fc6" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Rango. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Rango</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Diferencia entre el valor máximo y el mínimo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc6" data-state="know" onclick="markCard(event,'topic_1__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc6" data-state="review" onclick="markCard(event,'topic_1__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc7" data-fcid="topic_1__fc7" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Varianza. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Varianza</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Media de los cuadrados de las desviaciones respecto a la media.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc7" data-state="know" onclick="markCard(event,'topic_1__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc7" data-state="review" onclick="markCard(event,'topic_1__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc8" data-fcid="topic_1__fc8" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Desviación típica. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Desviación típica</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Raíz cuadrada de la varianza.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc8" data-state="know" onclick="markCard(event,'topic_1__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc8" data-state="review" onclick="markCard(event,'topic_1__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc9" data-fcid="topic_1__fc9" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Distribución de frecuencia. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Distribución de frecuencia</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Organización de los datos en clases o intervalos y muestra cuántas observaciones caen en cada uno.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc9" data-state="know" onclick="markCard(event,'topic_1__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc9" data-state="review" onclick="markCard(event,'topic_1__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc10" data-fcid="topic_1__fc10" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Espacio muestral. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Espacio muestral</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Conjunto de todos los resultados posibles de un experimento aleatorio.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc10" data-state="know" onclick="markCard(event,'topic_1__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc10" data-state="review" onclick="markCard(event,'topic_1__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc11" data-fcid="topic_1__fc11" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Probabilidad clásica. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Probabilidad clásica</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Medida numérica de la posibilidad de que ocurra un evento, basada en la frecuencia relativa de ocurrencia.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc11" data-state="know" onclick="markCard(event,'topic_1__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc11" data-state="review" onclick="markCard(event,'topic_1__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc12" data-fcid="topic_1__fc12" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Teorema central del límite. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc12')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc12');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Teorema central del límite</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Establece que la distribución de la media muestral tiende a una distribución normal cuando el tamaño de la muestra es suficientemente grande.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc12" data-state="know" onclick="markCard(event,'topic_1__fc12','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc12" data-state="review" onclick="markCard(event,'topic_1__fc12','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_1__fc13" data-fcid="topic_1__fc13" data-topic="topic_1"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Normalización. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_1__fc13')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_1__fc13');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Normalización</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Transformación de cualquier normal en la Normal Estándar N(0,1) mediante: Z = (X - μ) / σ.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_1__fc13" data-state="know" onclick="markCard(event,'topic_1__fc13','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_1__fc13" data-state="review" onclick="markCard(event,'topic_1__fc13','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="topic_2">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">2</span>Probabilidad y Distribuciones</h2>
+      <p>Conceptos de Probabilidad  ·  Probabilidad Condicionada e Independencia  ·  Variables Aleatorias y Distribuciones  ·  Teorema Central del Límite</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block">
+  <div class="tabs" role="tablist"><button class="tab active" role="tab" id="tabbtn-topic_2__topic_2_sub_1" aria-controls="topic_2__topic_2_sub_1" aria-selected="true" onclick="openTab('topic_2__topic_2_sub_1', this, 'topic_2')">Conceptos de Probabilidad</button><button class="tab" role="tab" id="tabbtn-topic_2__topic_2_sub_2" aria-controls="topic_2__topic_2_sub_2" aria-selected="false" onclick="openTab('topic_2__topic_2_sub_2', this, 'topic_2')">Probabilidad Condicionada e Independencia</button><button class="tab" role="tab" id="tabbtn-topic_2__topic_2_sub_3" aria-controls="topic_2__topic_2_sub_3" aria-selected="false" onclick="openTab('topic_2__topic_2_sub_3', this, 'topic_2')">Variables Aleatorias y Distribuciones</button><button class="tab" role="tab" id="tabbtn-topic_2__topic_2_sub_4" aria-controls="topic_2__topic_2_sub_4" aria-selected="false" onclick="openTab('topic_2__topic_2_sub_4', this, 'topic_2')">Teorema Central del Límite</button></div>
+  <div class="tab-content active" id="topic_2__topic_2_sub_1" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_1"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>La probabilidad y las distribuciones son fundamentos de la estadística. La probabilidad es una medida numérica de la posibilidad de que ocurra un evento, y sus valores van de 0 (imposible) a 1 (seguro). El espacio muestral es el conjunto de todos los resultados posibles de un experimento aleatorio, y el evento o suceso es un subconjunto del espacio muestral. La probabilidad clásica requiere que todos los resultados sean igualmente probables, mientras que la probabilidad frecuentista se basa en la frecuencia relativa de ocurrencia del evento en muchas repeticiones. Las reglas básicas de la probabilidad incluyen que la probabilidad de un evento está entre 0 y 1 siempre, que la probabilidad del espacio muestral es 1 (algún resultado siempre ocurre), y que la probabilidad del evento A o B es la suma de las probabilidades individuales, menos la probabilidad de su intersección. La probabilidad condicionada P(A|B) es la probabilidad de que ocurra A dado que ya ha ocurrido B, y dos eventos son independientes si la ocurrencia de uno no afecta la probabilidad del otro. El teorema de Bayes permite actualizar la probabilidad de un evento a la luz de nueva evidencia. Las variables aleatorias asignan un valor numérico a cada resultado del espacio muestral, y las distribuciones modelan la probabilidad de los resultados. Las distribuciones binomial, de Poisson y normal son ejemplos de distribuciones importantes en la estadística. La tipificación o estandarización transforma cualquier normal en la Normal Estándar N(0,1) mediante: Z = (X - μ) / σ. Finalmente, el teorema central del límite establece que la distribución de la media muestral tiende a una distribución normal cuando el tamaño de la muestra es suficientemente grande (n ≥ 30), independientemente de la distribución original de la población.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Espacio muestral</strong></td><td>El conjunto de todos los resultados posibles de un experimento aleatorio</td></tr><tr><td><strong>Evento o suceso</strong></td><td>Un subconjunto del espacio muestral</td></tr><tr><td><strong>Probabilidad clásica</strong></td><td>La probabilidad de que ocurra un evento, basada en la igualdad de probabilidad de todos los resultados</td></tr><tr><td><strong>Probabilidad frecuentista</strong></td><td>La probabilidad de que ocurra un evento, basada en la frecuencia relativa de ocurrencia del evento en muchas repeticiones</td></tr><tr><td><strong>Regla de la suma de probabilidades</strong></td><td>La probabilidad del evento A o B es la suma de las probabilidades individuales, menos la probabilidad de su intersección</td></tr><tr><td><strong>Probabilidad condicionada</strong></td><td>La probabilidad de que ocurra A dado que ya ha ocurrido B</td></tr><tr><td><strong>Independencia de eventos</strong></td><td>Dos eventos son independientes si la ocurrencia de uno no afecta la probabilidad del otro</td></tr><tr><td><strong>Teorema de Bayes</strong></td><td>Permite actualizar la probabilidad de un evento a la luz de nueva evidencia</td></tr><tr><td><strong>Variable aleatoria</strong></td><td>Asigna un valor numérico a cada resultado del espacio muestral</td></tr><tr><td><strong>Distribución binomial</strong></td><td>Modela el número de éxitos en n ensayos independientes, cada uno con probabilidad p de éxito</td></tr><tr><td><strong>Distribución de Poisson</strong></td><td>Modela el número de eventos en un intervalo de tiempo o espacio fijo</td></tr><tr><td><strong>Distribución normal</strong></td><td>La distribución continua más importante, con forma de campana simétrica definida por su media μ y desviación típica σ</td></tr><tr><td><strong>Tipificación o estandarización</strong></td><td>Transforma cualquier normal en la Normal Estándar N(0,1) mediante: Z = (X - μ) / σ</td></tr><tr><td><strong>Teorema central del límite</strong></td><td>Establece que la distribución de la media muestral tiende a una distribución normal cuando el tamaño de la muestra es suficientemente grande (n ≥ 30)</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_2__topic_2_sub_2" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_2"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>Probabilidad condicionada e independencia son conceptos fundamentales en estadística que se utilizan para analizar eventos relacionados entre sí. La probabilidad condicionada P(A|B) es la probabilidad de que ocurra A dado que ya ha ocurrido B, y se calcula como P(A|B) = P(A ∩ B) / P(B). Por otro lado, dos eventos son independientes si la ocurrencia de uno no afecta la probabilidad del otro, lo que se conoce como la independencia. El teorema de Bayes permite actualizar la probabilidad de un evento a la luz de nueva evidencia, lo que es fundamental en la inferencia estadística. La probabilidad condicionada e independencia se utilizan en diversas aplicaciones, como la estimación de parámetros, la prueba de hipótesis y la modelización de datos. En resumen, la probabilidad condicionada e independencia son herramientas esenciales para analizar y comprender la relación entre eventos en estadística.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Probabilidad condicionada</strong></td><td>La probabilidad de que ocurra un evento A dado que ya ha ocurrido un evento B</td></tr><tr><td><strong>Independencia</strong></td><td>La relación entre eventos en la que la ocurrencia de uno no afecta la probabilidad del otro</td></tr><tr><td><strong>Teorema de Bayes</strong></td><td>Un teorema que permite actualizar la probabilidad de un evento a la luz de nueva evidencia</td></tr><tr><td><strong>Probabilidad clásica</strong></td><td>La probabilidad de que ocurra un evento A, calculada como P(A) = casos favorables / casos posibles</td></tr><tr><td><strong>Probabilidad frecuentista</strong></td><td>La probabilidad de que ocurra un evento A, calculada como P(A) = frecuencia relativa de ocurrencia del evento en muchas repeticiones</td></tr><tr><td><strong>Espacio muestral</strong></td><td>El conjunto de todos los resultados posibles de un experimento aleatorio</td></tr><tr><td><strong>Evento o suceso</strong></td><td>Un subconjunto del espacio muestral</td></tr><tr><td><strong>Reglas básicas de probabilidad</strong></td><td>P(A) está entre 0 y 1 siempre, P(Ω) = 1 (algún resultado siempre ocurre), P(A ∪ B) = P(A) + P(B) - P(A ∩ B), y si A y B son mutuamente excluyentes, P(A ∪ B) = P(A) + P(B)</td></tr>
+      </table>
+    </div>
+</div></div><div class="tab-content" id="topic_2__topic_2_sub_3" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_3"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p></p></div>
+  </div>
+  
+</div></div><div class="tab-content" id="topic_2__topic_2_sub_4" role="tabpanel" aria-labelledby="tabbtn-topic_2__topic_2_sub_4"><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="reading-time">⏱ ~1 min de lectura</div>
+    <div class="explanation-text"><p>El Teorema Central del Límite (TCL) es un concepto fundamental en estadística que establece que la distribución de la media muestral tiende a una distribución normal cuando el tamaño de la muestra es suficientemente grande (n ≥ 30), independientemente de la distribución original de la población. Esto significa que, a medida que aumenta el tamaño de la muestra, la distribución de la media muestral se vuelve más simétrica y se acerca a una distribución normal, que se caracteriza por una media y una desviación típica. Este teorema es el fundamento de gran parte de la inferencia estadística, ya que permite la estimación de parámetros de una población a partir de una muestra, y la construcción de intervalos de confianza y pruebas de hipótesis. El TCL también es importante en la teoría de la probabilidad, ya que establece que la distribución de la suma de una serie de variables aleatorias independientes es una distribución normal. En la práctica, el TCL se utiliza para analizar datos y tomar decisiones informadas en una variedad de campos, desde la medicina hasta la economía.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Teorema Central del Límite (TCL)</strong></td><td>Establece que la distribución de la media muestral tiende a una distribución normal cuando el tamaño de la muestra es suficientemente grande</td></tr><tr><td><strong>Distribución normal</strong></td><td>Es la distribución continua más importante, caracterizada por una media y una desviación típica</td></tr><tr><td><strong>Media muestral</strong></td><td>Es la suma de todos los valores de una muestra</td></tr><tr><td><strong>Desviación típica</strong></td><td>Es la raíz cuadrada de la varianza de una muestra</td></tr><tr><td><strong>Varianza</strong></td><td>Es la media de los cuadrados de las desviaciones de una muestra respecto a la media</td></tr><tr><td><strong>Intervalos de confianza</strong></td><td>Son rangos de valores que se utilizan para estimar la población a partir de una muestra</td></tr><tr><td><strong>Pruebas de hipótesis</strong></td><td>Son procedimientos estadísticos que se utilizan para comparar la población con una muestra</td></tr><tr><td><strong>Teoría de la probabilidad</strong></td><td>Es el estudio de la probabilidad y la incertidumbre en la estadística</td></tr>
+      </table>
+    </div>
+</div></div>
+</div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Probabilidad y Distribuciones</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="topic_2"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="topic_2"><div class="flip" id="flip-topic_2__fc0" data-fcid="topic_2__fc0" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Población. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Población</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El conjunto completo de elementos sobre los que queremos obtener información</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc0" data-state="know" onclick="markCard(event,'topic_2__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc0" data-state="review" onclick="markCard(event,'topic_2__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc1" data-fcid="topic_2__fc1" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Muestra. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Muestra</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un subconjunto representativo de la población, seleccionado para su análisis</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc1" data-state="know" onclick="markCard(event,'topic_2__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc1" data-state="review" onclick="markCard(event,'topic_2__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc2" data-fcid="topic_2__fc2" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Variable. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Variable</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Cualquier característica medible de los elementos de la población</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc2" data-state="know" onclick="markCard(event,'topic_2__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc2" data-state="review" onclick="markCard(event,'topic_2__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc3" data-fcid="topic_2__fc3" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Media aritmética. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Media aritmética</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La suma de todos los valores dividida entre el número de observaciones</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc3" data-state="know" onclick="markCard(event,'topic_2__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc3" data-state="review" onclick="markCard(event,'topic_2__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc4" data-fcid="topic_2__fc4" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Media. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Media</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El valor que ocupa la posición central cuando los datos están ordenados</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc4" data-state="know" onclick="markCard(event,'topic_2__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc4" data-state="review" onclick="markCard(event,'topic_2__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc5" data-fcid="topic_2__fc5" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Moda. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Moda</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El valor que aparece con mayor frecuencia</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc5" data-state="know" onclick="markCard(event,'topic_2__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc5" data-state="review" onclick="markCard(event,'topic_2__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc6" data-fcid="topic_2__fc6" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Varianza. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Varianza</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La media de los cuadrados de las desviaciones respecto a la media</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc6" data-state="know" onclick="markCard(event,'topic_2__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc6" data-state="review" onclick="markCard(event,'topic_2__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc7" data-fcid="topic_2__fc7" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Desviación típica. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Desviación típica</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La raíz cuadrada de la varianza</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc7" data-state="know" onclick="markCard(event,'topic_2__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc7" data-state="review" onclick="markCard(event,'topic_2__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc8" data-fcid="topic_2__fc8" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Distribución de frecuencia. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Distribución de frecuencia</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una tabla de frecuencias que organiza los datos en clases o intervalos</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc8" data-state="know" onclick="markCard(event,'topic_2__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc8" data-state="review" onclick="markCard(event,'topic_2__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc9" data-fcid="topic_2__fc9" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Espacio muestral. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Espacio muestral</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El conjunto de todos los resultados posibles de un experimento aleatorio</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc9" data-state="know" onclick="markCard(event,'topic_2__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc9" data-state="review" onclick="markCard(event,'topic_2__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc10" data-fcid="topic_2__fc10" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Probabilidad clásica. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Probabilidad clásica</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La probabilidad de que ocurra un evento, basada en la frecuencia relativa de ocurrencia</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc10" data-state="know" onclick="markCard(event,'topic_2__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc10" data-state="review" onclick="markCard(event,'topic_2__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc11" data-fcid="topic_2__fc11" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Teorema de Bayes. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Teorema de Bayes</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Permite actualizar la probabilidad de un evento a la luz de nueva evidencia</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc11" data-state="know" onclick="markCard(event,'topic_2__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc11" data-state="review" onclick="markCard(event,'topic_2__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc12" data-fcid="topic_2__fc12" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Distribución Binomial. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc12')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc12');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Distribución Binomial</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Modela el número de éxitos en n ensayos independientes, cada uno con probabilidad p de éxito</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc12" data-state="know" onclick="markCard(event,'topic_2__fc12','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc12" data-state="review" onclick="markCard(event,'topic_2__fc12','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc13" data-fcid="topic_2__fc13" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Distribución de Poisson. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc13')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc13');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Distribución de Poisson</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Modela el número de eventos en un intervalo de tiempo o espacio fijo</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc13" data-state="know" onclick="markCard(event,'topic_2__fc13','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc13" data-state="review" onclick="markCard(event,'topic_2__fc13','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc14" data-fcid="topic_2__fc14" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Distribución Normal. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc14')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc14');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Distribución Normal</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La distribución continua más importante, definida por su media μ y desviación típica σ</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc14" data-state="know" onclick="markCard(event,'topic_2__fc14','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc14" data-state="review" onclick="markCard(event,'topic_2__fc14','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc15" data-fcid="topic_2__fc15" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Tipificación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc15')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc15');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Tipificación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Transforma cualquier normal en la Normal Estándar N(0,1)</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc15" data-state="know" onclick="markCard(event,'topic_2__fc15','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc15" data-state="review" onclick="markCard(event,'topic_2__fc15','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-topic_2__fc16" data-fcid="topic_2__fc16" data-topic="topic_2"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Teorema central del límite. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('topic_2__fc16')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('topic_2__fc16');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Teorema central del límite</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Establece que la distribución de la media muestral tiende a una distribución normal cuando el tamaño de la muestra es suficientemente grande</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="topic_2__fc16" data-state="know" onclick="markCard(event,'topic_2__fc16','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="topic_2__fc16" data-state="review" onclick="markCard(event,'topic_2__fc16','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+  <section id="exam">
+  <div class="section-title">
+    <div><h2>🎓 Simulacro global</h2>
+    <p>Preguntas mezcladas de todos los temas. Configura y empieza cuando estés listo.</p></div>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="exam-toolbar">
+      <div class="exam-control">
+        <label for="examCount">Preguntas</label>
+        <input type="number" id="examCount" value="20" min="5" max="200" style="width:80px">
+      </div>
+      <label class="toggle-label"><input type="checkbox" id="examShuffle" checked> Mezclar</label>
+      <label class="toggle-label"><input type="checkbox" id="examShowTopic"> Mostrar tema</label>
+      <button class="primary" type="button" onclick="startExam()">▶ Iniciar</button>
+      <button type="button" onclick="gradeExam()">✅ Corregir</button>
+      <button type="button" onclick="resetExam()">🔄 Reiniciar</button>
+      <div class="score" id="examScore" role="status">Sin iniciar</div>
+    </div>
+  </div>
+  <div id="examGrid" class="quiz-grid"></div>
+  <div id="examBreakdown" class="result" style="display:none;margin-top:14px"></div>
+  <div id="examHistory" class="panel" style="margin-top:14px;display:none">
+    <h4>📈 Historial de simulacros</h4>
+    <table id="examHistoryTable"><tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr></table>
+  </div>
+</section>
+</main>
+
+<script>
+const QUESTIONS = [];
+const TOPIC_IDS = ["topic_1", "topic_2"];
+const NS = 'sf_estad-tica-descriptiva-y-probabilidad_2026-08-26';
+
+// -- localStorage helpers ---------------------------------------------------
+function lsGet(key, fallback) {
+  try {
+    const v = localStorage.getItem(NS + '_' + key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch (e) { return fallback; }
+}
+function lsSet(key, value) {
+  try { localStorage.setItem(NS + '_' + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+}
+
+// -- Dark mode ----------------------------------------------------------------
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('darkModeBtn').setAttribute('aria-pressed', dark ? 'true' : 'false');
+  document.getElementById('darkModeBtn').textContent = dark ? '☀️ Claro' : '🌙 Oscuro';
+}
+function initTheme() {
+  const stored = lsGet('theme', null);
+  const dark = stored !== null ? stored : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(dark);
+}
+document.getElementById('darkModeBtn').addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+  lsSet('theme', !isDark);
+});
+initTheme();
+
+// -- Expand all tabs (fixes Ctrl+F only finding the active tab) --------------
+function applyExpandAll(on) {
+  document.body.classList.toggle('expand-all', on);
+  const btn = document.getElementById('expandAllBtn');
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.textContent = on ? '🔎 Ver por pestañas' : '🔎 Expandir todo';
+}
+document.getElementById('expandAllBtn').addEventListener('click', () => {
+  const on = !document.body.classList.contains('expand-all');
+  applyExpandAll(on);
+  lsSet('expandAll', on);
+});
+applyExpandAll(lsGet('expandAll', false));
+
+// -- Tab switching (scoped per topic section) ---------------------------------
+function openTab(tabId, btn, sectionId) {
+  const section = document.getElementById(sectionId);
+  section.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+  section.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// -- Flashcards: flip, know/review marking, filter, persistence --------------
+function flipCard(fcid) {
+  const el = document.getElementById('flip-' + fcid);
+  const flipped = el.classList.toggle('flipped');
+  el.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+}
+
+function markCard(evt, fcid, state) {
+  evt.stopPropagation();
+  const el = document.getElementById('flip-' + fcid);
+  const current = lsGet('flash_' + fcid, null);
+  const next = current === state ? null : state; // click again to unmark
+  lsSet('flash_' + fcid, next);
+  applyCardState(el, next);
+}
+
+function applyCardState(el, state) {
+  el.classList.remove('card-known', 'card-review');
+  el.querySelectorAll('.know-btn').forEach(b => b.classList.remove('active'));
+  if (state === 'know') {
+    el.classList.add('card-known');
+    el.querySelector('.know-btn[data-state="know"]').classList.add('active');
+  } else if (state === 'review') {
+    el.classList.add('card-review');
+    el.querySelector('.know-btn[data-state="review"]').classList.add('active');
+  }
+}
+
+function restoreFlashcardState() {
+  document.querySelectorAll('.flip').forEach(el => {
+    const state = lsGet('flash_' + el.dataset.fcid, null);
+    applyCardState(el, state);
+  });
+}
+
+document.querySelectorAll('.review-filter').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const topic = cb.dataset.topic;
+    const onlyReview = cb.checked;
+    document.querySelectorAll(`.flashcards[data-topic="${topic}"] .flip`).forEach(el => {
+      const isReview = el.classList.contains('card-review');
+      const notMarkedKnow = !el.classList.contains('card-known');
+      el.classList.toggle('filtered-out', onlyReview && !(isReview || notMarkedKnow && !isReview && false) && !isReview);
+    });
+  });
+});
+
+// -- Topic progress (overview checkmarks + header counter) --------------------
+// A topic counts as "dominado" once you've scored 70%+ on it within a graded
+// global exam (there's no more per-topic quiz to track individually).
+const MASTERY_THRESHOLD = 70;
+
+function topicIsDone(topicId) {
+  return !!lsGet('examtopic_' + topicId, false);
+}
+
+function updateTopicProgress(topicId) {
+  const done = topicIsDone(topicId);
+  const marker = document.querySelector(`#overview-${topicId} .topic-check`);
+  if (marker) marker.classList.toggle('done', done);
+  const doneCount = TOPIC_IDS.filter(topicIsDone).length;
+  const counter = document.getElementById('progressCount');
+  if (counter) counter.textContent = doneCount + '/' + TOPIC_IDS.length;
+}
+
+function initProgress() {
+  TOPIC_IDS.forEach(updateTopicProgress);
+}
+
+// -- Global exam ----------------------------------------------------------------
+let examQ = [], examState = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startExam() {
+  const count = Math.min(Number(document.getElementById('examCount').value) || 20, QUESTIONS.length);
+  const doShuffle = document.getElementById('examShuffle').checked;
+  const showTopic = document.getElementById('examShowTopic').checked;
+  const pool = doShuffle ? shuffle(QUESTIONS) : [...QUESTIONS];
+  examQ = pool.slice(0, count).map(q => {
+    const opts = shuffle(q.options.map((op, i) => ({text: op, idx: i})));
+    return { ...q, options: opts.map(o => o.text), answer: opts.findIndex(o => o.idx === q.answer) };
+  });
+  examState = new Array(examQ.length).fill(null);
+  document.getElementById('examGrid').innerHTML = examQ.map((q, idx) => `
+    <div class="quiz-card" id="exam-card-${idx}">
+      <h3>${idx + 1}. ${escapeHtml(q.q)}</h3>
+      ${showTopic ? `<div style="margin-bottom:8px"><span class="pill" style="background:var(--purple-bg);color:var(--purple)">${escapeHtml(q.topicName)}</span></div>` : ''}
+      <div class="opciones">
+        ${q.options.map((op, i) => `
+          <button type="button" class="quiz-option" onclick="answerExam(${idx},${i},this)">${String.fromCharCode(97+i)}. ${escapeHtml(op)}</button>
+        `).join('')}
+      </div>
+      <div class="quiz-note" id="exam-note-${idx}" role="status"></div>
+    </div>
+  `).join('');
+  updateScore();
+  document.getElementById('examBreakdown').style.display = 'none';
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function answerExam(idx, sel) {
+  if (examState[idx] !== null) return;
+  examState[idx] = sel;
+  updateScore();
+}
+
+function gradeExam() {
+  if (!examQ.length) startExam();
+  const byTopic = {};
+  examQ.forEach((q, idx) => {
+    const card = document.getElementById('exam-card-' + idx);
+    const note = document.getElementById('exam-note-' + idx);
+    const sel = examState[idx];
+    card.querySelectorAll('.quiz-option').forEach((op, i) => {
+      op.disabled = true;
+      if (i === q.answer) op.classList.add('correct');
+    });
+    if (sel !== null && sel !== q.answer) card.querySelectorAll('.quiz-option')[sel].classList.add('wrong');
+    const ok = sel === q.answer;
+    note.textContent = sel === null
+      ? '⚠️ Sin responder. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ' + q.why
+      : (ok ? '✅ Correcto. ' : '❌ Incorrecto. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ') + q.why;
+    note.className = 'quiz-note show ' + (ok ? 'ok' : 'bad');
+    if (!byTopic[q.topicId]) byTopic[q.topicId] = {name: q.topicName, total:0, correct:0};
+    byTopic[q.topicId].total++;
+    if (ok) byTopic[q.topicId].correct++;
+  });
+  const total = examQ.length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx].answer ? 1 : 0), 0);
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('examScore').textContent = `Resultado: ${correct}/${total} · ${pct}%`;
+  const rows = Object.values(byTopic).map(v => {
+    const p = Math.round((v.correct/v.total)*100);
+    return `<tr><td>${escapeHtml(v.name)}</td><td>${v.correct}/${v.total}</td><td>${p}%</td></tr>`;
+  }).join('');
+  const box = document.getElementById('examBreakdown');
+  box.style.display = 'block';
+  box.className = 'result ' + (pct >= 85 ? 'good' : pct >= 65 ? 'warn' : 'bad');
+  box.innerHTML = `<strong>Desglose por tema:</strong><table><tr><th scope="col">Tema</th><th scope="col">Aciertos</th><th scope="col">%</th></tr>${rows}</table>`;
+
+  // Mark each topic touched by this exam as mastered (or not) based on this attempt.
+  Object.entries(byTopic).forEach(([topicId, v]) => {
+    const topicPct = Math.round((v.correct / v.total) * 100);
+    lsSet('examtopic_' + topicId, topicPct >= MASTERY_THRESHOLD);
+    updateTopicProgress(topicId);
+  });
+
+  const history = lsGet('exam_history', []);
+  history.push({ date: new Date().toLocaleString('es'), correct, total, pct });
+  lsSet('exam_history', history.slice(-20));
+  renderExamHistory();
+}
+
+function renderExamHistory() {
+  const history = lsGet('exam_history', []);
+  const panel = document.getElementById('examHistory');
+  if (!history.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const rows = history.slice().reverse().map(h =>
+    `<tr><td>${h.date}</td><td>${h.correct}/${h.total}</td><td>${h.pct}%</td></tr>`
+  ).join('');
+  document.getElementById('examHistoryTable').innerHTML =
+    '<tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr>' + rows;
+}
+
+function resetExam() {
+  document.getElementById('examGrid').innerHTML = '';
+  document.getElementById('examScore').textContent = 'Sin iniciar';
+  document.getElementById('examBreakdown').style.display = 'none';
+  examQ = []; examState = [];
+}
+
+function updateScore() {
+  if (!examQ.length) return;
+  const answered = examState.filter(x => x !== null).length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx]?.answer ? 1 : 0), 0);
+  document.getElementById('examScore').textContent =
+    `${correct}/${answered} correctas · ${answered}/${examQ.length} respondidas`;
+}
+
+// -- Init ------------------------------------------------------------------------
+restoreFlashcardState();
+renderExamHistory();
+initProgress();
+</script>
+</body>
+</html>
