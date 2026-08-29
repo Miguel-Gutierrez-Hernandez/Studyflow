@@ -80,13 +80,36 @@ def move(project_name: str, filename: str, target_topic_id: str, target_subtopic
         console.print(f"[red]No existe el proyecto '{project_name}'.[/red]")
         sys.exit(1)
 
-    text = project.read_extracted(filename)
+    # A source id may be "archivo.pdf" (documento sin dividir) or
+    # "archivo.pdf#3" (una sección de un documento que sí se dividió — ver
+    # process.chunker.split_document). En el segundo caso, releemos el
+    # archivo completo y lo volvemos a trocear de la misma forma para
+    # recuperar el texto exacto de esa sección, en vez de mover el
+    # documento entero.
+    base_filename, _, chunk_suffix = filename.partition("#")
+    text = project.read_extracted(base_filename)
     if text is None:
         console.print(
-            f"[red]No hay texto extraído para '{filename}' en este proyecto "
+            f"[red]No hay texto extraído para '{base_filename}' en este proyecto "
             f"(¿el nombre es exacto? ¿ya se corrió la extracción?).[/red]"
         )
         sys.exit(1)
+
+    if chunk_suffix:
+        from process.analyzer import clean_text
+        from process.chunker import split_document
+
+        chunk_index = int(chunk_suffix) - 1
+        chunks = split_document(clean_text(text))
+        if chunk_index < 0 or chunk_index >= len(chunks):
+            console.print(
+                f"[red]'{filename}' no coincide con ninguna sección al volver a trocear "
+                f"'{base_filename}' (¿cambió el archivo desde que se clasificó?). "
+                f"Se encontraron {len(chunks)} sección(es).[/red]"
+            )
+            sys.exit(1)
+        text = chunks[chunk_index]["text"]
+        console.print(f"  [dim]Usando el texto de la sección #{chunk_index + 1} de '{base_filename}'.[/dim]")
 
     index = project.read_index()
     llm = LLM()

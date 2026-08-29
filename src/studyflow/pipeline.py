@@ -177,7 +177,7 @@ def _run_steps(
 
     with tracker.step("classification"):
         n_topics_before = len(project.read_index().get("topics", []))
-        index = build_index(texts, project, llm, logger=log, recorder=recorder)
+        index, touched_topic_ids = build_index(texts, project, llm, logger=log, recorder=recorder)
     n_topics = len(index["topics"])
     n_new_topics = max(0, n_topics - n_topics_before)
     console.print(
@@ -188,11 +188,22 @@ def _run_steps(
     log.info("index_updated", extra={"n_topics": n_topics})
 
     console.print(f"\n[bold]5/6 · Generating study material...[/bold]")
+    previous_material = project.read_material()
+    # Only skip regenerating a topic if there's actual prior material AND
+    # something was already classified before this run (n_topics_before > 0)
+    # — on a project's very first run every topic is new/touched anyway, so
+    # this mainly matters for subsequent runs that add a few new documents.
+    topics_to_regenerate = touched_topic_ids if (previous_material is not None and n_topics_before > 0) else None
+    if topics_to_regenerate is not None:
+        n_reused = n_topics - len(topics_to_regenerate)
+        if n_reused > 0:
+            console.print(f"  🔁 Regenerando {len(topics_to_regenerate)} tema(s) afectado(s); reutilizando {n_reused} sin cambios")
     with tracker.step("material_generation"):
         material = generate_material(
             index, llm=llm, questions_per_topic=questions_per_topic, logger=log,
-            recorder=recorder,
+            recorder=recorder, previous_material=previous_material, topics_to_regenerate=topics_to_regenerate,
         )
+    project.write_material(material)
     console.print(f"  ✅ {n_topics} topics · {material['stats']['n_questions']} questions")
     cache_stats = cache.stats()
     console.print(

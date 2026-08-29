@@ -55,7 +55,7 @@ class LLM:
         }
 
         try:
-            response = requests.post(self.url, json=payload, timeout=300)
+            response = requests.post(self.url, json=payload, timeout=config.OLLAMA_TIMEOUT)
             response.raise_for_status()
         except requests.exceptions.ConnectionError:
             raise RuntimeError(

@@ -95,11 +95,24 @@ def _normalize(text: str) -> str:
 # through, especially on a small local model.
 DUPLICATE_TITLE_SIMILARITY = getattr(config, "DUPLICATE_TITLE_SIMILARITY", 0.87)
 
+# Threshold used for the fast, no-LLM matching path (filename or leading
+# content vs. existing topic/subtopic titles). Kept deliberately higher than
+# DUPLICATE_TITLE_SIMILARITY: this path skips the LLM entirely when it
+# fires, so a wrong match here is more costly (nothing double-checks it)
+# than a wrong match in the duplicate-avoidance safety net, which only ever
+# runs alongside an LLM decision. Only very confident matches should skip
+# straight past classification.
+FAST_MATCH_THRESHOLD = getattr(config, "FAST_MATCH_THRESHOLD", 0.90)
 
-def _find_similar(title: str, candidates: list[dict]) -> dict | None:
+
+def _find_similar(title: str, candidates: list[dict], threshold: float | None = None) -> dict | None:
     """Return the candidate dict (topic or subtopic) whose title best matches
     `title` after normalization, if the match is close enough — else None.
-    `candidates` is a list of dicts each with a "title" key."""
+    `candidates` is a list of dicts each with a "title" key. `threshold`
+    defaults to DUPLICATE_TITLE_SIMILARITY; pass FAST_MATCH_THRESHOLD (or
+    any other value) for stricter/looser callers."""
+    if threshold is None:
+        threshold = DUPLICATE_TITLE_SIMILARITY
     if not candidates:
         return None
     norm_title = _normalize(title)
@@ -111,7 +124,19 @@ def _find_similar(title: str, candidates: list[dict]) -> dict | None:
         ratio = difflib.SequenceMatcher(None, norm_title, norm_c).ratio()
         if ratio > best_ratio:
             best, best_ratio = c, ratio
-    return best if best_ratio >= DUPLICATE_TITLE_SIMILARITY else None
+    return best if best_ratio >= threshold else None
+
+
+def _filename_hint(filename: str) -> str | None:
+    """Turn a filename into a plain-text phrase suitable for title matching
+    — e.g. "Tema_2_Probabilidad.pdf" -> "Tema 2 Probabilidad". Returns None
+    for filenames that clearly won't carry a topic hint (chunk-suffixed
+    ids like "file.pdf#3" pass their base name in already; this just
+    strips the extension and separators)."""
+    from pathlib import Path
+    stem = Path(filename).stem
+    stem = re.sub(r"[_\-.]+", " ", stem).strip()
+    return stem or None
 
 
 def _new_id(existing_ids: set[str], base: str) -> str:
@@ -229,6 +254,42 @@ Reglas de decisión, en este orden de prioridad:
     )
 
 
+def _route_subtopic_only(text: str, topic: dict, llm: LLM, logger=None, recorder=None) -> dict:
+    """Lighter version of the Enrutador used when the TOPIC is already known
+    via fast matching (filename or leading content — see
+    _try_fast_route below), so only the subtopic decision is still needed.
+    Skips the Lector call entirely and gives the LLM a much smaller
+    decision space (subtopics of one topic, not the whole index)."""
+    subtopics = topic.get("subtopics", [])
+    shown = subtopics[:INDEX_SUMMARY_MAX_SUBTOPICS]
+    listed = "\n".join(f'- subtopic_id="{s["id"]}" · "{s["title"]}"' for s in shown) or "(ninguno todavía)"
+    excerpt = text[:4000]
+    prompt = f"""Este documento ya se sabe que pertenece al tema "{topic['title']}". Decide en qué
+subtema encaja dentro de ese tema.
+
+SUBTEMAS EXISTENTES EN ESTE TEMA:
+{listed}
+
+DOCUMENTO:
+{excerpt}
+
+Devuelve SOLO este JSON (sin texto extra):
+{{
+  "action": "existing_subtopic" | "new_subtopic",
+  "subtopic_id": "id del subtema existente elegido (solo si action == existing_subtopic, si no null)",
+  "subtopic_title": "título del subtema — el existente si reutilizas uno, o el nuevo si creas uno"
+}}
+
+Reglas: reutiliza un subtema existente si el contenido encaja razonablemente en él; crea uno nuevo
+solo si es un aspecto claramente distinto que ningún subtema existente cubre todavía."""
+
+    fallback = {"action": "new_subtopic", "subtopic_id": None, "subtopic_title": topic["title"]}
+    return parse_llm_json(
+        llm, prompt, system=_SYSTEM, fallback=fallback, max_tokens=300,
+        temperature=0.1, logger=logger, recorder=recorder, task="enrutador_subtema",
+    )
+
+
 # ── Prompt 3: El Redactor ────────────────────────────────────────────────
 
 def _merge_content(new_text: str, existing_text: str, llm: LLM, logger=None, recorder=None) -> str:
@@ -266,18 +327,121 @@ añade solo lo que sea nuevo o lo complemente."""
         return (existing_text + "\n\n" + new_text).strip()
 
 
+# ── Fast path: filename/content match, no LLM ────────────────────────────
+
+def _try_fast_route(
+    source_filename: str | None, chunk_title: str | None, text: str, topics: list[dict],
+    logger: logging.Logger | None = None,
+) -> tuple[dict | None, str | None]:
+    """Try to identify the topic WITHOUT calling the LLM, before falling
+    back to the Lector/Enrutador. Two attempts, in order:
+
+    1. Filename: does the source filename (e.g. "Tema_2_Probabilidad.pdf")
+       match an existing topic title closely enough?
+    2. Leading content: does the chunk's detected heading (from
+       process.chunker, if any) or its first ~500 characters match one?
+       Deliberately narrow — a topic mentioned in passing deep in a
+       document ("como vimos en el Tema 2...") won't score highly against
+       a full-title comparison the way an actual heading will, but this
+       stays conservative on purpose since a wrong fast match here isn't
+       double-checked by anything downstream.
+
+    Returns (matched_topic_or_None, how_it_matched). Only returns a topic
+    when the match clears FAST_MATCH_THRESHOLD — otherwise returns
+    (None, None) and the caller falls through to the normal LLM path.
+    """
+    if not topics:
+        return None, None  # nothing to match against yet
+
+    filename_hint = _filename_hint(source_filename) if source_filename else None
+    if filename_hint:
+        match = _find_similar(filename_hint, topics, threshold=FAST_MATCH_THRESHOLD)
+        if match is not None:
+            if logger:
+                logger.info("fast_route_matched", extra={"via": "filename", "topic": match["title"]})
+            return match, "filename"
+
+    content_hint = chunk_title or text[:500]
+    if content_hint:
+        match = _find_similar(content_hint, topics, threshold=FAST_MATCH_THRESHOLD)
+        if match is not None:
+            if logger:
+                logger.info("fast_route_matched", extra={"via": "content", "topic": match["title"]})
+            return match, "content"
+
+    return None, None
+
+
 # ── Orchestration ─────────────────────────────────────────────────────────
 
 def classify_document(
     doc_name: str, text: str, index: dict, llm: LLM,
     logger: logging.Logger | None = None, recorder=None,
+    source_filename: str | None = None, chunk_title: str | None = None,
 ) -> dict:
     """Run Lector -> Enrutador -> Redactor for one document and return the
     updated index (topics/subtopics mutated in place, dict returned for
-    convenience/chaining)."""
+    convenience/chaining).
+
+    Before calling the LLM at all, tries the no-LLM fast path
+    (_try_fast_route): if the filename or the chunk's leading content/
+    heading matches an existing topic with high confidence, the Lector call
+    is skipped entirely, and only a lighter subtopic-only Enrutador call
+    (_route_subtopic_only) decides where within that topic the text goes —
+    or even that is skipped if the same fast match also identifies the
+    subtopic. Falls through to the full Lector + Enrutador flow whenever the
+    fast path isn't confident enough, exactly as before.
+
+    `source_filename` (the original file this text came from) and
+    `chunk_title` (the heading detected by process.chunker.split_document,
+    if any) are optional — pass them when available so the fast path has
+    something to match against; omit them to always use the full LLM flow.
+    """
     topics = index.setdefault("topics", [])
     existing_topic_ids = {t["id"] for t in topics}
 
+    fast_topic, fast_via = _try_fast_route(source_filename, chunk_title, text, topics, logger=logger)
+
+    if fast_topic is not None:
+        # Topic already known — try to also match the subtopic without the
+        # LLM; if that fails too, only the lighter subtopic-only Enrutador
+        # call is needed (Lector is skipped either way).
+        sub_hint = chunk_title or text[:500]
+        fast_subtopic = _find_similar(sub_hint, fast_topic["subtopics"], threshold=FAST_MATCH_THRESHOLD)
+
+        topic = fast_topic
+        if fast_subtopic is not None:
+            subtopic = fast_subtopic
+            action = "existing_subtopic"
+        else:
+            route = _route_subtopic_only(text, topic, llm, logger=logger, recorder=recorder)
+            action = route.get("action", "new_subtopic")
+            subtopic = None
+            if action == "existing_subtopic" and route.get("subtopic_id"):
+                subtopic = next((s for s in topic["subtopics"] if s["id"] == route["subtopic_id"]), None)
+            if subtopic is None:
+                sub_title = route.get("subtopic_title") or topic["title"]
+                subtopic = _find_similar(sub_title, topic["subtopics"])  # normal (looser) dedupe safety net
+                if subtopic is None:
+                    existing_sub_ids = {s["id"] for s in topic["subtopics"]}
+                    subtopic = {
+                        "id": _new_id(existing_sub_ids, sub_title),
+                        "title": sub_title, "content": "", "sources": [],
+                    }
+                    topic["subtopics"].append(subtopic)
+
+        merged = _merge_content(text, subtopic.get("content", ""), llm, logger=logger, recorder=recorder)
+        subtopic["content"] = merged
+        if doc_name not in subtopic["sources"]:
+            subtopic["sources"].append(doc_name)
+        if logger:
+            logger.info("document_classified", extra={
+                "file": doc_name, "topic": topic["title"], "subtopic": subtopic["title"],
+                "action": action, "fast_route": fast_via,
+            })
+        return index
+
+    # No confident fast match — full Lector + Enrutador flow.
     summary = _read_document(doc_name, text, llm, logger=logger, recorder=recorder)
     route = _route_document(summary, index, llm, logger=logger, recorder=recorder)
 

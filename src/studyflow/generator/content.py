@@ -249,9 +249,23 @@ def generate_title(index: dict, llm: LLM, logger: logging.Logger | None = None, 
 def generate_material(
     index: dict, llm: LLM, questions_per_topic: int = 8,
     logger: logging.Logger | None = None, recorder=None,
+    previous_material: dict | None = None, topics_to_regenerate: set[str] | None = None,
 ) -> dict:
+    """Generate study material for every topic in `index`.
+
+    If `previous_material` (a prior generate_material() result, as persisted
+    by Project.write_material) and `topics_to_regenerate` (a set of topic
+    ids) are both given, only those topics are actually regenerated via the
+    LLM — topics NOT in that set are copied as-is from `previous_material`
+    if they're present there, on the assumption their content hasn't
+    changed since the last run. Pass `topics_to_regenerate=None` (the
+    default) to always regenerate everything, e.g. on a project's first run
+    or when there's no previous material to reuse.
+    """
     topics = index.get("topics", [])
     sources = sorted({s for t in topics for sub in t.get("subtopics", []) for s in sub.get("sources", [])})
+
+    prev_by_id = {t["id"]: t for t in (previous_material or {}).get("topics", [])}
 
     print(f"\n  Generando título del material...")
     title = generate_title(index, llm, logger=logger, recorder=recorder)
@@ -260,6 +274,17 @@ def generate_material(
 
     generated = []
     for i, topic in enumerate(topics, 1):
+        tid = topic["id"]
+        reuse = (
+            topics_to_regenerate is not None
+            and tid not in topics_to_regenerate
+            and tid in prev_by_id
+        )
+        if reuse:
+            print(f"\n  [{i}/{len(topics)}] {topic['title']} — sin cambios, reutilizando material existente")
+            generated.append(prev_by_id[tid])
+            continue
+
         print(f"\n  [{i}/{len(topics)}] {topic['title']}")
         generated.append(
             generate_topic(

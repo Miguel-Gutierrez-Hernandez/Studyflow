@@ -32,6 +32,7 @@ class Project:
         self.path_output: Path = self.path / "output"
         self._meta_file: Path = self.path / "project.json"
         self._index_file: Path = self.path / "index.json"
+        self._material_file: Path = self.path / "material.json"
 
     # -- Lifecycle ------------------------------------------------------------
 
@@ -44,6 +45,7 @@ class Project:
             folder.mkdir(parents=True, exist_ok=True)
         self._write_meta({"name": self.name, "created": datetime.now().isoformat(), "files": []})
         self.write_index({"topics": []})
+        self.write_material({"title": "", "topics": [], "sources": [], "stats": {"n_topics": 0, "n_questions": 0}})
         return self
 
     def delete(self) -> None:
@@ -98,6 +100,27 @@ class Project:
             json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         self._patch_meta({"last_index_update": datetime.now().isoformat()})
+
+    # -- Generated study material -----------------------------------------
+
+    def read_material(self) -> dict | None:
+        """The last generated study material — the full return value of
+        generator.content.generate_material (title, topics with their
+        explanations/questions/flashcards, sources, stats). Returns None if
+        no material has ever been generated for this project (a project
+        created before this feature existed, or one whose material was
+        never successfully generated). Used to support partial regeneration:
+        when only some topics changed, unaffected topics are copied from
+        here instead of being re-generated via the LLM."""
+        if not self._material_file.exists():
+            return None
+        return json.loads(self._material_file.read_text(encoding="utf-8"))
+
+    def write_material(self, material: dict) -> None:
+        self._material_file.write_text(
+            json.dumps(material, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        self._patch_meta({"last_material_update": datetime.now().isoformat()})
 
     # -- Output -------------------------------------------------------------------
 
