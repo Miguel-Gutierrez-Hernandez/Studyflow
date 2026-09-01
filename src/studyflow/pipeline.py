@@ -79,12 +79,12 @@ def run(
     project = Project(project_name)
     if not project.path.exists():
         project.create()
-        console.print(f"  ✅ Created at: [dim]{project.path}[/dim]")
+        console.print(f"   Created at: [dim]{project.path}[/dim]")
     elif overwrite:
         project.create(overwrite=True)
-        console.print(f"  🔄 Overwritten at: [dim]{project.path}[/dim]")
+        console.print(f"   Overwritten at: [dim]{project.path}[/dim]")
     else:
-        console.print(f"  📂 Existing project — adding new files.")
+        console.print(f"   Existing project — adding new files.")
 
     log = get_logger("pipeline", project.path)
     log.info("run_started", extra={"project": project_name, "n_input_files": len(files)})
@@ -120,14 +120,14 @@ def _run_steps(
         try:
             dest = project.add_file(path)
             project_files.append(dest)
-            console.print(f"  ✅ [dim]{path.name}[/dim] → documents/")
+            console.print(f"   [dim]{path.name}[/dim] → documents/")
         except FileNotFoundError as e:
-            console.print(f"  ❌ [red]{e}[/red]")
+            console.print(f"   [red]{e}[/red]")
             log.warning("file_not_found", extra={"path": str(path)})
 
     if not project_files:
         project_files = project.documents()
-        console.print(f"  ℹ️  Using {len(project_files)} existing files")
+        console.print(f"  ℹ  Using {len(project_files)} existing files")
 
     if not project_files:
         log.error("no_files_to_process")
@@ -146,7 +146,7 @@ def _run_steps(
                 to_extract.append(f)
 
         if reused:
-            console.print(f"  ⏭️  Reused {len(reused)} previously extracted file(s)")
+            console.print(f"   Reused {len(reused)} previously extracted file(s)")
         log.info("extraction_reused", extra={"n_files": len(reused), "files": reused})
 
         if to_extract:
@@ -158,22 +158,22 @@ def _run_steps(
                 else:
                     log.error("extraction_failed", extra={"file": name, "error": text})
                 texts[name] = text
-            console.print(f"  ✅ Extracted {len(to_extract)} new file(s)")
+            console.print(f"   Extracted {len(to_extract)} new file(s)")
         log.info("extraction_done", extra={"n_new_files": len(to_extract)})
 
     tracker.log_metrics({
         "n_files_reused": len(reused),
         "n_files_extracted": len(to_extract),
     })
-    console.print(f"  ✅ Saved to: [dim]{project.path_extracted}[/dim]")
+    console.print(f"   Saved to: [dim]{project.path_extracted}[/dim]")
 
     console.print("\n[bold]4/6 · Classifying documents into the project index...[/bold]")
     cache = LLMCache(project.path)
     llm = LLM(cache=cache, model=model)
-    console.print(f"  🤖 {llm}")
+    console.print(f"   {llm}")
     recorder = DistillationRecorder(enabled=distill) if distill else None
     if distill:
-        console.print(f"  🎓 Recording training data to: [dim]{recorder.dir}[/dim]")
+        console.print(f"   Recording training data to: [dim]{recorder.dir}[/dim]")
 
     with tracker.step("classification"):
         n_topics_before = len(project.read_index().get("topics", []))
@@ -181,7 +181,7 @@ def _run_steps(
     n_topics = len(index["topics"])
     n_new_topics = max(0, n_topics - n_topics_before)
     console.print(
-        f"  ✅ {n_topics} topics in index"
+        f"   {n_topics} topics in index"
         + (f" (+{n_new_topics} new)" if n_new_topics else "")
         + ": " + ", ".join(t["title"] for t in index["topics"])
     )
@@ -197,7 +197,7 @@ def _run_steps(
     if topics_to_regenerate is not None:
         n_reused = n_topics - len(topics_to_regenerate)
         if n_reused > 0:
-            console.print(f"  🔁 Regenerando {len(topics_to_regenerate)} tema(s) afectado(s); reutilizando {n_reused} sin cambios")
+            console.print(f"   Regenerando {len(topics_to_regenerate)} tema(s) afectado(s); reutilizando {n_reused} sin cambios")
     with tracker.step("material_generation"):
         material = generate_material(
             index, llm=llm, questions_per_topic=questions_per_topic, logger=log,
@@ -235,9 +235,9 @@ def _run_steps(
             with tracker.step("pdf_export"):
                 pdf_path = project.save_pdf()
             tracker.log_artifact(pdf_path)
-            console.print(f"  ✅ Saved to: [dim]{pdf_path}[/dim]")
+            console.print(f"   Saved to: [dim]{pdf_path}[/dim]")
         except ImportError as e:
-            console.print(f"  ⚠️  [yellow]{e}[/yellow]")
+            console.print(f"    [yellow]{e}[/yellow]")
 
     console.print(Panel.fit(
         f"[bold green]Done![/bold green]\n\n"
@@ -257,8 +257,8 @@ def _print_history(projects: list[dict]) -> None:
         console.print("[dim]  (no projects yet)[/dim]\n")
         return
     for i, p in enumerate(projects, 1):
-        html_flag = "✅ HTML" if p["has_html"] else "⏳ no HTML yet"
-        pdf_flag = " · 📄 PDF" if p.get("has_pdf") else ""
+        html_flag = " HTML" if p["has_html"] else "⏳ no HTML yet"
+        pdf_flag = " ·  PDF" if p.get("has_pdf") else ""
         created = (p["created"] or "")[:10]
         console.print(
             f"  [bold]{i}.[/bold] {p['name']}  "

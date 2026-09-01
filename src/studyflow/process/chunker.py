@@ -37,15 +37,12 @@ import re
 # Patterns for section headings, checked together (union) so a document that
 # mixes styles (e.g. numbered top-level "Tema N" plus numbered "N.N"
 # subsections, as in a typical unit/chapter PDF) gets cut at every level.
-_HEADING_PATTERNS = [
-    # "3. Tema 1: Inspiración biológica" / "14. Tema 12: Limitaciones..."
-    re.compile(r"^\s*\d+\.\s+(?:TEMA|Tema)\s+\d+\s*:\s*.{2,100}$", re.MULTILINE),
-    # "6.1. Neurona biológica" / "6.7.  Hiperparámetros" (numbered subsections)
-    re.compile(r"^\s*\d+\.\d+\.?\s+[A-ZÁÉÍÓÚÑ][^\n]{2,100}$", re.MULTILINE),
-    # "TEMA 1: ESTADÍSTICA DESCRIPTIVA" / "CAPÍTULO 3 - ..." (no leading number)
-    re.compile(r"^\s*(?:TEMA|CAP[IÍ]TULO|UNIDAD)\s+\d+\s*[:\-]\s*.{2,100}$", re.MULTILINE),
-    # Markdown-style headings, in case the extractor preserved them
-    re.compile(r"^#{1,3}\s+.{2,100}$", re.MULTILINE),
+_HEADING_PATTERNS: list[tuple[int, re.Pattern]] = [
+    (1, re.compile(r"^\s*\d+\.\s+(?:TEMA|Tema)\s+\d+\s*:\s*.{2,100}$", re.MULTILINE)),
+    (2, re.compile(r"^\s*\d+\.\d+\.?\s+[A-ZÁÉÍÓÚÑ][^\n]{2,100}$", re.MULTILINE)),
+    (1, re.compile(r"^\s*(?:TEMA|CAP[IÍ]TULO|UNIDAD)\s+\d+\s*[:\-]\s*.{2,100}$", re.MULTILINE)),
+    (1, re.compile(r"^#\s+.{2,100}$", re.MULTILINE)),        # "# Título" — level 1
+    (2, re.compile(r"^#{2,3}\s+.{2,100}$", re.MULTILINE)),   # "## / ###" — level 2
 ]
 
 MIN_HEADINGS = 2                # need at least this many matches to trust heading-based splitting
@@ -58,7 +55,7 @@ def _find_headings(text: str) -> list[tuple[int, str]]:
     """Return (start_offset, heading_line) pairs for every heading-like line
     found by any pattern, sorted by position and de-duplicated by offset."""
     found: dict[int, str] = {}
-    for pattern in _HEADING_PATTERNS:
+    for level, pattern in _HEADING_PATTERNS: 
         for m in pattern.finditer(text):
             found[m.start()] = m.group(0).strip()
     return sorted(found.items())
@@ -82,14 +79,8 @@ def _split_by_headings(text: str) -> list[dict] | None:
     total_len = sum(len(c["text"]) for c in chunks)
     largest = max(len(c["text"]) for c in chunks)
     if total_len == 0 or (largest / total_len) > MAX_SINGLE_CHUNK_SHARE:
-        # One "heading" swallowed almost everything — the pattern likely
-        # matched noise rather than real structure. Don't trust this split.
         return None
 
-    # Merge chunks that ended up too small (e.g. a heading immediately
-    # followed by another heading, leaving almost no body text) into the
-    # next chunk, so tiny fragments don't become their own classification
-    # unit with barely any content to classify from.
     merged: list[dict] = []
     for chunk in chunks:
         if merged and len(chunk["text"]) < MIN_CHUNK_CHARS:
@@ -101,15 +92,6 @@ def _split_by_headings(text: str) -> list[dict] | None:
 
 
 def _split_by_size(text: str) -> list[dict]:
-    """Fallback: chunk on paragraph boundaries, targeting FALLBACK_CHUNK_CHARS
-    per chunk. No title is assigned — the Lector/Enrutador decide how these
-    pieces group together on their own, purely from content.
-
-    A paragraph that alone exceeds FALLBACK_CHUNK_CHARS (e.g. continuous
-    text extracted with no paragraph breaks at all — some OCR/PDF
-    extraction produces this) is additionally hard-split by size, so a
-    single giant paragraph doesn't defeat chunking entirely.
-    """
     paragraphs = re.split(r"\n\s*\n", text)
     pieces: list[str] = []
     for para in paragraphs:
@@ -139,16 +121,6 @@ def _split_by_size(text: str) -> list[dict]:
 
 
 def split_document(text: str) -> list[dict]:
-    """Split `text` into classification-sized pieces. Returns a list of
-    {"title": str|None, "text": str} dicts, in document order.
-
-    Tries heading-based splitting first (preserves the document's own
-    section structure — the ideal case). Falls back to size-based chunking
-    if no reliable heading structure is found. A short document with no
-    real internal structure and under FALLBACK_CHUNK_CHARS naturally comes
-    back as a single chunk either way — this only changes behavior for
-    long, multi-section documents.
-    """
     if not text.strip():
         return []
 

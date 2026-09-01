@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Artificial Intelligence and Deep Learning Fundamentals — StudyFlow AI</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--text:#152033;--muted:#64748b;--border:#dbe3ef;
+  --primary:#2563eb;--primary-dark:#1e40af;--ok:#16a34a;--ok-bg:#dcfce7;
+  --bad:#dc2626;--bad-bg:#fee2e2;--warn:#d97706;--warn-bg:#fef3c7;
+  --purple:#7c3aed;--purple-bg:#f3e8ff;--cyan-bg:#ecfeff;--cyan:#0e7490;
+  --shadow:0 16px 42px rgba(15,23,42,.08);--radius:24px;
+}
+html[data-theme="dark"]{
+  --bg:#0f1420;--card:#1a2233;--text:#e6ebf5;--muted:#93a0bd;--border:#2c3650;
+  --primary:#5b8def;--primary-dark:#7ea6f5;--ok:#22c55e;--ok-bg:#14301f;
+  --bad:#f87171;--bad-bg:#3a1717;--warn:#fbbf24;--warn-bg:#3a2c0d;
+  --purple:#a78bfa;--purple-bg:#2a2044;--cyan-bg:#0d2b30;--cyan:#5eead4;
+  --shadow:0 16px 42px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--primary);color:#fff;
+  padding:10px 16px;border-radius:0 0 10px 0;z-index:999;font-weight:800}
+.skip-link:focus{left:0}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:radial-gradient(circle at 10% 0%,#dbeafe 0%,rgba(219,234,254,0) 34%),
+             radial-gradient(circle at 90% 8%,#ccfbf1 0%,rgba(204,251,241,0) 34%),
+             var(--bg);
+  line-height:1.55;
+  transition:background-color .2s ease,color .2s ease
+}
+html[data-theme="dark"] body{
+  background:radial-gradient(circle at 10% 0%,#1b2a4a 0%,rgba(27,42,74,0) 34%),
+             radial-gradient(circle at 90% 8%,#0d3b3a 0%,rgba(13,59,58,0) 34%),
+             var(--bg)
+}
+header,main,.nav-inner{max-width:1220px;margin:0 auto}
+header{padding:34px 20px 18px}
+.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:16px}
+.hero-card,.stat-card,.panel,.card,.quiz-card,.module{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow)
+}
+.hero-card{padding:30px}
+.sf-badge{display:inline-block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;
+  border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:800;margin-bottom:12px}
+html[data-theme="dark"] .sf-badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+h1{font-size:clamp(2rem,4vw,4rem);line-height:.96;letter-spacing:-.065em;margin:0 0 12px}
+h3,h4{letter-spacing:-.025em;margin:0 0 10px}
+h4{font-size:1rem;color:var(--text)}
+.subtitle{color:var(--muted);font-size:1.05rem;margin:0 0 14px}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.badge{display:inline-flex;border-radius:999px;font-weight:900;align-items:center;
+  padding:6px 11px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:.82rem}
+html[data-theme="dark"] .badge{background:#1e2a4a;color:#93b4fb;border-color:#2c3d63}
+.badge.source{background:#f3e8ff;color:#6d28d9;border-color:#ddd6fe}
+html[data-theme="dark"] .badge.source{background:#241a3d;color:#c4a9f7;border-color:#382a5c}
+.stat-grid{display:grid;gap:12px}
+.stat-card{padding:18px}
+.stat-number{font-size:2.1rem;font-weight:950;letter-spacing:-.05em}
+.stat-label{color:var(--muted);font-size:.93rem}
+.progress-card .stat-number{color:var(--ok)}
+nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.91);
+  backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.55);
+  border-bottom:1px solid var(--border)}
+html[data-theme="dark"] nav{background:rgba(15,20,32,.88);border-top-color:rgba(255,255,255,.06)}
+.nav-inner{padding:11px 20px;display:flex;gap:9px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link,button{
+  border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;
+  padding:9px 13px;font-weight:850;white-space:nowrap;cursor:pointer;font-size:.9rem;
+  transition:transform .12s ease,border .18s ease,background .18s ease;
+  text-decoration:none;display:inline-flex;align-items:center;font-family:inherit
+}
+.nav-link:hover,button:hover{transform:translateY(-1px);border-color:#93c5fd;background:#f8fbff}
+html[data-theme="dark"] .nav-link:hover,html[data-theme="dark"] button:hover{background:#22304d;border-color:#3d5a80}
+button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+button.primary:hover{background:var(--primary-dark)}
+.toggle-btn{margin-left:auto}
+.toggle-btn[aria-pressed="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+main{padding:24px 20px 70px}
+section{margin:32px 0;padding-top:8px}
+.subsection{margin-top:24px}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:0 0 14px;flex-wrap:wrap}
+.section-title h2{margin:0;font-size:clamp(1.45rem,2.3vw,2.25rem);letter-spacing:-.045em;line-height:1.05}
+.section-title h3{margin:0;font-size:1.25rem}
+.section-title p{margin:6px 0 0;color:var(--muted);max-width:850px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.overview-list{display:flex;flex-direction:column;gap:14px}
+.panel,.card,.quiz-card,.module{padding:18px}
+.muted-note{color:var(--muted)}
+.topic-num{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;background:var(--primary);color:#fff;border-radius:8px;
+  font-size:.8rem;font-weight:900;margin-right:10px;flex-shrink:0}
+.topic-num-lg{display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:38px;background:var(--primary);color:#fff;border-radius:12px;
+  font-size:1.05rem;font-weight:900;margin-right:12px;flex-shrink:0;vertical-align:middle}
+.topic-link{color:var(--text);text-decoration:none;display:flex;align-items:center}
+.topic-link:hover{color:var(--primary)}
+.topic-check{margin-left:8px;color:var(--ok);font-weight:900}
+.topic-check.done::after{content:"✓ dominado"}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{display:inline-flex;border-radius:999px;font-weight:800;align-items:center;
+  padding:4px 10px;font-size:.77rem;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe}
+html[data-theme="dark"] .pill{background:#1e2144;color:#a5b4fc;border-color:#312e70}
+/* Subtopics (sequential) */
+.subtopic-block{display:grid;gap:22px;margin-bottom:10px}
+.subtopic-item{border-top:1px solid var(--border);padding-top:18px}
+.subtopic-item:first-child{border-top:none;padding-top:0}
+.subtopic-item h3{font-size:1.1rem;color:var(--primary);margin-bottom:12px}
+.subtopic-content{display:grid;gap:14px}
+.explanation-panel{border-left:4px solid var(--primary)}
+.explanation-text p{margin:0 0 10px;color:var(--text);line-height:1.65}
+.explanation-text p:last-child{margin-bottom:0}
+.muted-panel{border-left:4px solid var(--warn);background:var(--warn-bg)}
+.muted-panel .muted-note{color:inherit;margin:0}
+/* Tables */
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;background:var(--card)}
+th,td{padding:11px 13px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:rgba(0,0,0,.02);font-weight:800}
+html[data-theme="dark"] th{background:rgba(255,255,255,.03)}
+tr:last-child td{border-bottom:0}
+/* Quiz */
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.quiz-card{padding:18px}
+.quiz-card h3{margin:0 0 12px;font-size:.97rem;line-height:1.4;letter-spacing:-.01em}
+.opciones{display:grid;gap:7px}
+.quiz-option{border:1px solid var(--border);border-radius:12px;padding:10px 13px;
+  background:var(--card);cursor:pointer;font-size:.9rem;transition:all .15s ease;font-weight:600;
+  text-align:left;width:100%;color:var(--text)}
+.quiz-option:hover{background:#f0f7ff;border-color:#93c5fd}
+html[data-theme="dark"] .quiz-option:hover{background:#1c2b4a}
+.quiz-option.correct{background:var(--ok-bg);border-color:#22c55e;color:#14532d}
+html[data-theme="dark"] .quiz-option.correct{color:#86efac}
+.quiz-option.wrong{background:var(--bad-bg);border-color:#ef4444;color:#7f1d1d}
+html[data-theme="dark"] .quiz-option.wrong{color:#fca5a5}
+.quiz-option:disabled{cursor:default}
+.quiz-note{margin-top:10px;font-size:.88rem;font-weight:700;border-radius:12px;
+  padding:10px 12px;display:none}
+.quiz-note.show{display:block}
+.quiz-note.ok{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.quiz-note.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+html[data-theme="dark"] .quiz-note.ok{color:#86efac}
+html[data-theme="dark"] .quiz-note.bad{color:#fca5a5}
+.retry-btn{margin-top:10px;font-size:.8rem;padding:6px 12px;display:none}
+/* Flashcards */
+.flashcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.flip{perspective:1000px;min-height:180px;cursor:pointer}
+.flip-inner{position:relative;width:100%;min-height:180px;transform-style:preserve-3d;
+  transition:transform .45s ease}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;border-radius:20px;border:1px solid var(--border);
+  background:var(--card);padding:18px;backface-visibility:hidden;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;justify-content:center}
+.flip-back{transform:rotateY(180deg);background:var(--ok-bg);border-color:#86efac}
+.flip-front strong{font-size:1rem;color:var(--primary);display:block;margin-bottom:6px}
+.flip-front p{color:var(--muted);font-size:.85rem;margin:0}
+.flip-back p{color:#14532d;margin:0 0 10px;font-size:.92rem;line-height:1.5}
+html[data-theme="dark"] .flip-back p{color:#bbf7d0}
+.flip-actions{display:flex;gap:6px}
+.know-btn{font-size:.72rem;padding:5px 9px;border-radius:8px}
+.know-btn[data-state="know"].active{background:var(--ok);color:#fff;border-color:var(--ok)}
+.know-btn[data-state="review"].active{background:var(--warn);color:#fff;border-color:var(--warn)}
+.flip.card-known{opacity:.55}
+.flip.card-review .flip-front{border-color:var(--warn);border-width:2px}
+.flip.filtered-out{display:none}
+/* Exam */
+.exam-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.exam-control{display:flex;align-items:center;gap:8px;font-weight:700}
+.exam-control input{border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:.9rem;
+  background:var(--card);color:var(--text)}
+.toggle-label{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
+.score{margin-left:auto;background:var(--card);border:1px solid var(--border);
+  border-radius:999px;padding:8px 14px;font-weight:900;font-size:.9rem}
+.result{border-radius:16px;padding:14px}
+.result.good{background:var(--ok-bg);color:#14532d;border:1px solid #86efac}
+.result.bad{background:var(--bad-bg);color:#7f1d1d;border:1px solid #fecaca}
+.result.warn{background:var(--warn-bg);color:#78350f;border:1px solid #fcd34d}
+html[data-theme="dark"] .result.good{color:#86efac}
+html[data-theme="dark"] .result.bad{color:#fca5a5}
+html[data-theme="dark"] .result.warn{color:#fbbf24}
+@media(max-width:900px){
+  .hero,.grid2,.overview-list{grid-template-columns:1fr}
+  .score{margin-left:0;width:100%;text-align:center}
+  .section-title{display:block}
+}
+@media print{
+  nav,.exam-toolbar,.toggle-btn,.retry-btn,.flip-actions,.skip-link{display:none !important}
+  body{background:white;color:#000}
+  .subtopic-item{page-break-inside:avoid;margin-bottom:16px}
+  .panel,.quiz-card,.module,table,.flip{page-break-inside:avoid}
+  .flip{perspective:none;min-height:auto}
+  .flip-inner{position:static;transform:none !important;display:block}
+  .flip-front,.flip-back{position:static;transform:none !important;box-shadow:none;
+    border-radius:8px;margin-bottom:6px}
+  .flip-back{background:#f0fdf4}
+  .quiz-option{border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+<header>
+  <div class="hero">
+    <div class="hero-card">
+      <div class="sf-badge">⚡ StudyFlow AI</div>
+      <h1>Artificial Intelligence and Deep Learning Fundamentals</h1>
+      <p class="subtitle">Material generado automáticamente · 2026-08-29</p>
+      <div class="badges">
+        <span class="badge">Máquina de Inteligencia</span><span class="badge">Informática</span><span class="badge">Neuroinformática</span><span class="badge">Introducción a LSTM</span><span class="badge">Contenido general</span><span class="badge">Deep Belief Networks</span><span class="badge">Convolutivas</span>
+        <span class="badge source">📄 Prueba.pdf#1</span><span class="badge source">📄 Prueba.pdf#10</span><span class="badge source">📄 Prueba.pdf#11</span><span class="badge source">📄 Prueba.pdf#12</span><span class="badge source">📄 Prueba.pdf#13</span><span class="badge source">📄 Prueba.pdf#14</span><span class="badge source">📄 Prueba.pdf#15</span><span class="badge source">📄 Prueba.pdf#16</span><span class="badge source">📄 Prueba.pdf#17</span><span class="badge source">📄 Prueba.pdf#18</span><span class="badge source">📄 Prueba.pdf#19</span><span class="badge source">📄 Prueba.pdf#2</span><span class="badge source">📄 Prueba.pdf#20</span><span class="badge source">📄 Prueba.pdf#21</span><span class="badge source">📄 Prueba.pdf#22</span><span class="badge source">📄 Prueba.pdf#23</span><span class="badge source">📄 Prueba.pdf#24</span><span class="badge source">📄 Prueba.pdf#25</span><span class="badge source">📄 Prueba.pdf#26</span><span class="badge source">📄 Prueba.pdf#27</span><span class="badge source">📄 Prueba.pdf#28</span><span class="badge source">📄 Prueba.pdf#29</span><span class="badge source">📄 Prueba.pdf#3</span><span class="badge source">📄 Prueba.pdf#4</span><span class="badge source">📄 Prueba.pdf#5</span><span class="badge source">📄 Prueba.pdf#6</span><span class="badge source">📄 Prueba.pdf#7</span><span class="badge source">📄 Prueba.pdf#8</span><span class="badge source">📄 Prueba.pdf#9</span>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">7</div>
+        <div class="stat-label">temas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">9</div>
+        <div class="stat-label">preguntas test</div>
+      </div>
+      <div class="stat-card progress-card">
+        <div class="stat-number" id="progressCount">0/7</div>
+        <div class="stat-label">temas dominados</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-link" href="#overview">📋 Índice</a>
+    <a class="nav-link" href="#m_quina_de_inteligencia">Máquina de Inteligencia</a><a class="nav-link" href="#inform_tica">Informática</a><a class="nav-link" href="#neuroinform_tica">Neuroinformática</a><a class="nav-link" href="#introducci_n_a_lstm">Introducción a LSTM</a><a class="nav-link" href="#contenido_general">Contenido general</a><a class="nav-link" href="#deep_belief_networks">Deep Belief Networks</a><a class="nav-link" href="#convolutivas">Convolutivas</a>
+    <a class="nav-link" href="#exam">🎓 Simulacro</a>
+    <button class="nav-link toggle-btn" id="darkModeBtn" type="button"
+      aria-pressed="false" title="Alternar modo oscuro">🌙 Oscuro</button>
+  </div>
+</nav>
+
+<main id="main-content">
+  <section id="overview">
+  <div class="section-title">
+    <div><h2>📋 Índice de contenidos</h2>
+    <p>Visión general. Haz clic en un tema para ir directamente. El check aparece cuando superas el 70% en ese tema dentro del simulacro global.</p></div>
+  </div>
+  <!-- Cambiado grid3 por overview-list para forzar filas en lugar de columnas -->
+  <div class="overview-list"><div class="module" id="overview-m_quina_de_inteligencia" data-topic-id="m_quina_de_inteligencia">
+          <h3><a href="#m_quina_de_inteligencia" class="topic-link">
+            <span class="topic-num">1</span>Máquina de Inteligencia
+            <span class="topic-check" aria-hidden="true"></span>
+          </a></h3>
+          <div class="pills">
+            <span class="pill">Neurona biológica</span><span class="pill">Activación en redes neuronales</span>
+          </div>
+        </div><div class="module" id="overview-inform_tica" data-topic-id="inform_tica">
+          <h3><a href="#inform_tica" class="topic-link">
+            <span class="topic-num">2</span>Informática
+            <span class="topic-check" aria-hidden="true"></span>
+          </a></h3>
+          <div class="pills">
+            <span class="pill">Algoritmos de aprendizaje</span><span class="pill">Informática</span>
+          </div>
+        </div><div class="module" id="overview-neuroinform_tica" data-topic-id="neuroinform_tica">
+          <h3><a href="#neuroinform_tica" class="topic-link">
+            <span class="topic-num">3</span>Neuroinformática
+            <span class="topic-check" aria-hidden="true"></span>
+          </a></h3>
+          <div class="pills">
+            <span class="pill">Redes neuronales recurrentes</span><span class="pill">Dependencias temporales a largo plazo</span>
+          </div>
+        </div><div class="module" id="overview-introducci_n_a_lstm" data-topic-id="introducci_n_a_lstm">
+          <h3><a href="#introducci_n_a_lstm" class="topic-link">
+            <span class="topic-num">4</span>Introducción a LSTM
+            <span class="topic-check" aria-hidden="true"></span>
+          </a></h3>
+          <div class="pills">
+            <span class="pill">Celdas de Memoria</span>
+          </div>
+        </div><div class="module" id="overview-contenido_general" data-topic-id="contenido_general">
+          <h3><a href="#contenido_general" class="topic-link">
+            <span class="topic-num">5</span>Contenido general
+            <span class="topic-check" aria-hidden="true"></span>
+          </a></h3>
+          <div class="pills">
+            <span class="pill">None</span>
+          </div>
+        </div><div class="module" id="overview-deep_belief_networks" data-topic-id="deep_belief_networks">
+          <h3><a href="#deep_belief_networks" class="topic-link">
+            <span class="topic-num">6</span>Deep Belief Networks
+            <span class="topic-check" aria-hidden="true"></span>
+          </a></h3>
+          <div class="pills">
+            <span class="pill">Deep Belief Networks</span>
+          </div>
+        </div><div class="module" id="overview-convolutivas" data-topic-id="convolutivas">
+          <h3><a href="#convolutivas" class="topic-link">
+            <span class="topic-num">7</span>Convolutivas
+            <span class="topic-check" aria-hidden="true"></span>
+          </a></h3>
+          <div class="pills">
+            <span class="pill">Convolutivas</span>
+          </div>
+        </div></div>
+</section>
+  <section id="m_quina_de_inteligencia">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">1</span>Máquina de Inteligencia</h2>
+      <p>Neurona biológica  ·  Activación en redes neuronales</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block"><div class="subtopic-item" id="m_quina_de_inteligencia__neurona_biol_gica"><h3>1. Neurona biológica</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Una neurona biológica es una célula que transmite impulsos electroquímicos a otras neuronas, pero solo si el impulso es lo suficientemente fuerte para superar un umbral y activar la emisión de los componentes químicos necesarios. Este proceso se conoce como la excitabilidad de la neurona. Si el impulso no es suficiente, la información no se transmite. La estructura de una neurona biológica se compone de varias partes clave: las dendritas, que reciben señales de otras neuronas; el cuerpo celular (soma), que integra esas señales; el axón, que transmite el impulso a otras neuronas; y las sinapsis, que son las conexiones entre las neuronas donde se transmiten las señales. El proceso de transmisión de señales en una neurona biológica se puede comparar con el funcionamiento de las neuronas artificiales en el deep learning. En el caso de las neuronas biológicas, el impulso se transmite a través de la liberación de neurotransmisores, que se unen a receptores en las neuronas receptoras. En el caso de las neuronas artificiales, el impulso se transmite a través de la suma de las salidas de las capas de activación. Aunque las neuronas biológicas y las neuronas artificiales comparten algunos similarities, también hay algunas diferencias importantes. Por ejemplo, las neuronas biológicas pueden cambiar su excitabilidad en función de la experiencia y la aprendizaje, mientras que las neuronas artificiales no tienen esta capacidad. Sin embargo, el estudio de las neuronas biológicas puede proporcionar valiosas insights sobre cómo funcionan las neuronas artificiales y cómo pueden ser diseñadas para aprender y adaptarse de manera más efectiva.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Excitabilidad</strong></td><td>La capacidad de una neurona biológica para transmitir impulsos electroquímicos a otras neuronas</td></tr><tr><td><strong>Dendritas</strong></td><td>Las partes de una neurona biológica que reciben señales de otras neuronas</td></tr><tr><td><strong>Soma</strong></td><td>El cuerpo celular de una neurona biológica que integra las señales recibidas</td></tr><tr><td><strong>Axón</strong></td><td>La parte de una neurona biológica que transmite el impulso a otras neuronas</td></tr><tr><td><strong>Sinapsis</strong></td><td>Las conexiones entre las neuronas donde se transmiten las señales</td></tr><tr><td><strong>Neuronas artificiales</strong></td><td>Un tipo de neurona artificial diseñada para simular el funcionamiento de las neuronas biológicas</td></tr><tr><td><strong>Capas de activación</strong></td><td>Un tipo de capa en una red neuronal artificial que se utiliza para introducir la no linealidad en la salida</td></tr><tr><td><strong>Aprendizaje</strong></td><td>El proceso por el cual las neuronas artificiales pueden mejorar su rendimiento en función de la experiencia</td></tr>
+      </table>
+    </div>
+</div></div><div class="subtopic-item" id="m_quina_de_inteligencia__activaci_n_en_redes_neuronales"><h3>2. Activación en redes neuronales</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las funciones de activación son un paso crucial en las redes neuronales, ya que permiten introducir no-linearidades en las capacidades de la red. Las funciones de activación lineal, sigmoid, tangente hiperbólica, softmax, ReLU y Leaky ReLU son algunas de las más comunes. La función lineal es simple y no modifica la forma ni la escala de la entrada, mientras que la función sigmoid y la tangente hiperbólica delimitan el valor de salida en un rango. Las funciones softmax y ReLU representan una distribución de probabilidad y evitan el desvanecimiento del gradiente, respectivamente. Las funciones Leaky ReLU añaden una corrección para evitar el problema del Dying ReLU. El objetivo es encontrar los pesos que minimicen la función de pérdidas, lo que convierte el entrenamiento de la red en un problema de optimización.</p></div>
+  </div>
+  
+</div></div></div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Máquina de Inteligencia</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="m_quina_de_inteligencia"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="m_quina_de_inteligencia"><div class="flip" id="flip-m_quina_de_inteligencia__fc0" data-fcid="m_quina_de_inteligencia__fc0" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Neurona biológica. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Neurona biológica</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una célula que transmite impulsos electroquímicos a otras neuronas, pero solo si el impulso es lo suficientemente fuerte para superar un umbral y activar la emisión de los componentes químicos necesarios.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc0" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc0" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc1" data-fcid="m_quina_de_inteligencia__fc1" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dendritas. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dendritas</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Las partes clave de una neurona que reciben señales de otras neuronas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc1" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc1" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc2" data-fcid="m_quina_de_inteligencia__fc2" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Soma. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Soma</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El cuerpo celular de una neurona que integra las señales recibidas por las dendritas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc2" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc2" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc3" data-fcid="m_quina_de_inteligencia__fc3" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Axón. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Axón</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>El componente de una neurona que transmite el impulso a otras neuronas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc3" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc3" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc4" data-fcid="m_quina_de_inteligencia__fc4" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Sinapsis. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Sinapsis</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Las conexiones entre las neuronas donde se transmiten las señales.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc4" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc4" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc5" data-fcid="m_quina_de_inteligencia__fc5" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de activación lineal. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de activación lineal</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una función que devuelve su entrada sin aplicar ninguna transformación no lineal, f(x) = x.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc5" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc5" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc6" data-fcid="m_quina_de_inteligencia__fc6" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de activación sigmoid. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de activación sigmoid</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una función que delimita el valor de salida en un rango, 0 y 1.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc6" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc6" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc7" data-fcid="m_quina_de_inteligencia__fc7" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Función de activación softmax. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Función de activación softmax</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una función que representa una distribución de probabilidad cuando la salida es una variable discreta con más de dos valores posibles.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc7" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc7" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc8" data-fcid="m_quina_de_inteligencia__fc8" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: ReLU. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>ReLU</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una función que devuelve cero para valores negativos y el mismo valor para positivos, es lineal en la componente positiva.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc8" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc8" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc9" data-fcid="m_quina_de_inteligencia__fc9" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Leaky ReLU. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Leaky ReLU</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una función que añade una corrección a las ReLU, permitiendo que los valores negativos no permanezcan en cero.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc9" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc9" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc10" data-fcid="m_quina_de_inteligencia__fc10" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: MSE. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>MSE</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La función de pérdidas más habitual para regresiones, se define como L(x, b) = 1/N∑(ŷ - y)² / N = 1.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc10" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc10" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc11" data-fcid="m_quina_de_inteligencia__fc11" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Hinge loss. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Hinge loss</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una función de pérdidas utilizada para problemas de clasificación binaria, se define como L(y, f(x)) = max(0, 1 - y*f(x)).</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc11" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc11" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc12" data-fcid="m_quina_de_inteligencia__fc12" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Negative Log-Likelihood. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc12')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc12');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Negative Log-Likelihood</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una función de pérdidas utilizada para problemas de clasificación multiclase, se define como L(y, f(x)) = -log(f(x)[y]).</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc12" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc12','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc12" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc12','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc13" data-fcid="m_quina_de_inteligencia__fc13" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Learning rate. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc13')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc13');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Learning rate</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un coeficiente que determina el tamaño de los pasos que da el modelo para ajustar sus parámetros.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc13" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc13','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc13" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc13','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc14" data-fcid="m_quina_de_inteligencia__fc14" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Técnicas de optimización. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc14')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc14');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Técnicas de optimización</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Se utilizan para ajustar automáticamente la tasa de aprendizaje y acelerar la convergencia, como AdaGrad y ADAM.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc14" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc14','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc14" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc14','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc15" data-fcid="m_quina_de_inteligencia__fc15" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Regularización. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc15')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc15');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Regularización</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Se utiliza para evitar el overfitting, reduciendo el impacto de características poco relevantes para el modelo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc15" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc15','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc15" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc15','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc16" data-fcid="m_quina_de_inteligencia__fc16" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: L1 y L2. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc16')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc16');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>L1 y L2</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Tipos de regularización que reducen el impacto de características poco relevantes para el modelo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc16" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc16','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc16" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc16','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-m_quina_de_inteligencia__fc17" data-fcid="m_quina_de_inteligencia__fc17" data-topic="m_quina_de_inteligencia"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dropout. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('m_quina_de_inteligencia__fc17')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('m_quina_de_inteligencia__fc17');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dropout</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una técnica que consiste en omitir de forma aleatoria ciertas unidades en las capas ocultas para prevenir que el modelo dependa excesivamente de ellas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc17" data-state="know" onclick="markCard(event,'m_quina_de_inteligencia__fc17','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="m_quina_de_inteligencia__fc17" data-state="review" onclick="markCard(event,'m_quina_de_inteligencia__fc17','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="inform_tica">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">2</span>Informática</h2>
+      <p>Algoritmos de aprendizaje  ·  Informática</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block"><div class="subtopic-item" id="inform_tica__algoritmos_de_aprendizaje"><h3>1. Algoritmos de aprendizaje</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las redes recurrentes (RNN) son un tipo de red neuronal artificial que se utiliza para procesar secuencias de datos. Una RNN consta de un estado oculto que se utiliza para mantener la información a lo largo de la secuencia de datos. Esto le permite a la red procesar secuencias de datos de tamaño variable y producir una salida de tamaño variable. Las RNN se han utilizado en diversas aplicaciones, incluyendo el modelado del lenguaje y la clasificación de datos. Sin embargo, también tienen algunas limitaciones, como la necesidad de un gran número de parámetros y la dificultad de entrenarlas. En general, las RNN son una herramienta poderosa para el análisis de secuencias de datos y han sido ampliamente utilizadas en diversas aplicaciones.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Red Recurrente (RNN)</strong></td><td>Una red neuronal artificial que se utiliza para procesar secuencias de datos</td></tr><tr><td><strong>Estado Oculto</strong></td><td>Un componente clave de una RNN que se utiliza para mantener la información a lo largo de la secuencia de datos</td></tr><tr><td><strong>Backpropagation</strong></td><td>Un algoritmo utilizado para entrenar las redes recurrentes</td></tr><tr><td><strong>Bloque f w</strong></td><td>Un bloque de la red recurrente que procesa el estado oculto y la entrada</td></tr><tr><td><strong>N a N</strong></td><td>Un tipo de RNN que procesa secuencias de datos de tamaño variable</td></tr><tr><td><strong>N a 1</strong></td><td>Un tipo de RNN que procesa secuencias de datos de tamaño variable y produce una salida de tamaño fijo</td></tr><tr><td><strong>1 a N</strong></td><td>Un tipo de RNN que procesa secuencias de datos de tamaño fijo y produce una salida de tamaño variable</td></tr><tr><td><strong>Modelado del Lenguaje</strong></td><td>Un ejemplo de aplicación de las RNN en el modelado del lenguaje</td></tr>
+      </table>
+    </div>
+</div></div><div class="subtopic-item" id="inform_tica__inform_tica"><h3>2. Informática</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las Restricted Boltzmann Machines (RBM) son un tipo de red neuronal artificial diseñada para la extracción de características y reducción de dimensionalidad de los datos. La palabra &amp;quot;restricted&amp;quot; indica que no hay conexiones entre nodos de la misma capa, lo que permite a las RBM aprender patrones y relaciones entre los datos de manera eficiente. Fueron popularizadas por Geoff Hinton y se consideran una forma de autoencoders, ya que aprenden a reconstruir los datos de entrada a partir de una muestra limitada. En el preentrenamiento, las RBM trabajan en un entorno no supervisado (unsupervised) para realizar ingeniería de características, lo que les permite identificar patrones y características en los datos de manera automática. Los pesos obtenidos se utilizan para inicializar redes como las Deep Belief Networks, y el cálculo de gradientes se realiza mediante el algoritmo de contrastive divergence. Algunas de las ventajas de las RBM incluyen su capacidad para aprender patrones y características en los datos de manera eficiente, y su simplicidad en la arquitectura, lo que las hace fáciles de implementar y entrenar. Sin embargo, también tienen algunas limitaciones, como la necesidad de una muestra limitada de datos para aprender y la posibilidad de que las RBM se atasquen en patrones locales.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Autoencoder</strong></td><td>Una red neuronal artificial que aprende a reconstruir los datos de entrada a partir de una muestra limitada</td></tr><tr><td><strong>Entorno no supervisado</strong></td><td>Un entorno en el que la red neuronal artificial no recibe retroalimentación supervisada para aprender</td></tr><tr><td><strong>Red neuronal artificial</strong></td><td>Una máquina que imita el comportamiento de las neuronas biológicas para procesar y aprender con los datos</td></tr><tr><td><strong>Patrones locales</strong></td><td>Patrones o características que las redes neuronales artificiales pueden atascarse en durante el entrenamiento</td></tr><tr><td><strong>Red de crecimiento profundo</strong></td><td>Una red neuronal artificial que utiliza múltiples capas para aprender patrones y características en los datos</td></tr><tr><td><strong>Contrastivo divergencia</strong></td><td>Un algoritmo utilizado para calcular los gradientes en las redes neuronales artificiales</td></tr><tr><td><strong>Unidades visibles</strong></td><td>Nodos en la red neuronal artificial que procesan los datos de entrada</td></tr><tr><td><strong>Unidades ocultas</strong></td><td>Nodos en la red neuronal artificial que detectan características y patrones en los datos de entrada</td></tr>
+      </table>
+    </div>
+</div></div></div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Informática</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="inform_tica"> Solo para repasar
+    </label>
+    </div>
+    <p class='muted-note'>No se generaron flashcards para este tema.</p>
+  </div>
+
+</section>
+<section id="neuroinform_tica">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">3</span>Neuroinformática</h2>
+      <p>Redes neuronales recurrentes  ·  Dependencias temporales a largo plazo</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block"><div class="subtopic-item" id="neuroinform_tica__redes_neuronales_recurrentes"><h3>1. Redes neuronales recurrentes</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las redes neuronales recurrentes (RNN) son fundamentales para procesar secuencias de datos como texto o audio, pero enfrentan limitaciones en la retención de información a largo plazo debido al desvanecimiento del gradiente. Para mejorar esto, se desarrollaron dos variantes: Long Short-Term Memory (LSTM) y Gated Recurrent Unit (GRU), que optimizan la capacidad de las RNN para manejar dependencias a largo plazo. Las RNN estándar son la base, donde cada neurona toma como entrada el dato actual y el estado oculto anterior. Las LSTM, introducidas en 1997, incorporan celdas de memoria para retener información durante períodos más largos, superando el problema del desvanecimiento del gradiente. Las GRU, introducidas por Cho et al. en 2014, son una versión simplificada de las LSTM, diseñadas para abordar problemas como el desvanecimiento del gradiente y las dificultades en el manejo de dependencias a largo plazo en las RNN. A diferencia de las LSTM, que tienen tres puertas, las GRU cuentan con dos: la puerta de actualización, que combina las funciones de las puertas de olvido y entrada, y la puerta de reinicio, que determina cuánto de la memoria pasada se olvida. Esta estructura más sencilla hace que las GRU sean más fáciles de entrenar y menos costosas computacionalmente, manteniendo un rendimiento similar al de las LSTM. La elección entre LSTM y GRU depende de la complejidad de la tarea y los recursos disponibles.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Red neuronal recurrente</strong></td><td>Un tipo de red neuronal que puede procesar secuencias de datos</td></tr><tr><td><strong>LSTM</strong></td><td>Long Short-Term Memory, una variedad de RNN que incorpora celdas de memoria para retener información durante períodos más largos</td></tr><tr><td><strong>GRU</strong></td><td>Gated Recurrent Unit, una variedad de RNN que es una versión simplificada de las LSTM</td></tr><tr><td><strong>Puerta de actualización</strong></td><td>Una de las puertas de la GRU que combina las funciones de las puertas de olvido y entrada</td></tr><tr><td><strong>Puerta de reinicio</strong></td><td>La otra puerta de la GRU que determina cuánto de la memoria pasada se olvida</td></tr><tr><td><strong>Desvanecimiento del gradiente</strong></td><td>Un problema que enfrentan las RNN estándar, donde los gradientes se vuelven muy pequeños durante la retropropagación</td></tr><tr><td><strong>Rendimiento en secuencias largas</strong></td><td>La capacidad de una RNN para manejar dependencias a largo plazo y retener información durante períodos más largos</td></tr><tr><td><strong>Coste computacional</strong></td><td>El tiempo y recursos necesarios para entrenar y ejecutar una RNN</td></tr>
+      </table>
+    </div>
+</div></div><div class="subtopic-item" id="neuroinform_tica__dependencias_temporales_a_largo_plazo"><h3>2. Dependencias temporales a largo plazo</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las redes neuronales LSTM (Long Short-Term Memory) son una arquitectura de redes neuronales diseñada para manejar secuencias largas y recordar información relevante a lo largo de tiempo. Esto se debe a que las LSTM tienen células de memoria que les permiten decidir qué información mantener y cuál descartar. Esto es especialmente útil en problemas de series temporales con relaciones complejas, como la predicción de series temporales, el control robótico o de sistemas, y la traducción automática. Las LSTM también son útiles para trabajar con datos secuenciales ruidosos o incompletos, ya que pueden manejar inconsistencias y ruidos en los datos. Además, las LSTM son ideales para tareas que requieren precisión en la memoria y contexto, como el modelado de lenguaje natural, la traducción y la predicción de secuencias. En resumen, las LSTM son una opción eficaz para manejar dependencias temporales complejas a largo plazo y son especialmente útiles en entornos con datos no estructurados.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Red neuronal LSTM</strong></td><td>Arquitectura de redes neuronales diseñada para manejar secuencias largas y recordar información relevante a lo largo de tiempo</td></tr><tr><td><strong>Células de memoria</strong></td><td>Componentes clave de las LSTM que les permiten decidir qué información mantener y cuál descartar</td></tr><tr><td><strong>Series temporales</strong></td><td>Secuencias de datos que se relacionan entre sí en el tiempo</td></tr><tr><td><strong>Relaciones complejas</strong></td><td>Patrones y tendencias en los datos que no pueden ser capturados por redes neuronales estándar</td></tr><tr><td><strong>Predicción de series temporales</strong></td><td>Proceso de predecir valores futuros en una serie temporal basada en patrones y tendencias observadas en el pasado</td></tr><tr><td><strong>Control robótico o de sistemas</strong></td><td>Proceso de controlar sistemas físicos o virtuales mediante la manipulación de variables de entrada</td></tr><tr><td><strong>Traducción automática</strong></td><td>Proceso de traducir texto de un idioma a otro sin la intervención humana</td></tr><tr><td><strong>Modelado de lenguaje natural</strong></td><td>Proceso de analizar y comprender el significado de los textos en un idioma natural</td></tr><tr><td><strong>RNN estándar</strong></td><td>Red neuronal recurrente estándar que tiene problemas para manejar secuencias largas y recordar información relevante a lo largo de tiempo</td></tr><tr><td><strong>Desvanecimiento del gradiente</strong></td><td>Problema en las redes neuronales que ocurre cuando el gradiente de la pérdida se vuelve muy pequeño, lo que dificulta el aprendizaje</td></tr>
+      </table>
+    </div>
+</div></div></div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Neuroinformática</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="neuroinform_tica"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="neuroinform_tica"><div class="flip" id="flip-neuroinform_tica__fc0" data-fcid="neuroinform_tica__fc0" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: RBM. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>RBM</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Restricted Boltzmann Machine</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc0" data-state="know" onclick="markCard(event,'neuroinform_tica__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc0" data-state="review" onclick="markCard(event,'neuroinform_tica__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc1" data-fcid="neuroinform_tica__fc1" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: DBN. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>DBN</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Deep Belief Network</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc1" data-state="know" onclick="markCard(event,'neuroinform_tica__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc1" data-state="review" onclick="markCard(event,'neuroinform_tica__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc2" data-fcid="neuroinform_tica__fc2" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: LSTM. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>LSTM</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Long Short-Term Memory</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc2" data-state="know" onclick="markCard(event,'neuroinform_tica__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc2" data-state="review" onclick="markCard(event,'neuroinform_tica__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc3" data-fcid="neuroinform_tica__fc3" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: GRU. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>GRU</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Gated Recurrent Unit</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc3" data-state="know" onclick="markCard(event,'neuroinform_tica__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc3" data-state="review" onclick="markCard(event,'neuroinform_tica__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc4" data-fcid="neuroinform_tica__fc4" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: RNN. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>RNN</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Recurrent Neural Network</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc4" data-state="know" onclick="markCard(event,'neuroinform_tica__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc4" data-state="review" onclick="markCard(event,'neuroinform_tica__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc5" data-fcid="neuroinform_tica__fc5" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Desvanecimiento del gradiente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Desvanecimiento del gradiente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problema en que los gradientes se vuelven muy pequeños durante la retropropagación</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc5" data-state="know" onclick="markCard(event,'neuroinform_tica__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc5" data-state="review" onclick="markCard(event,'neuroinform_tica__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc6" data-fcid="neuroinform_tica__fc6" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Puertas. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Puertas</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Puertas de actualización, olvido y entrada en las LSTM</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc6" data-state="know" onclick="markCard(event,'neuroinform_tica__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc6" data-state="review" onclick="markCard(event,'neuroinform_tica__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc7" data-fcid="neuroinform_tica__fc7" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Célula de memoria. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Célula de memoria</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Célula de memoria en las LSTM que permite recordar información durante períodos más largos</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc7" data-state="know" onclick="markCard(event,'neuroinform_tica__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc7" data-state="review" onclick="markCard(event,'neuroinform_tica__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc8" data-fcid="neuroinform_tica__fc8" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: GRU. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>GRU</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Gated Recurrent Unit, una versión simplificada de las LSTM</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc8" data-state="know" onclick="markCard(event,'neuroinform_tica__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc8" data-state="review" onclick="markCard(event,'neuroinform_tica__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc9" data-fcid="neuroinform_tica__fc9" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: LSTM vs GRU. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>LSTM vs GRU</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Las LSTM son más complejas y efectivas en secuencias largas, mientras que las GRU son más simples y eficientes</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc9" data-state="know" onclick="markCard(event,'neuroinform_tica__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc9" data-state="review" onclick="markCard(event,'neuroinform_tica__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc10" data-fcid="neuroinform_tica__fc10" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Dependencias temporales a largo plazo. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Dependencias temporales a largo plazo</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problemas que requieren recordar información relevante a lo largo de secuencias largas</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc10" data-state="know" onclick="markCard(event,'neuroinform_tica__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc10" data-state="review" onclick="markCard(event,'neuroinform_tica__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc11" data-fcid="neuroinform_tica__fc11" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Traducción automática. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Traducción automática</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Aplicación en que las LSTM permiten recordar palabras o frases anteriores para generar traducciones coherentes</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc11" data-state="know" onclick="markCard(event,'neuroinform_tica__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc11" data-state="review" onclick="markCard(event,'neuroinform_tica__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc12" data-fcid="neuroinform_tica__fc12" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Generación de texto. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc12')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc12');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Generación de texto</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Aplicación en que las LSTM mantienen el contexto y coherencia en textos largos</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc12" data-state="know" onclick="markCard(event,'neuroinform_tica__fc12','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc12" data-state="review" onclick="markCard(event,'neuroinform_tica__fc12','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc13" data-fcid="neuroinform_tica__fc13" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Ruido en los datos. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc13')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc13');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Ruido en los datos</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Capacidad de las LSTM para manejar inconsistencias y ruidos en los datos</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc13" data-state="know" onclick="markCard(event,'neuroinform_tica__fc13','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc13" data-state="review" onclick="markCard(event,'neuroinform_tica__fc13','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-neuroinform_tica__fc14" data-fcid="neuroinform_tica__fc14" data-topic="neuroinform_tica"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Complejidad temporal. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('neuroinform_tica__fc14')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('neuroinform_tica__fc14');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Complejidad temporal</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Problemas que requieren modelar relaciones complejas entre acciones previas y el estado actual</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc14" data-state="know" onclick="markCard(event,'neuroinform_tica__fc14','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="neuroinform_tica__fc14" data-state="review" onclick="markCard(event,'neuroinform_tica__fc14','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="introducci_n_a_lstm">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">4</span>Introducción a LSTM</h2>
+      <p>Celdas de Memoria</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block"><div class="subtopic-item" id="introducci_n_a_lstm__celdas_de_memoria"><h3>1. Celdas de Memoria</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las Long Short-Term Memory (LSTM) son una variante de las Redes Neuronales Recurrentes (RNN) diseñadas para solucionar el problema del desvanecimiento del gradiente, que limita la capacidad de las RNN convencionales para aprender dependencias a largo plazo. Las LSTM incorporan celdas de memoria que permiten retener información a lo largo de secuencias largas, lo que las hace aptas para tareas que requieren procesamiento de datos secuenciales, como el procesamiento de lenguaje natural, la traducción automática y la predicción de series temporales. Las LSTM funcionan mediante la combinación de tres puertas: la puerta de olvido, la puerta de entrada y la puerta de salida. La puerta de olvido decide cuánta información de la memoria previa debe descartarse, la puerta de entrada decide qué nueva información debe almacenarse en la célula de memoria y la puerta de salida decide qué parte de la información contenida en la célula de memoria debe usarse para generar la salida en el paso de tiempo actual. Este proceso es clave en tareas como la traducción automática, donde se retiene y utiliza el contexto de palabras anteriores para garantizar una traducción precisa. Además, en predicciones como las del clima, las LSTM pueden recordar patrones pasados a largo plazo, mejorando la precisión de las predicciones. Su capacidad para manejar memoria y contexto a largo plazo las convierte en una herramienta crucial en aplicaciones de procesamiento de lenguaje natural y predicción de series temporales.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Célula de Memoria</strong></td><td>Un componente central de la LSTM que actúa como un &#x27;contenedor&#x27; de datos, permitiendo actualizarse, olvidarse o usarse según sea necesario.</td></tr><tr><td><strong>Puerta de Olvido</strong></td><td>Un componente que decide cuánta información de la memoria previa debe descartarse, controlado por una función sigmoide.</td></tr><tr><td><strong>Puerta de Entrada</strong></td><td>Un componente que decide qué nueva información debe almacenarse en la célula de memoria, controlado por una función sigmoide.</td></tr><tr><td><strong>Puerta de Salida</strong></td><td>Un componente que decide qué parte de la información contenida en la célula de memoria debe usarse para generar la salida en el paso de tiempo actual, controlado por una función sigmoide.</td></tr><tr><td><strong>Estado Oculto</strong></td><td>El estado final de la célula de memoria, que es la salida que la red proporciona en el paso de tiempo actual.</td></tr><tr><td><strong>Gradiente Desvanecimiento</strong></td><td>El problema que limita la capacidad de las RNN convencionales para aprender dependencias a largo plazo.</td></tr><tr><td><strong>Redes Neuronales Recurrentes</strong></td><td>Un tipo de red neuronal que puede aprender secuencias de datos y manejar dependencias a largo plazo.</td></tr><tr><td><strong>Procesamiento de Lenguaje Natural</strong></td><td>El proceso de analizar y comprender el lenguaje humano, que requiere la capacidad de manejar secuencias de datos y dependencias a largo plazo.</td></tr>
+      </table>
+    </div>
+</div></div></div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Introducción a LSTM</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="introducci_n_a_lstm"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="introducci_n_a_lstm"><div class="flip" id="flip-introducci_n_a_lstm__fc0" data-fcid="introducci_n_a_lstm__fc0" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Célula de Memoria. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Célula de Memoria</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un componente central de las LSTM que actúa como un &#x27;contenedor&#x27; de datos, permitiendo actualizarse, olvidarse o usarse según sea necesario.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc0" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc0" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc1" data-fcid="introducci_n_a_lstm__fc1" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Puerta de Olvido. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Puerta de Olvido</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una puerta que decide cuánta información de la memoria previa debe descartarse, evitando que la red acumule información irrelevante.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc1" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc1" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc2" data-fcid="introducci_n_a_lstm__fc2" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Puerta de Entrada. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Puerta de Entrada</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una puerta que determina qué nueva información debe almacenarse en la célula de memoria, generando una posible actualización de la memoria.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc2" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc2" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc3" data-fcid="introducci_n_a_lstm__fc3" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Puerta de Salida. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Puerta de Salida</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una puerta que determina qué parte de la información contenida en la célula de memoria debe usarse para generar la salida en el paso de tiempo actual.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc3" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc3" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc4" data-fcid="introducci_n_a_lstm__fc4" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: LSTM. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>LSTM</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una variante de las Redes Neuronales Recurrentes diseñadas para solucionar el problema del desvanecimiento del gradiente, permitiendo manejar secuencias de datos extensas.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc4" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc4" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc5" data-fcid="introducci_n_a_lstm__fc5" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Gradiente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Gradiente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un concepto en aprendizaje automático que se refiere a la magnitud de la derivada de una función con respecto a una entrada, limitando la capacidad de las RNN convencionales para aprender dependencias a largo plazo.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc5" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc5" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc6" data-fcid="introducci_n_a_lstm__fc6" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Desvanecimiento del Gradiente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Desvanecimiento del Gradiente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Un problema en las RNN convencionales que limita su capacidad para aprender dependencias a largo plazo, ya que el gradiente se vuelve cada vez más pequeño y se pierde la información relevante.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc6" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc6" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc7" data-fcid="introducci_n_a_lstm__fc7" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Memoria a Largo Plazo. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Memoria a Largo Plazo</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>La capacidad de una red para recordar y utilizar información relevante a largo plazo, lo que es crucial en tareas como la traducción automática y la predicción de series temporales.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc7" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc7" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc8" data-fcid="introducci_n_a_lstm__fc8" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Traducción Automática. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Traducción Automática</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una tarea de procesamiento del lenguaje natural que implica generar texto en un idioma dado, utilizando la información relevante de las palabras anteriores.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc8" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc8" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-introducci_n_a_lstm__fc9" data-fcid="introducci_n_a_lstm__fc9" data-topic="introducci_n_a_lstm"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Predicción de Series Temporales. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('introducci_n_a_lstm__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('introducci_n_a_lstm__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Predicción de Series Temporales</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Una tarea de predicción que implica predecir un valor futuro en una secuencia de datos, utilizando la información relevante de los valores anteriores.</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc9" data-state="know" onclick="markCard(event,'introducci_n_a_lstm__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="introducci_n_a_lstm__fc9" data-state="review" onclick="markCard(event,'introducci_n_a_lstm__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="contenido_general">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">5</span>Contenido general</h2>
+      <p>None</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block"><div class="subtopic-item" id="contenido_general__none"><h3>1. None</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las Limitaciones de las LSTM son un tema crucial en el campo del aprendizaje automático, ya que afectan la eficiencia y la precisión del modelo. Una de las limitaciones más significativas es la complejidad y el costo computacional, debido a la estructura adicional de las LSTM que incluye puertas de entrada, salida y olvido, y celdas de memoria. Esto aumenta los parámetros a entrenar y, por ende, el tiempo y los recursos necesarios. Además, las LSTM pueden tener dificultades con secuencias extremadamente largas, ya que pueden perder relevancia con el tiempo y ser difíciles de captar datos críticos de los primeros pasos. Otra limitación es el riesgo de sobreajuste, que ocurre cuando el modelo memoriza detalles específicos de las secuencias de entrenamiento que no se generalizan bien a datos nuevos. Para mitigar estas limitaciones, se recomiendan varias buenas prácticas, como la normalización de datos, la regularización, el uso de capas bidireccionales, modelos apilados y ajuste de hiperparámetros.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Limitaciones de las LSTM</strong></td><td>Problemas que afectan la eficiencia y precisión del modelo</td></tr><tr><td><strong>Complejidad computacional</strong></td><td>Aumento en el número de parámetros a entrenar y recursos necesarios</td></tr><tr><td><strong>Sobreajuste</strong></td><td>Riesgo de memorizar detalles específicos de las secuencias de entrenamiento que no se generalizan bien a datos nuevos</td></tr><tr><td><strong>Normalización de datos</strong></td><td>Proceso de ajustar los datos de entrada para mantener equilibrados los gradientes</td></tr><tr><td><strong>Regularización</strong></td><td>Técnica para evitar el sobreajuste, como el uso de Dropout y L2 regularization</td></tr><tr><td><strong>Capas bidireccionales</strong></td><td>Uso de capas que consideran tanto el contexto anterior como posterior en una secuencia</td></tr><tr><td><strong>Modelos apilados</strong></td><td>Uso de múltiples capas de LSTM para capturar representaciones más complejas y relaciones jerárquicas</td></tr><tr><td><strong>Ajuste de hiperparámetros</strong></td><td>Proceso de ajustar el número de unidades LSTM, la tasa de aprendizaje y el tamaño del lote para optimizar el modelo</td></tr>
+      </table>
+    </div>
+</div></div></div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Contenido general</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="contenido_general"> Solo para repasar
+    </label>
+    </div>
+    <p class='muted-note'>No se generaron flashcards para este tema.</p>
+  </div>
+
+</section>
+<section id="deep_belief_networks">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">6</span>Deep Belief Networks</h2>
+      <p>Deep Belief Networks</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block"><div class="subtopic-item" id="deep_belief_networks__deep_belief_networks_general"><h3>1. Deep Belief Networks</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Deep Belief Networks son un tipo de red neuronal que utiliza capas de aprendizaje profundo para modelar y aprender patrones complejos en los datos. Estas redes se basan en la idea de que la información se puede representar de manera eficiente mediante una serie de capas de aprendizaje, cada una de las cuales se enfoca en un aspecto específico del problema. Las redes de aprendizaje profundo son capaces de aprender representaciones más complejas y abstractas de los datos, lo que las hace ideales para tareas de clasificación, regresión y generación de contenido. Algunas de las ventajas de las redes de aprendizaje profundo incluyen su capacidad para aprender patrones complejos y su capacidad para mejorar su rendimiento con el tiempo, lo que las hace ideales para tareas de aprendizaje automático. Sin embargo, también tienen algunas limitaciones, como la necesidad de grandes cantidades de datos para entrenar y la posibilidad de sobrepasarse en el espacio de posibilidades. En resumen, las redes de aprendizaje profundo son un tipo de red neuronal que utiliza capas de aprendizaje profundo para modelar y aprender patrones complejos en los datos, y tienen varias ventajas y limitaciones que deben ser consideradas.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Red neuronal</strong></td><td>Una red neuronal es un modelo matemático que simula la forma en que el cerebro humano procesa la información.</td></tr><tr><td><strong>Aprendizaje profundo</strong></td><td>El aprendizaje profundo es un tipo de aprendizaje automático que utiliza redes neuronales para aprender patrones complejos en los datos.</td></tr><tr><td><strong>Capa de aprendizaje</strong></td><td>Una capa de aprendizaje es una capa de una red neuronal que se enfoca en un aspecto específico del problema.</td></tr><tr><td><strong>Red neuronal convolutiva</strong></td><td>Una red neuronal convolutiva es un tipo de red neuronal que utiliza convoluciones para procesar imágenes y otros datos de entrada.</td></tr><tr><td><strong>Red neuronal recurrente</strong></td><td>Una red neuronal recurrente es un tipo de red neuronal que utiliza recuerdos para procesar secuencias de datos.</td></tr><tr><td><strong>Red neuronal generativa</strong></td><td>Una red neuronal generativa es un tipo de red neuronal que utiliza generación de contenido para generar nuevos datos.</td></tr><tr><td><strong>Red neuronal recursiva</strong></td><td>Una red neuronal recursiva es un tipo de red neuronal que utiliza recuerdos para procesar secuencias de datos y generar contenido.</td></tr><tr><td><strong>Red neuronal unsupervisada</strong></td><td>Una red neuronal unsupervisada es un tipo de red neuronal que no requiere etiquetas para aprender y generar contenido.</td></tr>
+      </table>
+    </div>
+</div></div></div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Deep Belief Networks</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="deep_belief_networks"> Solo para repasar
+    </label>
+    </div>
+    <div class="flashcards" data-topic="deep_belief_networks"><div class="flip" id="flip-deep_belief_networks__fc0" data-fcid="deep_belief_networks__fc0" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Rede Neuronal. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc0')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc0');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Rede Neuronal</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Red de neuronas con múltiples parámetros y capas que aprende y se adapta para realizar tareas complejas</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc0" data-state="know" onclick="markCard(event,'deep_belief_networks__fc0','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc0" data-state="review" onclick="markCard(event,'deep_belief_networks__fc0','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc1" data-fcid="deep_belief_networks__fc1" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Capa Oculta. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc1')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc1');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Capa Oculta</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Capa de la red neuronal que contiene las neuronas que realizan las operaciones matemáticas y toman decisiones</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc1" data-state="know" onclick="markCard(event,'deep_belief_networks__fc1','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc1" data-state="review" onclick="markCard(event,'deep_belief_networks__fc1','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc2" data-fcid="deep_belief_networks__fc2" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Activación de Neuronas. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc2')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc2');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Activación de Neuronas</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Función que se aplica a la salida de una neurona para determinar su valor y contribución a la salida de la capa</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc2" data-state="know" onclick="markCard(event,'deep_belief_networks__fc2','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc2" data-state="review" onclick="markCard(event,'deep_belief_networks__fc2','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc3" data-fcid="deep_belief_networks__fc3" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Backpropagación. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc3')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc3');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Backpropagación</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Algoritmo que se utiliza para ajustar los pesos de las conexiones entre las neuronas y mejorar la precisión de las predicciones</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc3" data-state="know" onclick="markCard(event,'deep_belief_networks__fc3','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc3" data-state="review" onclick="markCard(event,'deep_belief_networks__fc3','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc4" data-fcid="deep_belief_networks__fc4" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Capa de Entrada. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc4')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc4');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Capa de Entrada</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Capa de la red neuronal que recibe los datos de entrada y los procesa para pasarlos a las capas posteriores</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc4" data-state="know" onclick="markCard(event,'deep_belief_networks__fc4','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc4" data-state="review" onclick="markCard(event,'deep_belief_networks__fc4','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc5" data-fcid="deep_belief_networks__fc5" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Capa de Salida. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc5')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc5');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Capa de Salida</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Capa de la red neuronal que produce la salida final de la red</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc5" data-state="know" onclick="markCard(event,'deep_belief_networks__fc5','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc5" data-state="review" onclick="markCard(event,'deep_belief_networks__fc5','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc6" data-fcid="deep_belief_networks__fc6" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Red Neuronal Convolutiva. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc6')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc6');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Red Neuronal Convolutiva</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Arquitectura de red neuronal que utiliza convoluciones para procesar datos de imágenes y videos</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc6" data-state="know" onclick="markCard(event,'deep_belief_networks__fc6','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc6" data-state="review" onclick="markCard(event,'deep_belief_networks__fc6','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc7" data-fcid="deep_belief_networks__fc7" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Red Neuronal Recurrente. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc7')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc7');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Red Neuronal Recurrente</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Arquitectura de red neuronal que utiliza ciclos para procesar datos secuenciales y memorizar información a largo plazo</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc7" data-state="know" onclick="markCard(event,'deep_belief_networks__fc7','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc7" data-state="review" onclick="markCard(event,'deep_belief_networks__fc7','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc8" data-fcid="deep_belief_networks__fc8" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Tensor. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc8')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc8');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Tensor</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Array multidimensional que se utiliza para representar los datos y realizar operaciones matemáticas en las redes neuronales</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc8" data-state="know" onclick="markCard(event,'deep_belief_networks__fc8','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc8" data-state="review" onclick="markCard(event,'deep_belief_networks__fc8','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc9" data-fcid="deep_belief_networks__fc9" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Hiperplano. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc9')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc9');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Hiperplano</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Subespacio con una dimensión menor que el espacio original, utilizado para representar las relaciones entre las variables en las redes neuronales</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc9" data-state="know" onclick="markCard(event,'deep_belief_networks__fc9','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc9" data-state="review" onclick="markCard(event,'deep_belief_networks__fc9','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc10" data-fcid="deep_belief_networks__fc10" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Error de Pérdida. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc10')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc10');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Error de Pérdida</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Medida que se utiliza para evaluar la precisión de las predicciones y ajustar los pesos de las conexiones para mejorar la precisión</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc10" data-state="know" onclick="markCard(event,'deep_belief_networks__fc10','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc10" data-state="review" onclick="markCard(event,'deep_belief_networks__fc10','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc11" data-fcid="deep_belief_networks__fc11" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Tasa de Aprendizaje. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc11')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc11');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Tasa de Aprendizaje</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Parámetro que determina la rapidez con la que se ajustan los pesos de las conexiones durante el entrenamiento de la red neuronal</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc11" data-state="know" onclick="markCard(event,'deep_belief_networks__fc11','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc11" data-state="review" onclick="markCard(event,'deep_belief_networks__fc11','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc12" data-fcid="deep_belief_networks__fc12" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Rede LSTM. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc12')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc12');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Rede LSTM</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Arquitectura de red neuronal que utiliza Long Short-Term Memory para memorizar información a largo plazo y procesar datos secuenciales</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc12" data-state="know" onclick="markCard(event,'deep_belief_networks__fc12','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc12" data-state="review" onclick="markCard(event,'deep_belief_networks__fc12','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div><div class="flip" id="flip-deep_belief_networks__fc13" data-fcid="deep_belief_networks__fc13" data-topic="deep_belief_networks"
+          role="button" tabindex="0" aria-pressed="false"
+          aria-label="Flashcard: Rede Generativa. Pulsa Enter para ver la respuesta."
+          onclick="flipCard('deep_belief_networks__fc13')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard('deep_belief_networks__fc13');}">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <strong>Rede Generativa</strong>
+              <p>Haz clic o Enter para ver</p>
+            </div>
+            <div class="flip-back">
+              <p>Arquitectura de red neuronal que utiliza técnicas para generar nuevos datos y realizar tareas de creación</p>
+              <div class="flip-actions" onclick="event.stopPropagation()">
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc13" data-state="know" onclick="markCard(event,'deep_belief_networks__fc13','know')">✓ Lo sé</button>
+                <button type="button" class="know-btn" data-fcid="deep_belief_networks__fc13" data-state="review" onclick="markCard(event,'deep_belief_networks__fc13','review')">↻ Repasar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+  </div>
+
+</section>
+<section id="convolutivas">
+  <div class="section-title">
+    <div>
+      <h2><span class="topic-num-lg">7</span>Convolutivas</h2>
+      <p>Convolutivas</p>
+    </div>
+  </div>
+
+  <div class="subtopic-block"><div class="subtopic-item" id="convolutivas__convolutivas_general"><h3>1. Convolutivas</h3><div class="subtopic-content">
+  <div class="panel explanation-panel">
+    <div class="explanation-text"><p>Las redes neuronales recurrentes (RNN) son un tipo de red neuronal especializada en procesar datos secuenciales. Estas redes son fundamentales para tareas donde el orden de los datos importa, como el procesamiento de lenguaje natural, la predicción de series temporales y la transcripción de audio a texto. A diferencia de las redes neuronales tradicionales, las RNNs pueden &#x27;recordar&#x27; información previa, lo que permite que cada salida dependa no solo de la entrada actual, sino también de pasos anteriores. Esto las hace útiles para tareas que requieren contexto, como la traducción automática y el análisis de sentimiento. Sin embargo, las RNNs estándar presentan limitaciones debido al problema de desvanecimiento del gradiente, que dificulta el aprendizaje de dependencias a largo plazo. Para resolver estas dificultades, se desarrollaron arquitecturas como LSTM (Long Short-Term Memory) y GRU (Gated Recurrent Units), que gestionan mejor la información a lo largo del tiempo. Estas arquitecturas permiten que las RNNs aprendan a manejar la información de manera más eficiente, lo que las hace más efectivas en tareas que requieren secuencias largas.</p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+      <h4>🔑 Conceptos clave</h4>
+      <table>
+        <tr><th scope="col">Concepto</th><th scope="col">Definición</th></tr>
+        <tr><td><strong>Red neuronal recurrente (RNN)</strong></td><td>Una red neuronal especializada en procesar datos secuenciales</td></tr><tr><td><strong>Desvanecimiento del gradiente</strong></td><td>Un problema que dificulta el aprendizaje de dependencias a largo plazo en las RNNs estándar</td></tr><tr><td><strong>LSTM (Long Short-Term Memory)</strong></td><td>Una arquitectura de RNN que permite manejar la información de manera más eficiente</td></tr><tr><td><strong>GRU (Gated Recurrent Units)</strong></td><td>Una arquitectura de RNN que gestiona mejor la información a lo largo del tiempo</td></tr><tr><td><strong>Procesamiento de lenguaje natural</strong></td><td>La tarea de procesar y comprender el lenguaje humano</td></tr><tr><td><strong>Predicción de series temporales</strong></td><td>La tarea de predecir valores futuros en una serie temporal</td></tr><tr><td><strong>Transcripción de audio a texto</strong></td><td>La tarea de convertir audio en texto</td></tr><tr><td><strong>Aprendizaje profundo</strong></td><td>Un tipo de aprendizaje que utiliza redes neuronales para mejorar la precisión de la predicción</td></tr><tr><td><strong>Red neuronal tradicional</strong></td><td>Una red neuronal que no es especializada en procesar datos secuenciales</td></tr>
+      </table>
+    </div>
+</div></div></div>
+
+  <div class="subsection">
+    <div class="section-title"><div>
+      <h3>🃏 Flashcards — Convolutivas</h3>
+      <p>Haz clic o pulsa Enter en cada tarjeta para ver la definición. Marca las que ya sabes.</p>
+    </div>
+    <label class="toggle-label">
+      <input type="checkbox" class="review-filter" data-topic="convolutivas"> Solo para repasar
+    </label>
+    </div>
+    <p class='muted-note'>No se generaron flashcards para este tema.</p>
+  </div>
+
+</section>
+  <section id="exam">
+  <div class="section-title">
+    <div><h2>🎓 Simulacro global</h2>
+    <p>Preguntas mezcladas de todos los temas. Configura y empieza cuando estés listo.</p></div>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="exam-toolbar">
+      <div class="exam-control">
+        <label for="examCount">Preguntas</label>
+        <input type="number" id="examCount" value="20" min="5" max="200" style="width:80px">
+      </div>
+      <label class="toggle-label"><input type="checkbox" id="examShuffle" checked> Mezclar</label>
+      <label class="toggle-label"><input type="checkbox" id="examShowTopic"> Mostrar tema</label>
+      <button class="primary" type="button" onclick="startExam()">▶ Iniciar</button>
+      <button type="button" onclick="gradeExam()">✅ Corregir</button>
+      <button type="button" onclick="resetExam()">🔄 Reiniciar</button>
+      <div class="score" id="examScore" role="status">Sin iniciar</div>
+    </div>
+  </div>
+  <div id="examGrid" class="quiz-grid"></div>
+  <div id="examBreakdown" class="result" style="display:none;margin-top:14px"></div>
+  <div id="examHistory" class="panel" style="margin-top:14px;display:none">
+    <h4>📈 Historial de simulacros</h4>
+    <table id="examHistoryTable"><tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr></table>
+  </div>
+</section>
+</main>
+
+<script>
+const QUESTIONS = [{"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué es lo que hace que las LSTM sean complejas y computacionalmente costosas?", "options": ["La cantidad de capas apiladas", "Las puertas de entrada, salida y olvido", "La cantidad de parámetros a entrenar", "La complejidad de las conexiones recurrentes"], "answer": 1, "why": "Las puertas de entrada, salida y olvido, y las celdas de memoria aumentan los parámetros a entrenar y los recursos necesarios, lo que hace que las LSTM sean complejas y computacionalmente costosas."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Por qué las LSTM pueden tener dificultades con secuencias extremadamente largas?", "options": ["La incapacidad de retener información a largo plazo", "La complejidad de las conexiones recurrentes", "La cantidad de capas apiladas", "La falta de regularización"], "answer": 0, "why": "La información distante pierde relevancia con el tiempo, lo que hace que las LSTM tengan dificultades para retener información a largo plazo y captar datos críticos de los primeros pasos."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué es el riesgo de sobreajuste en las LSTM?", "options": ["La falta de regularización", "La incapacidad de retener información a largo plazo", "La complejidad de las conexiones recurrentes", "El alto número de parámetros a entrenar"], "answer": 2, "why": "Las LSTM pueden memorizar detalles específicos de las secuencias de entrenamiento que no se generalizan bien a datos nuevos, lo que las hace propensas a sobreajustarse."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué práctica ayuda a mejorar la eficiencia de las LSTM?", "options": ["Usar múltiples capas apiladas", "Ajustar el número de unidades LSTM", "Regularizar el modelo", "Usar una tasa de aprendizaje alta"], "answer": 2, "why": "La regularización ayuda a evitar que el modelo se ajuste excesivamente a los datos de entrenamiento y a mantener equilibrados los gradientes."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué es lo que las LSTM incluyen para retener datos relevantes durante periodos prolongados?", "options": ["Un conjunto de 'puertas' que controlan el flujo de información", "Una célula de memoria", "Un conjunto de capas apiladas", "Un conjunto de conexiones recurrentes"], "answer": 1, "why": "Las LSTM incluyen una célula de memoria y un conjunto de puertas que controlan el flujo de información, lo que les permite retener datos relevantes durante periodos prolongados."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué es lo que las LSTM son ideales para?", "options": ["El procesamiento de imágenes", "La clasificación de textos", "El procesamiento del lenguaje natural y la predicción de series temporales", "La detección de patrones"], "answer": 2, "why": "Las LSTM son ideales para tareas secuenciales como el procesamiento del lenguaje natural y la predicción de series temporales, donde la capacidad para recordar información a largo plazo es fundamental."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué es lo que se debe hacer para optimizar el modelo de LSTM?", "options": ["Usar una tasa de aprendizaje alta", "Ajustar el número de unidades LSTM", "Usar una cantidad excesiva de capas apiladas", "No regularizar el modelo"], "answer": 1, "why": "La experimentación y la validación cruzada ayudan a encontrar la configuración ideal del modelo de LSTM para el problema específico."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué es lo que se recomienda para manejar el alto número de parámetros de las LSTM?", "options": ["Usar un modelo más simple", "Ajustar el número de unidades LSTM", "Usar una tasa de aprendizaje alta", "Regularizar el modelo"], "answer": 2, "why": "La regularización, como el Dropout en las conexiones recurrentes y las capas de salida, ayuda a evitar que el modelo se ajuste excesivamente a los datos de entrenamiento."}, {"topicId": "contenido_general", "topicName": "Contenido general", "q": "¿Qué es lo que se debe hacer para equilibrar las capas apiladas con regularización?", "options": ["Usar una cantidad excesiva de capas apiladas", "Ajustar el número de unidades LSTM", "Usar una tasa de aprendizaje alta", "No regularizar el modelo"], "answer": 2, "why": "Es importante equilibrar las capas apiladas con regularización para evitar que el modelo se ajuste excesivamente a los datos de entrenamiento."}];
+const TOPIC_IDS = ["m_quina_de_inteligencia", "inform_tica", "neuroinform_tica", "introducci_n_a_lstm", "contenido_general", "deep_belief_networks", "convolutivas"];
+const NS = 'sf_artificial-intelligence-and-deep-learnin_2026-08-29';
+
+// -- localStorage helpers ---------------------------------------------------
+function lsGet(key, fallback) {
+  try {
+    const v = localStorage.getItem(NS + '_' + key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch (e) { return fallback; }
+}
+function lsSet(key, value) {
+  try { localStorage.setItem(NS + '_' + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+}
+
+// -- Dark mode ----------------------------------------------------------------
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('darkModeBtn').setAttribute('aria-pressed', dark ? 'true' : 'false');
+  document.getElementById('darkModeBtn').textContent = dark ? '☀️ Claro' : '🌙 Oscuro';
+}
+function initTheme() {
+  const stored = lsGet('theme', null);
+  const dark = stored !== null ? stored : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(dark);
+}
+document.getElementById('darkModeBtn').addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+  lsSet('theme', !isDark);
+});
+initTheme();
+
+// -- Flashcards: flip, know/review marking, filter, persistence --------------
+function flipCard(fcid) {
+  const el = document.getElementById('flip-' + fcid);
+  const flipped = el.classList.toggle('flipped');
+  el.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+}
+
+function markCard(evt, fcid, state) {
+  evt.stopPropagation();
+  const el = document.getElementById('flip-' + fcid);
+  const current = lsGet('flash_' + fcid, null);
+  const next = current === state ? null : state; // click again to unmark
+  lsSet('flash_' + fcid, next);
+  applyCardState(el, next);
+}
+
+function applyCardState(el, state) {
+  el.classList.remove('card-known', 'card-review');
+  el.querySelectorAll('.know-btn').forEach(b => b.classList.remove('active'));
+  if (state === 'know') {
+    el.classList.add('card-known');
+    el.querySelector('.know-btn[data-state="know"]').classList.add('active');
+  } else if (state === 'review') {
+    el.classList.add('card-review');
+    el.querySelector('.know-btn[data-state="review"]').classList.add('active');
+  }
+}
+
+function restoreFlashcardState() {
+  document.querySelectorAll('.flip').forEach(el => {
+    const state = lsGet('flash_' + el.dataset.fcid, null);
+    applyCardState(el, state);
+  });
+}
+
+document.querySelectorAll('.review-filter').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const topic = cb.dataset.topic;
+    const onlyReview = cb.checked;
+    document.querySelectorAll(`.flashcards[data-topic="${topic}"] .flip`).forEach(el => {
+      const isReview = el.classList.contains('card-review');
+      const notMarkedKnow = !el.classList.contains('card-known');
+      el.classList.toggle('filtered-out', onlyReview && !(isReview || notMarkedKnow && !isReview && false) && !isReview);
+    });
+  });
+});
+
+// -- Topic progress (overview checkmarks + header counter) --------------------
+// A topic counts as "dominado" once you've scored 70%+ on it within a graded
+// global exam (there's no more per-topic quiz to track individually).
+const MASTERY_THRESHOLD = 70;
+
+function topicIsDone(topicId) {
+  return !!lsGet('examtopic_' + topicId, false);
+}
+
+function updateTopicProgress(topicId) {
+  const done = topicIsDone(topicId);
+  const marker = document.querySelector(`#overview-${topicId} .topic-check`);
+  if (marker) marker.classList.toggle('done', done);
+  const doneCount = TOPIC_IDS.filter(topicIsDone).length;
+  const counter = document.getElementById('progressCount');
+  if (counter) counter.textContent = doneCount + '/' + TOPIC_IDS.length;
+}
+
+function initProgress() {
+  TOPIC_IDS.forEach(updateTopicProgress);
+}
+
+// -- Global exam ----------------------------------------------------------------
+let examQ = [], examState = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startExam() {
+  const count = Math.min(Number(document.getElementById('examCount').value) || 20, QUESTIONS.length);
+  const doShuffle = document.getElementById('examShuffle').checked;
+  const showTopic = document.getElementById('examShowTopic').checked;
+  const pool = doShuffle ? shuffle(QUESTIONS) : [...QUESTIONS];
+  examQ = pool.slice(0, count).map(q => {
+    const opts = shuffle(q.options.map((op, i) => ({text: op, idx: i})));
+    return { ...q, options: opts.map(o => o.text), answer: opts.findIndex(o => o.idx === q.answer) };
+  });
+  examState = new Array(examQ.length).fill(null);
+  document.getElementById('examGrid').innerHTML = examQ.map((q, idx) => `
+    <div class="quiz-card" id="exam-card-${idx}">
+      <h3>${idx + 1}. ${escapeHtml(q.q)}</h3>
+      ${showTopic ? `<div style="margin-bottom:8px"><span class="pill" style="background:var(--purple-bg);color:var(--purple)">${escapeHtml(q.topicName)}</span></div>` : ''}
+      <div class="opciones">
+        ${q.options.map((op, i) => `
+          <button type="button" class="quiz-option" onclick="answerExam(${idx},${i},this)">${String.fromCharCode(97+i)}. ${escapeHtml(op)}</button>
+        `).join('')}
+      </div>
+      <div class="quiz-note" id="exam-note-${idx}" role="status"></div>
+    </div>
+  `).join('');
+  updateScore();
+  document.getElementById('examBreakdown').style.display = 'none';
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function answerExam(idx, sel) {
+  if (examState[idx] !== null) return;
+  examState[idx] = sel;
+  updateScore();
+}
+
+function gradeExam() {
+  if (!examQ.length) startExam();
+  const byTopic = {};
+  examQ.forEach((q, idx) => {
+    const card = document.getElementById('exam-card-' + idx);
+    const note = document.getElementById('exam-note-' + idx);
+    const sel = examState[idx];
+    card.querySelectorAll('.quiz-option').forEach((op, i) => {
+      op.disabled = true;
+      if (i === q.answer) op.classList.add('correct');
+    });
+    if (sel !== null && sel !== q.answer) card.querySelectorAll('.quiz-option')[sel].classList.add('wrong');
+    const ok = sel === q.answer;
+    note.textContent = sel === null
+      ? '⚠️ Sin responder. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ' + q.why
+      : (ok ? '✅ Correcto. ' : '❌ Incorrecto. Correcta: ' + String.fromCharCode(97 + q.answer) + '. ') + q.why;
+    note.className = 'quiz-note show ' + (ok ? 'ok' : 'bad');
+    if (!byTopic[q.topicId]) byTopic[q.topicId] = {name: q.topicName, total:0, correct:0};
+    byTopic[q.topicId].total++;
+    if (ok) byTopic[q.topicId].correct++;
+  });
+  const total = examQ.length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx].answer ? 1 : 0), 0);
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('examScore').textContent = `Resultado: ${correct}/${total} · ${pct}%`;
+  const rows = Object.values(byTopic).map(v => {
+    const p = Math.round((v.correct/v.total)*100);
+    return `<tr><td>${escapeHtml(v.name)}</td><td>${v.correct}/${v.total}</td><td>${p}%</td></tr>`;
+  }).join('');
+  const box = document.getElementById('examBreakdown');
+  box.style.display = 'block';
+  box.className = 'result ' + (pct >= 85 ? 'good' : pct >= 65 ? 'warn' : 'bad');
+  box.innerHTML = `<strong>Desglose por tema:</strong><table><tr><th scope="col">Tema</th><th scope="col">Aciertos</th><th scope="col">%</th></tr>${rows}</table>`;
+
+  // Mark each topic touched by this exam as mastered (or not) based on this attempt.
+  Object.entries(byTopic).forEach(([topicId, v]) => {
+    const topicPct = Math.round((v.correct / v.total) * 100);
+    lsSet('examtopic_' + topicId, topicPct >= MASTERY_THRESHOLD);
+    updateTopicProgress(topicId);
+  });
+
+  const history = lsGet('exam_history', []);
+  history.push({ date: new Date().toLocaleString('es'), correct, total, pct });
+  lsSet('exam_history', history.slice(-20));
+  renderExamHistory();
+}
+
+function renderExamHistory() {
+  const history = lsGet('exam_history', []);
+  const panel = document.getElementById('examHistory');
+  if (!history.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const rows = history.slice().reverse().map(h =>
+    `<tr><td>${h.date}</td><td>${h.correct}/${h.total}</td><td>${h.pct}%</td></tr>`
+  ).join('');
+  document.getElementById('examHistoryTable').innerHTML =
+    '<tr><th scope="col">Fecha</th><th scope="col">Resultado</th><th scope="col">%</th></tr>' + rows;
+}
+
+function resetExam() {
+  document.getElementById('examGrid').innerHTML = '';
+  document.getElementById('examScore').textContent = 'Sin iniciar';
+  document.getElementById('examBreakdown').style.display = 'none';
+  examQ = []; examState = [];
+}
+
+function updateScore() {
+  if (!examQ.length) return;
+  const answered = examState.filter(x => x !== null).length;
+  const correct = examState.reduce((acc, val, idx) => acc + (val === examQ[idx]?.answer ? 1 : 0), 0);
+  document.getElementById('examScore').textContent =
+    `${correct}/${answered} correctas · ${answered}/${examQ.length} respondidas`;
+}
+
+// -- Init ------------------------------------------------------------------------
+restoreFlashcardState();
+renderExamHistory();
+initProgress();
+</script>
+</body>
+</html>
